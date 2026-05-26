@@ -58,7 +58,7 @@ export default function HowItWorks() {
       role: "Technical Team",
       initials: "CT",
       color: "from-cyan-400 to-teal-500",
-      avatar: "/Thiên1.png",
+      avatar: "/thien.png",
       description: "IT specialist managing infrastructure and ensuring secure, reliable systems behind every ONBI device.",
       highlights: [
         "Cloud infrastructure & DevOps",
@@ -71,7 +71,7 @@ export default function HowItWorks() {
       role: "Technical Team",
       initials: "TP",
       color: "from-blue-400 to-indigo-500",
-      avatar: "/PHÚC.png",
+      avatar: "/phuc.png",
       description: "Full-stack engineer developing the parent companion app and real-time monitoring dashboards.",
       highlights: [
         "Full-stack web & mobile development",

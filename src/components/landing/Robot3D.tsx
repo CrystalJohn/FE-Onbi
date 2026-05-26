@@ -9,6 +9,15 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useLoader } from '@react-three/fiber';
 
+// Suppress THREE.Clock deprecation warning from @react-three/fiber internals
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn.bind(console);
+  console.warn = (...args: unknown[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('THREE.Clock')) return;
+    originalWarn(...args);
+  };
+}
+
 interface Robot3DProps {
   currentMood?: RobotMood;
   onMoodChange?: (mood: RobotMood) => void;
