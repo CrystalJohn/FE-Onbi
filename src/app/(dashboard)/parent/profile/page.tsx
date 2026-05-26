@@ -93,8 +93,11 @@ export default function ParentProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setMessage('');
+    setError('');
+
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('file', file);
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parents/avatar`, {
@@ -103,12 +106,17 @@ export default function ParentProfilePage() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Upload failed');
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.message || 'Upload avatar thất bại');
+        return;
+      }
+
       const updated = await res.json();
       setProfile(updated);
       setMessage('Avatar đã cập nhật!');
     } catch {
-      setError('Upload avatar thất bại');
+      setError('Upload avatar thất bại - không thể kết nối server');
     }
   };
 
@@ -157,7 +165,7 @@ export default function ParentProfilePage() {
       <div className="flex items-center gap-6">
         <div className="relative">
           <img
-            src={profile?.avatarUrl || 'https://ui-avatars.com/api/?name=User&background=random&color=fff&size=128'}
+            src={profile?.avatarUrl ? `${process.env.NEXT_PUBLIC_API_URL}${profile.avatarUrl}` : 'https://ui-avatars.com/api/?name=User&background=random&color=fff&size=128'}
             alt="Avatar"
             className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
           />
@@ -170,7 +178,7 @@ export default function ParentProfilePage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/gif,image/webp"
             onChange={handleAvatarUpload}
             className="hidden"
           />

@@ -17,6 +17,7 @@ const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks'));
 const ProductCard = dynamic(() => import('@/components/landing/ProductCard'));
 const EarlyAccessForm = dynamic(() => import('@/components/landing/EarlyAccessForm'));
 const StickyShowcase = dynamic(() => import('@/components/landing/StickyShowcase'), { ssr: false });
+const MeetTeam = dynamic(() => import('@/components/landing/MeetTeam'));
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -216,6 +217,11 @@ export default function HomePage() {
           <section id="product_specs_section" className="scroll-mt-24 space-y-16">
             <ProductCard />
             <StickyShowcase />
+          </section>
+
+          {/* SECTION: MEET OUR TEAM */}
+          <section id="team_section" className="scroll-mt-24">
+            <MeetTeam />
           </section>
 
           {/* SECTION 8: EARLY ACCESS */}

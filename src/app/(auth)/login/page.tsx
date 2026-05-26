@@ -37,7 +37,10 @@ function LoginForm() {
       localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      if (data.user?.role === 'admin') {
+      // Decode JWT to get role (payload is base64 encoded)
+      const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
+      
+      if (payload.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
         router.push('/parent/children');

@@ -58,7 +58,7 @@ export default function Header({ onJoinClick }: HeaderProps) {
             onClick={() => scrollToSection('how_it_works_section')}
             className="text-sm font-medium text-slate-600 hover:text-[#22d3ee] transition-colors cursor-pointer"
           >
-            How it Works
+            Meet Our Team
           </button>
           <button
             onClick={() => scrollToSection('product_specs_section')}
@@ -86,7 +86,7 @@ export default function Header({ onJoinClick }: HeaderProps) {
             onClick={onJoinClick}
             className="text-sm font-semibold text-white px-5 py-2 rounded-full bg-[#22d3ee] hover:bg-cyan-400 transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center gap-1.5"
           >
-            Enroll Now
+            Order Now
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </div>
