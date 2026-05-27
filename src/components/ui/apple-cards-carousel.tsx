@@ -7,7 +7,8 @@ import React, {
   createContext,
   useContext,
 } from "react";
-import { motion, useMotionValue, useMotionValueEvent } from "motion/react";
+import Image from "next/image";
+import { motion } from "motion/react";
 
 interface CarouselProps {
   items: React.ReactElement[];
@@ -175,12 +176,13 @@ export const Card = ({
   return (
     <>
       {open && (
-        <div className="fixed inset-0 h-screen z-50 overflow-auto">
+        <div className="fixed inset-0 h-screen z-[200] overflow-auto">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="bg-black/80 backdrop-blur-lg h-full w-full fixed inset-0"
+            className="bg-black/60 backdrop-blur-md h-full w-full fixed inset-0"
+            onClick={handleClose}
           />
           <motion.div
             initial={{ opacity: 0 }}
@@ -188,27 +190,27 @@ export const Card = ({
             exit={{ opacity: 0 }}
             ref={containerRef}
             layoutId={layout ? `card-${card.title}` : undefined}
-            className="max-w-5xl mx-auto bg-white dark:bg-neutral-900 z-[60] my-10 p-4 md:p-10 rounded-3xl font-sans relative"
+            className="max-w-2xl mx-auto bg-white dark:bg-neutral-900 z-[210] mt-24 mb-10 p-6 md:p-8 rounded-2xl font-sans relative shadow-2xl"
           >
             <button
-              className="sticky top-4 h-8 w-8 right-0 ml-auto bg-black dark:bg-white rounded-full flex items-center justify-center"
+              className="absolute top-4 right-4 h-8 w-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
               onClick={handleClose}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
             <motion.p
               layoutId={layout ? `category-${card.title}` : undefined}
-              className="text-base font-medium text-black dark:text-white"
+              className="text-xs font-mono font-bold text-[#22d3ee] uppercase tracking-widest"
             >
               {card.category}
             </motion.p>
             <motion.p
               layoutId={layout ? `title-${card.title}` : undefined}
-              className="text-2xl md:text-5xl font-semibold text-neutral-700 dark:text-white mt-4"
+              className="text-xl md:text-2xl font-bold text-neutral-800 dark:text-white mt-2 mb-4"
             >
               {card.title}
             </motion.p>
-            <div className="py-10">{card.content}</div>
+            <div>{card.content}</div>
           </motion.div>
         </div>
       )}
@@ -232,10 +234,12 @@ export const Card = ({
             {card.title}
           </motion.p>
         </div>
-        <img
+        <Image
           src={card.src}
           alt={card.title}
-          className="object-cover absolute z-10 inset-0 w-full h-full"
+          fill
+          sizes="(max-width: 768px) 230px, 384px"
+          className="object-cover absolute z-10 inset-0"
         />
       </motion.button>
     </>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 
 interface HeaderProps {
@@ -37,7 +38,7 @@ export default function Header({ onJoinClick }: HeaderProps) {
           className="flex items-center cursor-pointer"
           id="nav_logo"
         >
-          <img src="/ONBI_loading.png" alt="ONBI" className="w-15 h-15 object-contain" />
+          <Image src="/ONBI_loading.png" alt="ONBI" width={60} height={60} className="object-contain" />
         </div>
 
         {/* CENTER NAV LINKS */}
@@ -55,22 +56,22 @@ export default function Header({ onJoinClick }: HeaderProps) {
             Features
           </button>
           <button
-            onClick={() => scrollToSection('how_it_works_section')}
-            className="text-sm font-medium text-slate-600 hover:text-[#22d3ee] transition-colors cursor-pointer"
-          >
-            Meet Our Team
-          </button>
-          <button
             onClick={() => scrollToSection('product_specs_section')}
             className="text-sm font-medium text-slate-600 hover:text-[#22d3ee] transition-colors cursor-pointer"
           >
             Product
           </button>
           <button
-            onClick={() => scrollToSection('early_access_section')}
+            onClick={() => scrollToSection('pricing_section')}
             className="text-sm font-medium text-slate-600 hover:text-[#22d3ee] transition-colors cursor-pointer"
           >
-            Contact
+            Pricing
+          </button>
+          <button
+            onClick={() => scrollToSection('how_it_works_section')}
+            className="text-sm font-medium text-slate-600 hover:text-[#22d3ee] transition-colors cursor-pointer"
+          >
+            Meet Our Team
           </button>
         </nav>
 
@@ -105,9 +106,9 @@ export default function Header({ onJoinClick }: HeaderProps) {
         <nav className="md:hidden mt-3 border border-gray-200/60 bg-[#f7f6f2] mx-6 p-5 rounded-2xl flex flex-col gap-3 shadow-lg">
           <button onClick={() => scrollToSection('hero_section')} className="text-left py-2 text-sm font-semibold text-slate-900">Home</button>
           <button onClick={() => scrollToSection('mvp_tracker_section')} className="text-left py-2 text-sm font-medium text-slate-600">Features</button>
-          <button onClick={() => scrollToSection('how_it_works_section')} className="text-left py-2 text-sm font-medium text-slate-600">How it Works</button>
           <button onClick={() => scrollToSection('product_specs_section')} className="text-left py-2 text-sm font-medium text-slate-600">Product</button>
-          <button onClick={() => scrollToSection('early_access_section')} className="text-left py-2 text-sm font-medium text-slate-600">Contact</button>
+          <button onClick={() => scrollToSection('pricing_section')} className="text-left py-2 text-sm font-medium text-slate-600">Pricing</button>
+          <button onClick={() => scrollToSection('how_it_works_section')} className="text-left py-2 text-sm font-medium text-slate-600">Meet Our Team</button>
           <div className="h-px bg-gray-200 my-2" />
           <button
             onClick={() => { setIsOpen(false); if (onJoinClick) onJoinClick(); }}

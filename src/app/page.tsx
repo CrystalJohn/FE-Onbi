@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Header from '@/components/landing/Header';
 import IntroLoader from '@/components/landing/IntroLoader';
 import ParentProblems from '@/components/landing/ParentProblems';
@@ -17,7 +18,6 @@ const Features = dynamic(() => import('@/components/landing/Features'));
 const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks'));
 const ProductCard = dynamic(() => import('@/components/landing/ProductCard'));
 const EarlyAccessForm = dynamic(() => import('@/components/landing/EarlyAccessForm'));
-const StickyShowcase = dynamic(() => import('@/components/landing/StickyShowcase'), { ssr: false });
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -103,7 +103,7 @@ export default function HomePage() {
       
       {/* Full landing background (for everything below hero) */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <img src="/background_full_landing.png" alt="" className="w-full h-full object-cover" />
+        <Image src="/background_full_landing.png" alt="" fill sizes="100vw" className="object-cover" priority />
       </div>
 
       {/* Intro Loading Screen */}
@@ -124,16 +124,18 @@ export default function HomePage() {
       <div className="relative min-h-screen">
         {/* Hero background covering navbar + hero section */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-          <img 
+          <Image 
             src="/background_hero_onbi.png" 
             alt="" 
-            className="w-full h-full"
-            style={{ objectFit: 'fill' }}
+            fill
+            sizes="100vw"
+            className="object-fill"
+            priority
           />
         </div>
 
         {/* NAVBAR */}
-        <Header onJoinClick={() => scrollToId('early_access_section')} />
+        <Header onJoinClick={() => scrollToId('pricing_section')} />
 
         {/* HERO CONTENT */}
         <div className="max-w-7xl mx-auto px-6 relative pt-6 md:pt-10 z-10">
@@ -179,21 +181,18 @@ export default function HomePage() {
                 A screen-free study companion for children aged 6–11. Gentle routines, zero screens, complete privacy.
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="pt-1">
                 <button
                   id="hero_primary_cta"
-                  onClick={() => scrollToId('early_access_section')}
-                  className="bg-indigo-950 hover:bg-indigo-900 border border-indigo-950 text-white font-bold px-6 py-3 rounded-full shadow-[0_10px_30px_rgba(31,38,135,0.15)] hover:shadow-md transition-all text-xs uppercase tracking-wider hover:-translate-y-0.5 cursor-pointer"
+                  onClick={() => scrollToId('pricing_section')}
+                  className="flex items-center justify-between gap-4 bg-[#22d3ee] hover:bg-cyan-400 text-white font-semibold pl-7 pr-2 py-2 rounded-full shadow-lg hover:shadow-xl transition-all text-sm hover:-translate-y-0.5 cursor-pointer group"
                 >
-                  Explore ONBI Pass
-                </button>
-                
-                <button
-                  id="hero_secondary_cta"
-                  onClick={() => scrollToId('mvp_tracker_section')}
-                  className="bg-white/70 hover:bg-white/90 border border-gray-200 text-[#18181a] font-bold px-5 py-3 rounded-full shadow-sm hover:shadow-md transition-all text-xs uppercase tracking-wider hover:-translate-y-0.5 cursor-pointer"
-                >
-                  View MVP Features
+                  <span>Order Your ONBI</span>
+                  <span className="w-9 h-9 rounded-full bg-white/30 group-hover:bg-white/40 flex items-center justify-center transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
                 </button>
               </div>
             </motion.div>
@@ -213,83 +212,24 @@ export default function HomePage() {
             <ParentProblems />
           </section>
 
-          {/* SECTION 3: ONBI SOLUTION */}
-          <section id="onbi_solution_section" className="scroll-mt-24">
-            <OnbiSolution />
-          </section>
-
-          {/* SECTION 5: HOW IT WORKS */}
-          <section id="how_it_works_section" className="scroll-mt-24">
-            <HowItWorks />
-          </section>
-
           {/* SECTION 6: FEATURES GRID */}
           <section id="features_grid_section" className="scroll-mt-24">
             <Features />
           </section>
 
-          {/* SECTION 7: PRODUCT SPECS & SHOWCASE */}
-          <section id="product_specs_section" className="scroll-mt-24 space-y-16">
-            <ProductCard />
-            <StickyShowcase />
-          </section>
+          {/* SECTION 3: ONBI SOLUTION — temporarily hidden */}
+          {/* <section id="onbi_solution_section" className="scroll-mt-24">
+            <OnbiSolution />
+          </section> */}
 
-          {/* SECTION 8: EARLY ACCESS */}
-          <section id="early_access_section" className="scroll-mt-24">
+          {/* SECTION 8: PRICING & EARLY ACCESS */}
+          <section id="pricing_section" className="scroll-mt-24">
             <EarlyAccessForm />
           </section>
 
-          {/* TESTIMONIALS & FAQS */}
-          <section className="testimonial-section border-t border-[#ccc9bf]/30 pt-12 space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              
-              <div className="space-y-4">
-                <span className="text-[10px] font-mono tracking-widest text-orange-500 uppercase font-bold">
-                  TESTIMONIAL STORIES
-                </span>
-                <h3 className="font-display text-xl font-bold text-slate-950 tracking-tight">
-                  What Parents are Saying from Beta Rounds
-                </h3>
-                <div className="bg-white/45 bg-white/70 border border-white/60 p-5 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.01)] space-y-4">
-                  <p className="text-xs text-[#78756f] italic leading-relaxed">
-                    &quot;Setting up English study cycles used to be a battle with tablets. ONBI turned deep learning into a concrete physical habit. Ben sits down at 4 PM, ONBI blinks, starts her 25m loop, and his posture is monitored perfectly. Total game changer.&quot;
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-950 text-white flex items-center justify-center font-bold text-xs">
-                      MK
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-[#18181a]">Marilyn K., Parent of Leo (Age 7)</div>
-                      <div className="text-[10px] text-slate-400">California USA</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <span className="text-[10px] font-mono tracking-widest text-[#78756f] uppercase font-bold">
-                  PRIVACY & HARMONY FAQS
-                </span>
-                <h3 className="font-display text-xl font-bold text-slate-950 tracking-tight">
-                  Adhering to Absolute Childhood Security
-                </h3>
-                <div className="space-y-3.5 bg-white/45 bg-white/70 border border-white/60 p-5 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.01)]">
-                  <div className="space-y-1.5">
-                    <h4 className="text-xs font-bold text-[#18181a]">Is child safety compromised with the camera?</h4>
-                    <p className="text-[11px] text-[#78756f] leading-relaxed">
-                      Absolutely not. The posture sensor operates locally. Video is never uploaded, recorded, or saved to cloud servers, securing your child&apos;s complete physical boundaries.
-                    </p>
-                  </div>
-                  <div className="space-y-1.5 border-t border-[#ccc9bf]/30 pt-3">
-                    <h4 className="text-xs font-bold text-[#18181a]">Does ONBI connect to Wi-Fi?</h4>
-                    <p className="text-[11px] text-[#78756f] leading-relaxed">
-                      Yes, it syncs reports securely using fully encrypted local mesh Wi-Fi to the caregiver companion dashboard. You can toggle Wi-Fi off and use simple Bluetooth instead.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
+          {/* SECTION 5: MEET OUR TEAM (HOW IT WORKS) */}
+          <section id="how_it_works_section" className="scroll-mt-24">
+            <HowItWorks />
           </section>
 
           {/* FOOTER */}
@@ -309,7 +249,7 @@ export default function HomePage() {
                 <button onClick={() => scrollToId('hero_section')} className="hover:text-[#18181a] cursor-pointer">Introduction</button>
                 <button onClick={() => scrollToId('mvp_tracker_section')} className="hover:text-[#18181a] cursor-pointer">MVP Timer</button>
                 <button onClick={() => scrollToId('product_specs_section')} className="hover:text-[#18181a] cursor-pointer">Engineering</button>
-                <button onClick={() => scrollToId('early_access_section')} className="hover:text-[#18181a] cursor-pointer">Reserve</button>
+                <button onClick={() => scrollToId('pricing_section')} className="hover:text-[#18181a] cursor-pointer">Pricing</button>
               </div>
             </div>
 
