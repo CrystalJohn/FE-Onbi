@@ -1,6 +1,8 @@
 'use client'
 
 import React from 'react';
+import { motion } from 'motion/react';
+import { fadeUp, staggerContainerSlow, teamCard, viewport } from '@/lib/animations';
 
 interface TeamMember {
   name: string;
@@ -97,22 +99,34 @@ export default function HowItWorks() {
   return (
     <div className="space-y-10" id="meet_our_team_section">
       {/* Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-3">
+      <motion.div
+        className="text-center max-w-2xl mx-auto space-y-3"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewport}
+        variants={fadeUp}
+      >
         <span className="text-[11px] font-mono tracking-widest text-[#78756f] uppercase font-bold bg-white/60 px-3 py-1 rounded-full border border-white/65 shadow-2xs">
           The People Behind ONBI
         </span>
         <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-950 tracking-tight">
-          Meet <span className="line-through text-slate-400 decoration-2">Our</span> <span className="text-[#22d3ee]">Your</span> Educators
+          Meet Our Team
         </h2>
         <p className="text-sm text-[#78756f] leading-relaxed font-medium">
-          Learn from passionate creators and engineers who bring child-safe innovation into your child&apos;s educational journey.
+          The passionate founders and engineers behind ONBI — building the future of screen-free childhood education.
         </p>
-      </div>
+      </motion.div>
 
       {/* Team Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-26 pt-20">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-26 pt-20"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewport}
+        variants={staggerContainerSlow}
+      >
         {team.map((member, idx) => (
-          <div key={idx} className="relative">
+          <motion.div key={idx} variants={teamCard} className="relative">
             {/* Avatar — overflowing top of card */}
             <div className="absolute -top-22 left-0 right-0 h-54 flex items-end justify-center pointer-events-none z-20">
               {member.avatar ? (
@@ -157,9 +171,9 @@ export default function HowItWorks() {
                 {/* Bullet points */}
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* CTA */}
       <div className="flex justify-center pt-4">

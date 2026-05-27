@@ -49,7 +49,7 @@ export default function Header({ onJoinClick }: HeaderProps) {
             Home
           </button>
           <button
-            onClick={() => scrollToSection('mvp_tracker_section')}
+            onClick={() => scrollToSection('features_grid_section')}
             className="text-sm font-medium text-slate-600 hover:text-[#22d3ee] transition-colors cursor-pointer"
           >
             Features

@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Header from '@/components/landing/Header';
 import IntroLoader from '@/components/landing/IntroLoader';
 import ParentProblems from '@/components/landing/ParentProblems';
 import OnbiSolution from '@/components/landing/OnbiSolution';
 import { RobotMood } from '@/types/landing';
-import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import { gsap, useGSAP } from '@/lib/gsap';
 
 // Lazy load heavy components (Three.js + below-fold sections)
 const Robot3D = dynamic(() => import('@/components/landing/Robot3D'), { ssr: false });
@@ -17,12 +18,39 @@ const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks'));
 const ProductCard = dynamic(() => import('@/components/landing/ProductCard'));
 const EarlyAccessForm = dynamic(() => import('@/components/landing/EarlyAccessForm'));
 const StickyShowcase = dynamic(() => import('@/components/landing/StickyShowcase'), { ssr: false });
-const MeetTeam = dynamic(() => import('@/components/landing/MeetTeam'));
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [modelReady, setModelReady] = useState<boolean>(false);
   const [selectedMood, setSelectedMood] = useState<RobotMood>('happy');
+  const mainRef = useRef<HTMLDivElement>(null);
+
+  // GSAP scroll animations for testimonials & footer
+  useGSAP(() => {
+    gsap.from('.testimonial-section', {
+      y: 40,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.testimonial-section',
+        start: 'top 85%',
+        once: true,
+      }
+    });
+
+    gsap.from('.landing-footer', {
+      y: 20,
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.landing-footer',
+        start: 'top 90%',
+        once: true,
+      }
+    });
+  }, { scope: mainRef });
 
   // Preload the 3D model during intro loader
   useEffect(() => {
@@ -57,13 +85,6 @@ export default function HomePage() {
     }
   }, [modelReady, isLoading]);
 
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-
   const scrollToId = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -78,7 +99,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f6f2] text-[#18181a] font-sans antialiased selection:bg-indigo-950 selection:text-white pb-16 relative overflow-hidden">
+    <div ref={mainRef} className="min-h-screen bg-[#f7f6f2] text-[#18181a] font-sans antialiased selection:bg-indigo-950 selection:text-white pb-16 relative overflow-hidden">
       
       {/* Full landing background (for everything below hero) */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -98,12 +119,6 @@ export default function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {/* Scroll Progress Indicator */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-800 via-indigo-950 to-orange-500 origin-left z-50"
-        style={{ scaleX }}
-      />
 
       {/* HERO ZONE: Navbar + Hero with shared background */}
       <div className="relative min-h-screen">
@@ -219,18 +234,13 @@ export default function HomePage() {
             <StickyShowcase />
           </section>
 
-          {/* SECTION: MEET OUR TEAM */}
-          <section id="team_section" className="scroll-mt-24">
-            <MeetTeam />
-          </section>
-
           {/* SECTION 8: EARLY ACCESS */}
           <section id="early_access_section" className="scroll-mt-24">
             <EarlyAccessForm />
           </section>
 
           {/* TESTIMONIALS & FAQS */}
-          <section className="border-t border-[#ccc9bf]/30 pt-12 space-y-12">
+          <section className="testimonial-section border-t border-[#ccc9bf]/30 pt-12 space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               
               <div className="space-y-4">
@@ -283,7 +293,7 @@ export default function HomePage() {
           </section>
 
           {/* FOOTER */}
-          <footer className="border-t border-[#ccc9bf]/30 pt-12 text-center space-y-6">
+          <footer className="landing-footer border-t border-[#ccc9bf]/30 pt-12 text-center space-y-6">
             <div className="flex justify-between items-center flex-wrap gap-4">
               <div className="flex items-center gap-2 text-left">
                 <div className="w-8 h-8 bg-indigo-950 text-white rounded-lg flex items-center justify-center font-mono font-bold text-xs">

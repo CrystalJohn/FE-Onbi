@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Package, HelpCircle, HardDrive, ShieldCheck, Zap, Smile, Volume } from 'lucide-react';
+import { motion } from 'motion/react';
+import { productReveal, viewport } from '@/lib/animations';
 
 interface TechSpec {
   id: string;
@@ -53,7 +55,14 @@ export default function ProductCard() {
   ];
 
   return (
-    <div className="bg-white/45 bg-white/80 border border-white/60 rounded-[32px] p-6 lg:p-10 shadow-md relative overflow-hidden" id="onbi_hardware_product_specifications">
+    <motion.div
+      className="bg-white/80 border border-white/60 rounded-[32px] p-6 lg:p-10 shadow-md relative overflow-hidden"
+      id="onbi_hardware_product_specifications"
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewport}
+      variants={productReveal}
+    >
       {/* Decorative backing grids */}
       <div className="absolute top-0 right-0 w-80 h-80 bg-orange-100/20 rounded-full blur-3xl -z-10" />
 
@@ -152,7 +161,7 @@ export default function ProductCard() {
 
         {/* RIGHT COLUMN: Interactive Specs Listing (7 Columns) */}
         <div className="lg:col-span-7 flex flex-col justify-between h-full space-y-6">
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <span className="text-[11px] font-mono tracking-widest text-[#78756f] uppercase font-bold">
               Premium Hardware Engineering
             </span>
@@ -162,7 +171,7 @@ export default function ProductCard() {
             <p className="text-xs text-[#78756f] leading-relaxed font-medium">
               Every curve of ONBI is planned for safety, tactile feedback, and developmental harmony. Built with input from sensory therapists.
             </p>
-          </div>
+          </div> */}
 
           {/* Interactive Specification Tabs List - upgraded glass */}
           <div className="space-y-2.5 font-sans">
@@ -217,6 +226,6 @@ export default function ProductCard() {
         </div>
 
       </div>
-    </div>
+    </motion.div>
   );
 }

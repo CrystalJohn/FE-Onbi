@@ -1,10 +1,12 @@
 'use client'
 
 import React from 'react';
-import { Smile, CheckSquare, Sparkles, Eye, ShieldCheck } from 'lucide-react';
+import { Smile, CheckSquare, Sparkles, Eye } from 'lucide-react';
 import { motion } from 'motion/react';
+import { fadeUp, staggerContainer, solutionCard, viewport } from '@/lib/animations';
 
 export default function OnbiSolution() {
+
   const solutions = [
     {
       id: 'companion',
@@ -58,10 +60,16 @@ export default function OnbiSolution() {
 
   return (
     <div id="onbi_solution_section" className="space-y-12">
-      {/* Editorial Header */}
-      <div className="max-w-3xl mx-auto text-center space-y-3 px-6 relative z-10">
-        <span className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-widest text-[#78756f] uppercase font-bold bg-white/60 px-3 py-1 rounded-full border border-white/65 shadow-2xs">
-          The ONBI Response
+      {/* Header */}
+      <motion.div
+        className="os-header max-w-3xl mx-auto text-center space-y-3 px-6 relative z-10"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewport}
+        variants={fadeUp}
+      >
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-widest text-indigo-950 uppercase font-bold bg-white/60 px-3 py-1 rounded-full border border-white/50 shadow-2xs">
+          The ONBI Approach
         </span>
         <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-950 tracking-tight">
           How ONBI Safely Shields and Guides Tutors
@@ -69,25 +77,28 @@ export default function OnbiSolution() {
         <p className="text-sm md:text-base text-[#78756f] max-w-xl mx-auto leading-relaxed font-medium">
           Our physical companion robot acts as a cozy deskside filter, letting high-quality active English study happen entirely screen-free.
         </p>
-      </div>
+      </motion.div>
 
-      {/* Solutions Grid - 2x2 Bento style layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Solutions Grid */}
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewport}
+        variants={staggerContainer}
+      >
         {solutions.map((sol, idx) => {
           const IconComponent = sol.icon;
           return (
             <motion.div
               key={sol.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
-              className="bg-white/45 bg-white/80 border border-white/60 rounded-[32px] p-6 md:p-8 hover:border-indigo-950/40 hover:bg-white/60 transition-all flex flex-col justify-between shadow-2xs group relative overflow-hidden"
+              variants={solutionCard}
+              className="bg-white/80 border border-white/60 rounded-[32px] p-6 md:p-8 hover:border-indigo-950/40 transition-all flex flex-col justify-between shadow-2xs group relative overflow-hidden hover:-translate-y-1"
             >
               <div className="absolute top-0 right-0 w-36 h-36 bg-indigo-50/20 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform" />
               
               <div className="space-y-4">
-                <div className="flex justify-between items-center bg-transparent">
+                <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <div className="p-3 bg-[#e8e9f5]/55 border border-white text-indigo-950 rounded-2xl shadow-2xs group-hover:bg-indigo-950 group-hover:text-white transition-all">
                       <IconComponent className="w-5 h-5" />
@@ -110,7 +121,6 @@ export default function OnbiSolution() {
                   {sol.description}
                 </p>
 
-                {/* Specific features checklist */}
                 <div className="pt-4 border-t border-[#ccc9bf]/30 space-y-2">
                   {sol.bullets.map((b, bIdx) => (
                     <div key={bIdx} className="flex items-start gap-2.5">
@@ -128,7 +138,7 @@ export default function OnbiSolution() {
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }

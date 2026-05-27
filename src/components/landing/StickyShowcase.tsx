@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Robot3D from './Robot3D';
 import { RobotMood } from '@/types/landing';
 import { Eye, Languages, ShieldCheck, Sparkle } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
 
 interface ShowcaseSlide {
   id: number;
@@ -124,17 +123,12 @@ export default function StickyShowcase() {
         {/* Content area */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto px-6 items-center">
 
-          {/* LEFT: Card content - animates in/out */}
+          {/* LEFT: Card content - CSS transition */}
           <div className="relative min-h-[360px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentSlide.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="p-6 md:p-8 rounded-3xl border border-white/60 bg-white/40 bg-white/60"
-              >
+            <div
+              key={currentSlide.id}
+              className="p-6 md:p-8 rounded-3xl border border-white/60 bg-white/60 transition-opacity duration-400"
+            >
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-xl bg-indigo-950 text-white flex items-center justify-center shadow-lg">
                     <SlideIcon className="w-4 h-4" />
@@ -165,8 +159,7 @@ export default function StickyShowcase() {
                     </div>
                   ))}
                 </div>
-              </motion.div>
-            </AnimatePresence>
+              </div>
 
             {/* Progress dots */}
             <div className="flex gap-2 mt-6 justify-center">
