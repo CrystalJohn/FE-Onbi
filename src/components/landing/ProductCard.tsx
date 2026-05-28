@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Package, HelpCircle, HardDrive, ShieldCheck, Zap, Smile, Volume } from 'lucide-react';
 import { motion } from 'motion/react';
 import { productReveal, viewport } from '@/lib/animations';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface TechSpec {
   id: string;
@@ -15,44 +16,97 @@ interface TechSpec {
 
 export default function ProductCard() {
   const [activeSpec, setActiveSpec] = useState<string>('material');
+  const { language } = useLanguage();
 
-  const specs: TechSpec[] = [
-    {
-      id: 'material',
-      name: "Child-Safe Materials",
-      value: "FDA Food-Grade Active Silicone & Shock Recycled ABS",
-      details: "Engineered specifically for children. Shell contains hypoallergenic components, certified lead-free & BPA-free. Drop-resistant up to 1.5 meters on solid wood floors.",
-      icon: ShieldCheck
+  const t = {
+    en: {
+      anatomy: "Physical Product Anatomy",
+      hint: "Tap blueprint nodes to inspect",
+      report: "Inspection Report",
+      specs: [
+        {
+          id: 'material',
+          name: "Child-Safe Materials",
+          value: "FDA Food-Grade Active Silicone & Shock Recycled ABS",
+          details: "Engineered specifically for children. Shell contains hypoallergenic components, certified lead-free & BPA-free. Drop-resistant up to 1.5 meters on solid wood floors.",
+          icon: ShieldCheck
+        },
+        {
+          id: 'design',
+          name: "Tactile Friendly Design",
+          value: "Ergonomic Rounded Bumpers (Edge-free)",
+          details: "Zero sharp corners or pinch-points. Smooth, soft-touch matte protective texture resists water spills, crayons, and dirty hands. Easy to clean with active baby wipes.",
+          icon: Smile
+        },
+        {
+          id: 'led',
+          name: "Safe Blue-Filtered LED Screen",
+          value: "Non-radiative OLED screen behind Smoked Glass",
+          details: "Diffused panel prevents eye fatigue. Standard blue-light emissions filtered by 85%. Cozy high-contrast pixel density for visibility in bright classrooms.",
+          icon: Zap
+        },
+        {
+          id: 'speaker',
+          name: "Safe Crystal Audio Speaker",
+          value: "80dB Dual-Speaker Chamber",
+          details: "Tuned specifically for kids' hearing. Imposes strict hardware decibel limits to shield sensitive eardrums. Projects clear accents for ESL phonics training.",
+          icon: Volume
+        },
+        {
+          id: 'mic',
+          name: "Far-Field Noise-Filtering Mic",
+          value: "Dual-Array Smart Microphone + Acoustic Isolation",
+          details: "Filters room sounds, pencil scratches, and tablet interference to capture clean child speech. Optimal for precise vocal feedback and habit assessments.",
+          icon: HardDrive
+        }
+      ]
     },
-    {
-      id: 'design',
-      name: "Tactile Friendly Design",
-      value: "Ergonomic Rounded Bumpers (Edge-free)",
-      details: "Zero sharp corners or pinch-points. Smooth, soft-touch matte protective texture resists water spills, crayons, and dirty hands. Easy to clean with active baby wipes.",
-      icon: Smile
-    },
-    {
-      id: 'led',
-      name: "Safe Blue-Filtered LED Screen",
-      value: "Non-radiative OLED screen behind Smoked Glass",
-      details: "Diffused panel prevents eye fatigue. Standard blue-light emissions filtered by 85%. Cozy high-contrast pixel density for visibility in bright classrooms.",
-      icon: Zap
-    },
-    {
-      id: 'speaker',
-      name: "Safe Crystal Audio Speaker",
-      value: "80dB Dual-Speaker Chamber",
-      details: "Tuned specifically for kids' hearing. Imposes strict hardware decibel limits to shield sensitive eardrums. Projects clear accents for ESL phonics training.",
-      icon: Volume
-    },
-    {
-      id: 'mic',
-      name: "Far-Field Noise-Filtering Mic",
-      value: "Dual-Array Smart Microphone + Acoustic Isolation",
-      details: "Filters room sounds, pencil scratches, and tablet interference to capture clean child speech. Optimal for precise vocal feedback and habit assessments.",
-      icon: HardDrive
+    vi: {
+      anatomy: "Cấu tạo vật lý sản phẩm",
+      hint: "Chạm vào các nút bản vẽ để kiểm tra",
+      report: "Báo cáo kiểm tra",
+      specs: [
+        {
+          id: 'material',
+          name: "Vật liệu an toàn cho trẻ",
+          value: "Silicone hoạt tính thực phẩm FDA & Nhựa ABS tái chế chống va đập",
+          details: "Thiết kế riêng cho trẻ em. Lớp vỏ không chứa chất gây dị ứng, đạt chuẩn không chì & không chứa BPA. Chống va chạm khi rơi từ độ cao 1.5 mét xuống sàn gỗ.",
+          icon: ShieldCheck
+        },
+        {
+          id: 'design',
+          name: "Thiết kế thân thiện xúc giác",
+          value: "Bo góc công thái học (Không cạnh sắc nhọn)",
+          details: "Hoàn toàn không có góc sắc nhọn hoặc điểm kẹt tay. Bề mặt nhám mịn chống tràn nước, sáp màu và vết bẩn. Dễ dàng lau sạch bằng khăn ướt em bé.",
+          icon: Smile
+        },
+        {
+          id: 'led',
+          name: "Màn hình LED lọc ánh sáng xanh",
+          value: "Màn hình LED không phát xạ sau kính lọc mờ",
+          details: "Tấm nền phân tán ánh sáng giúp chống mỏi mắt. Khử 85% ánh sáng xanh có hại. Độ tương phản cao giúp hiển thị rõ ràng ngay cả trong phòng học sáng.",
+          icon: Zap
+        },
+        {
+          id: 'speaker',
+          name: "Loa âm thanh an toàn",
+          value: "Buồng loa kép giới hạn 80dB",
+          details: "Được điều chỉnh riêng cho thính giác của trẻ. Giới hạn âm lượng phần cứng nghiêm ngặt để bảo vệ màng nhĩ nhạy cảm. Phát âm rõ ràng chuẩn xác cho việc luyện phát âm tiếng Anh.",
+          icon: Volume
+        },
+        {
+          id: 'mic',
+          name: "Mic lọc tiếng ồn xa",
+          value: "Micro kép thông minh + Cách âm môi trường",
+          details: "Lọc tạp âm phòng, tiếng sột soạt của bút và nhiễu từ thiết bị khác để ghi lại giọng nói rõ ràng của trẻ. Tối ưu cho việc đánh giá phát âm chính xác.",
+          icon: HardDrive
+        }
+      ]
     }
-  ];
+  }[language];
+
+  // Cast specs mapping to correct type
+  const specs: TechSpec[] = t.specs;
 
   return (
     <motion.div
@@ -71,7 +125,7 @@ export default function ProductCard() {
         {/* LEFT COLUMN: Physical product diagram layout (5 Columns) */}
         <div className="lg:col-span-5 flex flex-col items-center">
           <span className="text-[10px] font-mono tracking-widest text-[#78756f] uppercase block mb-3 font-bold">
-            Physical Product Anatomy
+            {t.anatomy}
           </span>
 
           {/* Styled schematic display of the robot's physical shell - upgraded glass */}
@@ -153,7 +207,7 @@ export default function ProductCard() {
             {/* Explanatory footer guideline links */}
             <div className="text-center">
               <span className="text-[9px] font-mono tracking-wide text-slate-700 uppercase bg-white/50 border border-white/65 px-2.5 py-0.5 rounded-full font-bold">
-                Tap blueprint nodes to inspect
+                {t.hint}
               </span>
             </div>
           </div>
@@ -161,18 +215,7 @@ export default function ProductCard() {
 
         {/* RIGHT COLUMN: Interactive Specs Listing (7 Columns) */}
         <div className="lg:col-span-7 flex flex-col justify-between h-full space-y-6">
-          {/* <div className="space-y-3">
-            <span className="text-[11px] font-mono tracking-widest text-[#78756f] uppercase font-bold">
-              Premium Hardware Engineering
-            </span>
-            <h3 className="font-display text-2xl md:text-3xl font-bold text-slate-950 tracking-tight">
-              Crafted to Withstand Daily Childhood Adventures
-            </h3>
-            <p className="text-xs text-[#78756f] leading-relaxed font-medium">
-              Every curve of ONBI is planned for safety, tactile feedback, and developmental harmony. Built with input from sensory therapists.
-            </p>
-          </div> */}
-
+          
           {/* Interactive Specification Tabs List - upgraded glass */}
           <div className="space-y-2.5 font-sans">
             {specs.map((spec) => {
@@ -215,7 +258,7 @@ export default function ProductCard() {
             
             <div className="flex items-center gap-2 text-orange-400 font-mono text-[10px] uppercase font-bold mb-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-              <span>Inspection Report: {specs.find(s => s.id === activeSpec)?.name}</span>
+              <span>{t.report}: {specs.find(s => s.id === activeSpec)?.name}</span>
             </div>
 
             <p className="text-xs text-indigo-100 leading-relaxed font-sans mt-1">

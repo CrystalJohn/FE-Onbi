@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { Check, ArrowRight, ClipboardCopy, Phone, Smartphone, Cpu, Calendar, Gift, User, Percent, Mail, Bot } from 'lucide-react';
 import { fadeUp, staggerContainer, viewport } from '@/lib/animations';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface PricingTier {
   id: string;
@@ -19,83 +20,165 @@ interface PricingTier {
   highlighted: boolean;
 }
 
-const tiers: PricingTier[] = [
-  {
-    id: 'monthly',
-    name: 'Monthly Pass',
-    badge: 'App Access',
-    description: 'For children who already own the ONBI device and want continued access to all smart features.',
-    price: '149,000đ',
-    period: 'month',
-    quickSpecs: [
-      { icon: 'user', text: '1 student account' },
-      { icon: 'smartphone', text: 'Continuous app updates' }
-    ],
-    dividerLabel: 'MONTHLY ACCESS +',
-    features: [
-      'Cloud recording & video playback',
-      'Automated learning progress tracking',
-      'AI-powered study behavior analysis (AI-based)',
-      'Smart interactive robot & reminders',
-      'Real-time study timeline sent to phone',
-      'Daily & weekly behavioral reports',
-      'Instant real-time notifications & alerts',
-      'Cancel subscription anytime'
-    ],
-    cta: 'Subscribe Monthly',
-    highlighted: false,
-  },
-  {
-    id: 'device',
-    name: 'ONBI IoT Bundle',
-    badge: 'Most Popular',
-    description: 'Get the next-generation ONBI smart robot device plus 3 months of full-featured Premium access.',
-    price: '4,599,000đ',
-    period: 'one-time',
-    quickSpecs: [
-      { icon: 'bot', text: '1 physical IoT robot (Batch #1)' },
-      { icon: 'gift', text: '3 months of free Premium' }
-    ],
-    dividerLabel: 'ONBI IoT BUNDLE +',
-    features: [
-      'ONBI physical smart robot companion',
-      '3 months of free Premium subscription',
-      'Free real-time Live View (no fees)',
-      'Free manual photo snapshot capture',
-      'Lifetime free basic study status tracking',
-      'Full AI study behavior analysis (AI-based)',
-      '2-year extended hardware warranty',
-      'Free shipping nationwide'
-    ],
-    cta: 'Reserve IoT Bundle',
-    highlighted: true,
-  },
-  {
-    id: 'annual',
-    name: 'Annual Pass',
-    badge: 'Save 11%',
-    description: 'The best long-term value to support your child\'s independent study habits and English fluency.',
-    price: '1,599,000đ',
-    period: 'year',
-    quickSpecs: [
-      { icon: 'user', text: '1 student account' },
-      { icon: 'percent', text: 'Save 11% compared to monthly' }
-    ],
-    dividerLabel: 'ANNUAL ACCESS +',
-    features: [
-      '12 months of full Premium services',
-      'Cloud recording & video playback',
-      'Automated learning progress tracking',
-      'AI-powered study behavior analysis (AI-based)',
-      'Smart interactive robot & reminders',
-      'Daily & weekly behavioral reports on phone',
-      '24/7 priority customer & tech support',
-      'Lifetime free app feature updates'
-    ],
-    cta: 'Subscribe Annually',
-    highlighted: false,
-  },
-];
+const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
+  if (language === 'vi') {
+    return [
+      {
+        id: 'monthly',
+        name: 'Thành viên Tháng',
+        badge: 'Quyền truy cập ứng dụng',
+        description: 'Dành cho các bé đã sở hữu thiết bị ONBI và muốn tiếp tục sử dụng tất cả tính năng thông minh.',
+        price: '149.000đ',
+        period: 'tháng',
+        quickSpecs: [
+          { icon: 'user', text: '1 tài khoản học sinh' },
+          { icon: 'smartphone', text: 'Cập nhật ứng dụng liên tục' }
+        ],
+        dividerLabel: 'QUYỀN TRUY CẬP THÁNG +',
+        features: [
+          'Ghi âm đám mây & xem lại lịch sử học',
+          'Tự động theo dõi tiến trình học tập',
+          'Phân tích hành vi học tập bằng AI (AI-based)',
+          'Robot tương tác thông minh & nhắc nhở',
+          'Gửi mốc thời gian học theo thời gian thực về điện thoại',
+          'Báo cáo hành vi hàng ngày & hàng tuần',
+          'Thông báo & cảnh báo tức thời',
+          'Hủy gia hạn bất cứ lúc nào'
+        ],
+        cta: 'Đăng ký theo Tháng',
+        highlighted: false,
+      },
+      {
+        id: 'device',
+        name: 'Trọn gói ONBI IoT',
+        badge: 'Phổ biến nhất',
+        description: 'Nhận thiết bị robot thông minh ONBI thế hệ mới cùng với 3 tháng sử dụng Premium đầy đủ tính năng.',
+        price: '4.599.000đ',
+        period: 'một lần',
+        quickSpecs: [
+          { icon: 'bot', text: '1 robot IoT vật lý (Đợt #1)' },
+          { icon: 'gift', text: 'Tặng 3 tháng Premium' }
+        ],
+        dividerLabel: 'TRỌN GÓI ONBI IoT +',
+        features: [
+          'Robot thông minh ONBI đồng hành cùng con',
+          'Tặng 3 tháng đăng ký Premium',
+          'Xem trực tuyến theo thời gian thực (miễn phí)',
+          'Chụp ảnh thủ công lưu niệm',
+          'Theo dõi trạng thái học tập cơ bản miễn phí trọn đời',
+          'Phân tích đầy đủ hành vi học tập bằng AI (AI-based)',
+          'Gia hạn bảo hành phần cứng 2 năm',
+          'Miễn phí vận chuyển toàn quốc'
+        ],
+        cta: 'Đặt mua Trọn gói IoT',
+        highlighted: true,
+      },
+      {
+        id: 'annual',
+        name: 'Thành viên Năm',
+        badge: 'Tiết kiệm 11%',
+        description: 'Giá trị lâu dài tốt nhất để hỗ trợ thói quen học tập độc lập và sự tự tin nói tiếng Anh của con.',
+        price: '1.599.000đ',
+        period: 'năm',
+        quickSpecs: [
+          { icon: 'user', text: '1 tài khoản học sinh' },
+          { icon: 'percent', text: 'Tiết kiệm 11% so với đóng theo tháng' }
+        ],
+        dividerLabel: 'QUYỀN TRUY CẬP NĂM +',
+        features: [
+          '12 tháng sử dụng đầy đủ dịch vụ Premium',
+          'Ghi âm đám mây & xem lại lịch sử học',
+          'Tự động theo dõi tiến trình học tập',
+          'Phân tích hành vi học tập bằng AI (AI-based)',
+          'Robot tương tác thông minh & nhắc nhở',
+          'Báo cáo hành vi hàng ngày & hàng tuần về điện thoại',
+          'Hỗ trợ kỹ thuật & khách hàng ưu tiên 24/7',
+          'Cập nhật tính năng ứng dụng miễn phí trọn đời'
+        ],
+        cta: 'Đăng ký theo Năm',
+        highlighted: false,
+      },
+    ];
+  }
+
+  return [
+    {
+      id: 'monthly',
+      name: 'Monthly Pass',
+      badge: 'App Access',
+      description: 'For children who already own the ONBI device and want continued access to all smart features.',
+      price: '149,000đ',
+      period: 'month',
+      quickSpecs: [
+        { icon: 'user', text: '1 student account' },
+        { icon: 'smartphone', text: 'Continuous app updates' }
+      ],
+      dividerLabel: 'MONTHLY ACCESS +',
+      features: [
+        'Cloud recording & video playback',
+        'Automated learning progress tracking',
+        'AI-powered study behavior analysis (AI-based)',
+        'Smart interactive robot & reminders',
+        'Real-time study timeline sent to phone',
+        'Daily & weekly behavioral reports',
+        'Instant real-time notifications & alerts',
+        'Cancel subscription anytime'
+      ],
+      cta: 'Subscribe Monthly',
+      highlighted: false,
+    },
+    {
+      id: 'device',
+      name: 'ONBI IoT Bundle',
+      badge: 'Most Popular',
+      description: 'Get the next-generation ONBI smart robot device plus 3 months of full-featured Premium access.',
+      price: '4,599,000đ',
+      period: 'one-time',
+      quickSpecs: [
+        { icon: 'bot', text: '1 physical IoT robot (Batch #1)' },
+        { icon: 'gift', text: '3 months of free Premium' }
+      ],
+      dividerLabel: 'ONBI IoT BUNDLE +',
+      features: [
+        'ONBI physical smart robot companion',
+        '3 months of free Premium subscription',
+        'Free real-time Live View (no fees)',
+        'Free manual photo snapshot capture',
+        'Lifetime free basic study status tracking',
+        'Full AI study behavior analysis (AI-based)',
+        '2-year extended hardware warranty',
+        'Free shipping nationwide'
+      ],
+      cta: 'Reserve IoT Bundle',
+      highlighted: true,
+    },
+    {
+      id: 'annual',
+      name: 'Annual Pass',
+      badge: 'Save 11%',
+      description: 'The best long-term value to support your child\'s independent study habits and English fluency.',
+      price: '1,599,000đ',
+      period: 'year',
+      quickSpecs: [
+        { icon: 'user', text: '1 student account' },
+        { icon: 'percent', text: 'Save 11% compared to monthly' }
+      ],
+      dividerLabel: 'ANNUAL ACCESS +',
+      features: [
+        '12 months of full Premium services',
+        'Cloud recording & video playback',
+        'Automated learning progress tracking',
+        'AI-powered study behavior analysis (AI-based)',
+        'Smart interactive robot & reminders',
+        'Daily & weekly behavioral reports on phone',
+        '24/7 priority customer & tech support',
+        'Lifetime free app feature updates'
+      ],
+      cta: 'Subscribe Annually',
+      highlighted: false,
+    },
+  ];
+};
 
 const renderSpecIcon = (iconName: string) => {
   switch (iconName) {
@@ -117,6 +200,7 @@ const renderSpecIcon = (iconName: string) => {
 };
 
 export default function EarlyAccessForm() {
+  const { language } = useLanguage();
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [parentName, setParentName] = useState('');
   const [childAge, setChildAge] = useState('7');
@@ -142,10 +226,65 @@ export default function EarlyAccessForm() {
 
   const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
 
+  const activeTiers = getTiers(language);
+
+  const t = {
+    en: {
+      tag: "MEMBERSHIP PRICING",
+      heading: "Choose the Perfect Plan for Your Child",
+      subheading: "Select a plan that fits your family's needs and help your child build natural study habits and English speaking confidence.",
+      customSchool: "Looking for custom school or institutional volume setups? Contact our team",
+      reserveSpot: "Reserve Your Spot",
+      selected: "Selected:",
+      parentNameLabel: "Parent / Guardian Name",
+      parentNamePlaceholder: "e.g. Eleanor Vance",
+      childAgeLabel: "Child's Age",
+      childAgeValue: "Aged {age} years",
+      emailLabel: "Email Address",
+      emailPlaceholder: "e.g. parent@study.com",
+      btnReserve: "Reserve Batch Placement",
+      safetyNote: "No credit card required. COPPA compliant & secure.",
+      confirmTitle: "Reservation Confirmed",
+      confirmSub: "Your Pass is Sealed!",
+      passTitle: "ONBI MEMBER PASS",
+      member: "Member",
+      placement: "Placement",
+      btnCopy: "Copy Code",
+      btnDone: "Done",
+      errName: "Please enter your name.",
+      errEmail: "Please enter a valid email."
+    },
+    vi: {
+      tag: "BẢNG GIÁ THÀNH VIÊN",
+      heading: "Chọn gói thành viên phù hợp nhất cho con",
+      subheading: "Lựa chọn kế hoạch phù hợp với nhu cầu gia đình để giúp con xây dựng thói quen học tự nhiên và tự tin nói tiếng Anh.",
+      customSchool: "Bạn muốn tìm kiếm giải pháp tùy chỉnh cho trường học hoặc tổ chức? Liên hệ với chúng tôi",
+      reserveSpot: "Đặt chỗ ưu tiên",
+      selected: "Đã chọn:",
+      parentNameLabel: "Tên Ba mẹ / Người giám hộ",
+      parentNamePlaceholder: "Ví dụ: Nguyễn Văn A",
+      childAgeLabel: "Tuổi của con",
+      childAgeValue: "Bé {age} tuổi",
+      emailLabel: "Địa chỉ Email",
+      emailPlaceholder: "Ví dụ: bame@gmail.com",
+      btnReserve: "Đặt trước ưu đãi",
+      safetyNote: "Không cần thẻ tín dụng. Bảo mật và tuân thủ COPPA.",
+      confirmTitle: "Đặt hàng thành công!",
+      confirmSub: "Thẻ thành viên của bạn đã sẵn sàng!",
+      passTitle: "THẺ THÀNH VIÊN ONBI",
+      member: "Thành viên",
+      placement: "Số thứ tự",
+      btnCopy: "Sao chép mã",
+      btnDone: "Hoàn thành",
+      errName: "Vui lòng nhập tên của bạn.",
+      errEmail: "Vui lòng nhập email hợp lệ."
+    }
+  }[language];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!parentName.trim()) { setErrorMsg('Please enter your name.'); return; }
-    if (!email.trim() || !email.includes('@')) { setErrorMsg('Please enter a valid email.'); return; }
+    if (!parentName.trim()) { setErrorMsg(t.errName); return; }
+    if (!email.trim() || !email.includes('@')) { setErrorMsg(t.errEmail); return; }
     setErrorMsg('');
     const suffix = Math.floor(1000 + Math.random() * 9000);
     setPassCode(`ONBI-2026-CH${childAge}-${suffix}`);
@@ -154,7 +293,7 @@ export default function EarlyAccessForm() {
 
   // Get active selected tier styling for modal and holograph card
   const getSelectedTierDetails = () => {
-    const tier = tiers.find(t => t.id === selectedTier);
+    const tier = activeTiers.find(t => t.id === selectedTier);
     if (!tier) return { name: '', price: '', period: '', gradient: 'from-indigo-950 to-slate-900 border-indigo-900', textColor: 'text-orange-400', badgeColor: 'bg-emerald-50 text-emerald-700' };
     
     if (tier.id === 'monthly') {
@@ -208,13 +347,13 @@ export default function EarlyAccessForm() {
         variants={fadeUp}
       >
         <span className="inline-block text-[11px] font-mono tracking-widest text-[#22d3ee] uppercase font-bold">
-          MEMBERSHIP PRICING
+          {t.tag}
         </span>
         <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-          Choose the Perfect Plan for Your Child
+          {t.heading}
         </h2>
         <p className="text-base text-slate-500 leading-relaxed max-w-xl mx-auto">
-          Select a plan that fits your family&apos;s needs and help your child build natural study habits and English speaking confidence.
+          {t.subheading}
         </p>
       </motion.div>
 
@@ -226,7 +365,7 @@ export default function EarlyAccessForm() {
         viewport={viewport}
         variants={staggerContainer}
       >
-        {tiers.map((tier) => (
+        {activeTiers.map((tier) => (
           <motion.div
             key={tier.id}
             variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } } }}
@@ -454,7 +593,7 @@ export default function EarlyAccessForm() {
           className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-[#22d3ee] transition-colors group cursor-pointer"
         >
           <Mail className="w-4 h-4 text-slate-455 group-hover:rotate-6 transition-transform" />
-          <span>Looking for custom school or institutional volume setups? Contact our team</span>
+          <span>{t.customSchool}</span>
         </button>
       </div>
 
@@ -477,9 +616,9 @@ export default function EarlyAccessForm() {
             {!isSubmitted ? (
               <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900">Reserve Your Spot</h3>
+                  <h3 className="text-xl font-bold text-slate-900">{t.reserveSpot}</h3>
                   <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
-                    <span>Selected:</span>
+                    <span>{t.selected}</span>
                     <span className="font-bold text-slate-800">{activeDetails.name}</span>
                     <span className="text-[#22d3ee] font-black">—</span>
                     <span className="font-bold text-indigo-600">{activeDetails.price}/{activeDetails.period}</span>
@@ -494,32 +633,34 @@ export default function EarlyAccessForm() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">Parent / Guardian Name</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">{t.parentNameLabel}</label>
                     <input
                       type="text"
-                      placeholder="e.g. Eleanor Vance"
+                      placeholder={t.parentNamePlaceholder}
                       value={parentName}
                       onChange={(e) => setParentName(e.target.value)}
                       className="w-full border border-slate-200 focus:border-[#22d3ee] rounded-xl px-4 py-3 text-sm outline-none transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">Child&apos;s Age</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">{t.childAgeLabel}</label>
                     <select
                       value={childAge}
                       onChange={(e) => setChildAge(e.target.value)}
                       className="w-full border border-slate-200 focus:border-[#22d3ee] rounded-xl px-4 py-3 text-sm outline-none bg-white transition-colors"
                     >
                       {[6,7,8,9,10,11].map(age => (
-                        <option key={age} value={age}>Aged {age} years</option>
+                        <option key={age} value={age}>
+                          {t.childAgeValue.replace('{age}', age.toString())}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">Email Address</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">{t.emailLabel}</label>
                     <input
                       type="email"
-                      placeholder="e.g. parent@study.com"
+                      placeholder={t.emailPlaceholder}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full border border-slate-200 focus:border-[#22d3ee] rounded-xl px-4 py-3 text-sm outline-none transition-colors"
@@ -531,20 +672,20 @@ export default function EarlyAccessForm() {
                   type="submit"
                   className="w-full bg-[#22d3ee] hover:bg-cyan-400 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-cyan-500/10 cursor-pointer"
                 >
-                  Reserve Batch Placement
+                  {t.btnReserve}
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <p className="text-[10px] text-center text-slate-400">
-                  No credit card required. COPPA compliant & secure.
+                  {t.safetyNote}
                 </p>
               </form>
             ) : (
               <div className="flex flex-col items-center gap-5 text-center relative z-10">
                 <div className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${activeDetails.badgeColor} border-current/20`}>
-                  <Check className="w-3.5 h-3.5" /> Reservation Confirmed
+                  <Check className="w-3.5 h-3.5" /> {t.confirmTitle}
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Your Pass is Sealed!</h3>
+                <h3 className="text-xl font-bold text-slate-900">{t.confirmSub}</h3>
 
                 {/* 3D Holo-card styled dynamically based on chosen tier */}
                 <div
@@ -560,7 +701,7 @@ export default function EarlyAccessForm() {
                     whileHover={{ scale: 1.03 }}
                   >
                     <div className="flex justify-between items-start">
-                      <span className="text-[9px] font-mono font-black tracking-wider text-white/80">ONBI MEMBER PASS</span>
+                      <span className="text-[9px] font-mono font-black tracking-wider text-white/80">{t.passTitle}</span>
                       <div className="w-7 h-5 bg-gradient-to-tr from-amber-400 to-amber-200 rounded-sm" />
                     </div>
                     <div className="text-center">
@@ -568,11 +709,11 @@ export default function EarlyAccessForm() {
                     </div>
                     <div className="flex justify-between items-end">
                       <div className="text-left">
-                        <div className="text-[7px] text-slate-400 uppercase font-mono tracking-wider">Member</div>
+                        <div className="text-[7px] text-slate-400 uppercase font-mono tracking-wider">{t.member}</div>
                         <div className="text-xs font-bold text-white truncate max-w-[130px]">{parentName}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[7px] text-slate-400 uppercase font-mono tracking-wider">Placement</div>
+                        <div className="text-[7px] text-slate-400 uppercase font-mono tracking-wider">{t.placement}</div>
                         <div className="text-xs font-bold text-emerald-400 font-mono">#{reservationNum}</div>
                       </div>
                     </div>
@@ -584,13 +725,13 @@ export default function EarlyAccessForm() {
                     onClick={() => navigator.clipboard.writeText(passCode)}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
                   >
-                    <ClipboardCopy className="w-4 h-4" /> Copy Code
+                    <ClipboardCopy className="w-4 h-4" /> {t.btnCopy}
                   </button>
                   <button
                     onClick={() => { setIsSubmitted(false); setSelectedTier(null); }}
                     className="px-5 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
                   >
-                    Done
+                    {t.btnDone}
                   </button>
                 </div>
               </div>

@@ -4,34 +4,85 @@ import React from 'react';
 import { MessageSquareX, Timer, Compass } from 'lucide-react';
 import { motion } from 'motion/react';
 import { fadeUp, staggerContainer, problemCard, viewport } from '@/lib/animations';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ParentProblems() {
-  const problems = [
-    {
-      id: 'practice',
-      title: "Lack English Speaking Practice",
-      accent: "Dialogue Barrier",
-      description: "Traditional study apps focus on passive reading and tapping on glass. Without active conversational feedback, children build silent English skills but struggle to produce words confidently in real life.",
-      icon: MessageSquareX,
-      glow: "hover:bg-[#f6f2eb]",
+  const { language } = useLanguage();
+
+  const t = {
+    en: {
+      tag: "The Parental Hurdle",
+      title: "Why Solitary Home Study is Exhausting",
+      description: "Modern learning relies heavily on addictive screens, leaving parents caught between work schedules and coaching battles.",
+      painPoints: {
+        0: "Pain Point 01",
+        1: "Pain Point 02",
+        2: "Pain Point 03"
+      },
+      problems: [
+        {
+          id: 'practice',
+          title: "Lack English Speaking Practice",
+          accent: "Dialogue Barrier",
+          description: "Traditional study apps focus on passive reading and tapping on glass. Without active conversational feedback, children build silent English skills but struggle to produce words confidently in real life.",
+          icon: MessageSquareX,
+          glow: "hover:bg-[#f6f2eb]",
+        },
+        {
+          id: 'time',
+          title: "No Parental Time to Guide Learning",
+          accent: "Constant Supervision",
+          description: "Managing daily lessons, correcting pronunciation, and enforcing deskside focus is vital but exhausting. Professional working parents cannot always sit alongside their children to coach them step-by-step.",
+          icon: Timer,
+          glow: "hover:bg-[#f3f6fa]",
+        },
+        {
+          id: 'focus',
+          title: "Struggle to Stay Focused",
+          accent: "Screen Distractions",
+          description: "Tablets and smartphones are packed with heavy dopamine triggers. Left alone, children easily wander from lessons into video games, struggles with attention spans, and develop poor study habits.",
+          icon: Compass,
+          glow: "hover:bg-[#f3faf6]",
+        }
+      ]
     },
-    {
-      id: 'time',
-      title: "No Parental Time to Guide Learning",
-      accent: "Constant Supervision",
-      description: "Managing daily lessons, correcting pronunciation, and enforcing deskside focus is vital but exhausting. Professional working parents cannot always sit alongside their children to coach them step-by-step.",
-      icon: Timer,
-      glow: "hover:bg-[#f3f6fa]",
-    },
-    {
-      id: 'focus',
-      title: "Struggle to Stay Focused",
-      accent: "Screen Distractions",
-      description: "Tablets and smartphones are packed with heavy dopamine triggers. Left alone, children easily wander from lessons into video games, struggles with attention spans, and develop poor study habits.",
-      icon: Compass,
-      glow: "hover:bg-[#f3faf6]",
+    vi: {
+      tag: "Nỗi lo của ba mẹ",
+      title: "Vì sao việc học ở nhà lại khó khăn?",
+      description: "Việc học hiện đại phụ thuộc quá nhiều vào màn hình gây nghiện, khiến ba mẹ mệt mỏi giữa công việc và kèm con học.",
+      painPoints: {
+        0: "Khó khăn 01",
+        1: "Khó khăn 02",
+        2: "Khó khăn 03"
+      },
+      problems: [
+        {
+          id: 'practice',
+          title: "Thiếu môi trường luyện nói",
+          accent: "Rào cản giao tiếp",
+          description: "Các app học truyền thống chỉ tập trung đọc và chạm màn hình. Không có phản hồi hội thoại thực tế, con xây dựng kỹ năng tiếng Anh thụ động nhưng ngại nói trong đời thực.",
+          icon: MessageSquareX,
+          glow: "hover:bg-[#f6f2eb]",
+        },
+        {
+          id: 'time',
+          title: "Ba mẹ không có thời gian kèm con",
+          accent: "Giám sát liên tục",
+          description: "Quản lý bài học, sửa phát âm, giữ con tập trung — rất quan trọng nhưng kiệt sức. Ba mẹ đi làm không thể lúc nào cũng ngồi cạnh hướng dẫn từng bước.",
+          icon: Timer,
+          glow: "hover:bg-[#f3f6fa]",
+        },
+        {
+          id: 'focus',
+          title: "Con khó tập trung",
+          accent: "Bị màn hình phân tâm",
+          description: "Máy tính bảng và điện thoại đầy rẫy kích thích dopamine. Để một mình, con dễ dàng chuyển từ bài học sang game, mất khả năng tập trung và hình thành thói quen học kém.",
+          icon: Compass,
+          glow: "hover:bg-[#f3faf6]",
+        }
+      ]
     }
-  ];
+  }[language];
 
   return (
     <div id="parent_problems_section" className="space-y-12">
@@ -44,13 +95,13 @@ export default function ParentProblems() {
         variants={fadeUp}
       >
         <span className="inline-flex items-center gap-1.5 text-[10px] font-mono tracking-widest text-[#78756f] uppercase font-bold bg-white/60 px-3 py-1 rounded-full border border-white/65 shadow-2xs">
-          The Parental Hurdle
+          {t.tag}
         </span>
         <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-950 tracking-tight">
-          Why Solitary Home Study is Exhausting
+          {t.title}
         </h2>
         <p className="text-sm md:text-base text-[#78756f] max-w-xl mx-auto leading-relaxed font-medium">
-          Modern learning relies heavily on addictive screens, leaving parents caught between work schedules and coaching battles.
+          {t.description}
         </p>
       </motion.div>
 
@@ -62,7 +113,7 @@ export default function ParentProblems() {
         viewport={viewport}
         variants={staggerContainer}
       >
-        {problems.map((prob, idx) => {
+        {t.problems.map((prob, idx) => {
           const IconComponent = prob.icon;
           return (
             <motion.div
@@ -78,7 +129,9 @@ export default function ParentProblems() {
                     <IconComponent className="w-5 h-5" />
                   </div>
                   <span className="text-[9px] font-mono tracking-wider font-bold text-[#78756f] uppercase">
-                    Pain Point 0{idx + 1}
+                    {idx === 0 && t.painPoints[0]}
+                    {idx === 1 && t.painPoints[1]}
+                    {idx === 2 && t.painPoints[2]}
                   </span>
                 </div>
 

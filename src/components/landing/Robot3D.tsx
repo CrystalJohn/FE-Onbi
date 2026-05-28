@@ -46,7 +46,7 @@ function OnbiModel({ mood, isMobile }: { mood: RobotMood; isMobile: boolean }) {
     meshRef.current.position.y = Math.sin(t * bobSpeed) * bobAmount;
   });
 
-  const scale = isMobile ? 1.4 : 1.8;
+  const scale = isMobile ? 1.7 : 1.8;
   const positionY = isMobile ? -0.65 : -0.8;
 
   return (
@@ -110,11 +110,11 @@ export default function Robot3D({
   };
 
   // Adjust camera FOV and shadow position based on screen size
-  const fov = isMobile ? 45 : 40;
+  const fov = isMobile ? 42 : 40;
   const shadowY = isMobile ? -0.95 : -1.2;
 
   return (
-    <div ref={containerRef} className="relative w-full aspect-square max-w-[280px] sm:max-w-[360px] md:max-w-[500px] lg:max-w-[600px] mx-auto select-none">
+    <div ref={containerRef} className="relative w-full aspect-square max-w-[360px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto select-none">
       <div
         className="absolute inset-0 rounded-full blur-[50px] md:blur-[80px] opacity-15 md:opacity-20 transition-colors duration-1000"
         style={{ backgroundColor: getMoodColor(mood) }}

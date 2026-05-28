@@ -10,6 +10,7 @@ import OnbiSolution from '@/components/landing/OnbiSolution';
 import { RobotMood } from '@/types/landing';
 import { motion, AnimatePresence } from 'motion/react';
 import { gsap, useGSAP } from '@/lib/gsap';
+import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 
 // Lazy load heavy components (Three.js + below-fold sections)
 const Robot3D = dynamic(() => import('@/components/landing/Robot3D'), { ssr: false });
@@ -19,27 +20,41 @@ const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks'));
 const ProductCard = dynamic(() => import('@/components/landing/ProductCard'));
 const EarlyAccessForm = dynamic(() => import('@/components/landing/EarlyAccessForm'));
 
-export default function HomePage() {
+function HomePageContent() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [modelReady, setModelReady] = useState<boolean>(false);
   const [selectedMood, setSelectedMood] = useState<RobotMood>('happy');
   const [showTimerModal, setShowTimerModal] = useState<boolean>(false);
   const mainRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
-  // GSAP scroll animations for testimonials & footer
+  const t = {
+    en: {
+      heroTitle: 'Build English confidence and focus habits in kids.',
+      heroDesc: 'A screen-free study companion for children aged 6–11. Gentle routines, zero screens, complete privacy.',
+      heroCta: 'Order Your ONBI',
+      coppa: 'EST. 2026 • COPPA Compliant',
+      intro: 'Introduction',
+      timer: 'MVP Timer',
+      engineering: 'Engineering',
+      pricing: 'Pricing',
+      legal: 'Legal Notice: ONBI is a certified trademark of ONBI Tech. All rendered interactive prototypes, simulated hardware screens, and early membership passes are created for conceptual demonstration of the first physical MVP unit scheduled for production.'
+    },
+    vi: {
+      heroTitle: 'Giúp con tự tin nói tiếng Anh và tập trung học tập mỗi ngày.',
+      heroDesc: 'Bạn đồng hành học tập không màn hình cho trẻ 6–11 tuổi. Nhẹ nhàng, không gây nghiện, bảo mật tuyệt đối.',
+      heroCta: 'Tìm hiểu ONBI',
+      coppa: 'Thành lập 2026 • Tuân thủ COPPA',
+      intro: 'Giới thiệu',
+      timer: 'Bộ hẹn giờ',
+      engineering: 'Công nghệ',
+      pricing: 'Bảng giá',
+      legal: 'Lưu ý pháp lý: ONBI là thương hiệu đã đăng ký của ONBI Tech. Tất cả mô hình tương tác và thẻ thành viên được tạo cho mục đích minh họa sản phẩm MVP đầu tiên dự kiến sản xuất.'
+    }
+  }[language];
+
+  // GSAP scroll animations for footer
   useGSAP(() => {
-    gsap.from('.testimonial-section', {
-      y: 40,
-      opacity: 0,
-      duration: 0.8,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.testimonial-section',
-        start: 'top 85%',
-        once: true,
-      }
-    });
-
     gsap.from('.landing-footer', {
       y: 20,
       opacity: 0,
@@ -101,7 +116,7 @@ export default function HomePage() {
 
   return (
     <div ref={mainRef} className="min-h-screen bg-[#f7f6f2] text-[#18181a] font-sans antialiased selection:bg-indigo-950 selection:text-white pb-16 relative overflow-hidden">
-      
+
       {/* Full landing background (for everything below hero) */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <Image src="/background_full_landing.png" alt="" fill sizes="100vw" className="object-cover" priority />
@@ -121,75 +136,59 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* HERO ZONE: Navbar + Hero with shared background */}
-      <div className="relative hero-height min-h-screen md:min-h-screen">
-        {/* Hero background covering navbar + hero section */}
-        <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-          <Image 
-            src="/background_hero_onbi.png" 
-            alt="" 
-            fill
-            sizes="100vw"
-            className="object-cover md:object-fill opacity-60 md:opacity-100 transition-opacity duration-300"
-            priority
-          />
-          {/* Smooth gradient fade to blend the hero background into the #f7f6f2 page background */}
-          <div className="absolute inset-x-0 bottom-0 h-32 md:h-48 bg-gradient-to-t from-[#f7f6f2] via-[#f7f6f2]/80 to-transparent" />
-        </div>
+      {/* HERO ZONE: Navbar + Hero with solid Apple canvas background */}
+      <div className="relative hero-height min-h-screen md:min-h-screen bg-white">
+        {/* Apple style: Clean white pedestal background with smooth fade to page canvas at bottom */}
+        <div className="absolute inset-x-0 bottom-0 h-32 md:h-48 bg-gradient-to-t from-[#f7f6f2] to-white pointer-events-none" />
 
         {/* NAVBAR */}
-        <Header 
-          onJoinClick={() => scrollToId('pricing_section')} 
-          onTimerClick={() => setShowTimerModal(true)} 
+        <Header
+          onJoinClick={() => scrollToId('pricing_section')}
+          onTimerClick={() => setShowTimerModal(true)}
         />
 
         {/* HERO CONTENT */}
-        <div className="max-w-7xl mx-auto px-6 relative pt-20 md:pt-10 z-10">
+        <div className="max-w-7xl mx-auto px-6 relative pt-6 md:pt-10 z-10">
           {/* SECTION 1: HERO — Product-centric layout */}
           <section id="hero_section" className="scroll-mt-24 relative min-h-[calc(100dvh-80px)] md:min-h-[calc(100vh-80px)] flex flex-col justify-center py-8 md:py-0">
 
-            {/* Main content container (stacks on mobile, absolute on desktop) */}
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-start md:justify-center flex-1 gap-6 md:gap-0 pt-4 md:pt-0">
-              
-              {/* Robot Model — Top on mobile, Centered on desktop */}
-              <motion.div 
-                className="relative flex justify-center items-center w-full max-w-[280px] sm:max-w-[340px] md:max-w-[500px] lg:max-w-[580px] mx-auto md:absolute md:left-1/2 md:top-[48%] md:-translate-x-[40%] md:-translate-y-1/2 md:z-10 order-1 md:order-none"
+            {/* Main content container (stacks on mobile, 50/50 split grid on desktop) */}
+            <div className="relative z-10 flex flex-col md:grid md:grid-cols-12 md:gap-8 lg:gap-12 items-center justify-center flex-1 pt-4 md:pt-0 w-full">
+
+              {/* Left Column: Text & CTA — Middle on mobile, Left 50% on desktop */}
+              <motion.div
+                className="relative w-full text-center md:text-left space-y-6 max-w-xl mx-auto md:mx-0 md:col-span-6 z-20 order-2 md:order-none flex flex-col justify-center"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+              >
+                <h1 className="font-display text-3xl sm:text-4xl md:text-[2.6rem] lg:text-[3.3rem] font-semibold text-[#1d1d1f] tracking-tight leading-[1.07] px-2 md:px-0">
+                  {t.heroTitle}
+                </h1>
+
+                <p className="text-sm md:text-base lg:text-[17px] text-[#86868b] leading-relaxed font-normal tracking-tight px-4 md:px-0">
+                  {t.heroDesc}
+                </p>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                  <button
+                    id="hero_primary_cta"
+                    onClick={() => scrollToId('pricing_section')}
+                    className="bg-[#0066cc] hover:bg-[#0071e3] text-white font-normal px-8 py-3.5 rounded-full transition-all duration-200 active:scale-95 cursor-pointer text-[17px] tracking-tight shrink-0 inline-flex items-center justify-center"
+                  >
+                    {t.heroCta}
+                  </button>
+                </div>
+              </motion.div>
+
+              {/* Right Column: Robot 3D — Top on mobile, Right 50% on desktop */}
+              <motion.div
+                className="relative flex justify-center items-center w-full max-w-[360px] sm:max-w-[400px] md:max-w-[480px] lg:max-w-[540px] mx-auto md:col-span-6 z-10 order-1 md:order-none"
                 initial={{ opacity: 0.5, scale: 0.85, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
               >
                 <Robot3D currentMood={selectedMood} onMoodChange={setSelectedMood} />
-              </motion.div>
-
-              {/* Bottom-left text: Middle on mobile, absolute bottom-left on desktop */}
-              <motion.div 
-                className="relative w-full text-center md:text-left space-y-4 max-w-md mx-auto md:mx-0 md:absolute md:bottom-20 lg:bottom-24 md:left-0 md:z-20 order-2 md:order-none"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-              >
-                <h1 className="font-display text-2xl sm:text-3xl md:text-[2.2rem] lg:text-4xl font-bold text-slate-950 tracking-tight leading-[1.1] px-2 md:px-0">
-                  Build English confidence and <span className="text-indigo-950 underline decoration-orange-500 decoration-wavy underline-offset-[8px] decoration-1">focus habits</span> in kids.
-                </h1>
-
-                <p className="text-sm text-[#78756f] leading-relaxed font-medium px-4 md:px-0">
-                  A screen-free study companion for children aged 6–11. Gentle routines, zero screens, complete privacy.
-                </p>
-
-                <div className="pt-1 flex justify-center md:justify-start">
-                  <button
-                    id="hero_primary_cta"
-                    onClick={() => scrollToId('pricing_section')}
-                    className="flex items-center justify-between gap-4 bg-[#22d3ee] hover:bg-cyan-400 text-white font-semibold pl-7 pr-2 py-2 rounded-full shadow-lg hover:shadow-xl transition-all text-sm hover:-translate-y-0.5 cursor-pointer group"
-                  >
-                    <span>Order Your ONBI</span>
-                    <span className="w-9 h-9 rounded-full bg-white/30 group-hover:bg-white/40 flex items-center justify-center transition-colors">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </span>
-                  </button>
-                </div>
               </motion.div>
 
             </div>
@@ -260,7 +259,7 @@ export default function HomePage() {
 
         {/* MAIN SECTIONS */}
         <div className="space-y-24 md:space-y-36">
-          
+
           {/* SECTION 2: PARENT PROBLEMS */}
           <section id="parent_problems_section" className="scroll-mt-24">
             <ParentProblems />
@@ -300,20 +299,20 @@ export default function HomePage() {
                 </div>
                 <div>
                   <div className="text-xs font-bold text-[#18181a] font-mono leading-none">ONBI Tech Robotics</div>
-                  <div className="text-[9px] text-[#78756f] font-mono">EST. 2026 • COPPA Compliant</div>
+                  <div className="text-[9px] text-[#78756f] font-mono">{t.coppa}</div>
                 </div>
               </div>
-              
+
               <div className="flex gap-4.5 text-[10px] font-mono tracking-wide text-[#78756f]">
-                <button onClick={() => scrollToId('hero_section')} className="hover:text-[#18181a] cursor-pointer">Introduction</button>
-                <button onClick={() => setShowTimerModal(true)} className="hover:text-[#18181a] cursor-pointer">MVP Timer</button>
-                <button onClick={() => scrollToId('product_specs_section')} className="hover:text-[#18181a] cursor-pointer">Engineering</button>
-                <button onClick={() => scrollToId('pricing_section')} className="hover:text-[#18181a] cursor-pointer">Pricing</button>
+                <button onClick={() => scrollToId('hero_section')} className="hover:text-[#18181a] cursor-pointer">{t.intro}</button>
+                <button onClick={() => setShowTimerModal(true)} className="hover:text-[#18181a] cursor-pointer">{t.timer}</button>
+                <button onClick={() => scrollToId('product_specs_section')} className="hover:text-[#18181a] cursor-pointer">{t.engineering}</button>
+                <button onClick={() => scrollToId('pricing_section')} className="hover:text-[#18181a] cursor-pointer">{t.pricing}</button>
               </div>
             </div>
 
             <p className="text-[10px] text-[#b0ada6] font-mono max-w-xl mx-auto leading-relaxed">
-              Legal Notice: ONBI is a certified trademark of ONBI Tech. All rendered interactive prototypes, simulated hardware screens, and early membership passes are created for conceptual demonstration of the first physical MVP unit scheduled for production.
+              {t.legal}
             </p>
           </footer>
 
@@ -322,5 +321,13 @@ export default function HomePage() {
       </div>
 
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <LanguageProvider>
+      <HomePageContent />
+    </LanguageProvider>
   );
 }
