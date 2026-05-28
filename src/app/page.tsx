@@ -6,7 +6,6 @@ import Image from 'next/image';
 import Header from '@/components/landing/Header';
 import IntroLoader from '@/components/landing/IntroLoader';
 import ParentProblems from '@/components/landing/ParentProblems';
-import OnbiSolution from '@/components/landing/OnbiSolution';
 import { RobotMood } from '@/types/landing';
 import { motion, AnimatePresence } from 'motion/react';
 import { gsap, useGSAP } from '@/lib/gsap';
@@ -16,9 +15,9 @@ import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 const Robot3D = dynamic(() => import('@/components/landing/Robot3D'), { ssr: false });
 const MiniTimer = dynamic(() => import('@/components/landing/MiniTimer'));
 const Features = dynamic(() => import('@/components/landing/Features'));
-const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks'));
-const ProductCard = dynamic(() => import('@/components/landing/ProductCard'));
-const EarlyAccessForm = dynamic(() => import('@/components/landing/EarlyAccessForm'));
+const MeetOurTeam = dynamic(() => import('@/components/landing/MeetOurTeam'));
+const Pricing = dynamic(() => import('@/components/landing/Pricing'));
+const Footer = dynamic(() => import('@/components/landing/Footer'));
 
 function HomePageContent() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -30,26 +29,40 @@ function HomePageContent() {
 
   const t = {
     en: {
-      heroTitle: 'Build English confidence and focus habits in kids.',
+      heroTitle: (
+        <>
+          Build{' '}
+          <span className="bg-gradient-to-r from-[#0066cc] via-[#2f80ed] to-[#4f46e5] bg-clip-text text-transparent font-bold">
+            English confidence
+          </span>{' '}
+          and{' '}
+          <span className="bg-gradient-to-r from-[#8a2be2] via-[#a855f7] to-[#ec4899] bg-clip-text text-transparent font-bold">
+            focus habits
+          </span>{' '}
+          in kids.
+        </>
+      ),
       heroDesc: 'A screen-free study companion for children aged 6–11. Gentle routines, zero screens, complete privacy.',
       heroCta: 'Order Your ONBI',
-      coppa: 'EST. 2026 • COPPA Compliant',
-      intro: 'Introduction',
-      timer: 'MVP Timer',
-      engineering: 'Engineering',
-      pricing: 'Pricing',
-      legal: 'Legal Notice: ONBI is a certified trademark of ONBI Tech. All rendered interactive prototypes, simulated hardware screens, and early membership passes are created for conceptual demonstration of the first physical MVP unit scheduled for production.'
+      heroSecondaryCta: 'Try Focus Timer ↗',
     },
     vi: {
-      heroTitle: 'Giúp con tự tin nói tiếng Anh và tập trung học tập mỗi ngày.',
+      heroTitle: (
+        <>
+          Giúp con{' '}
+          <span className="bg-gradient-to-r from-[#0066cc] via-[#2f80ed] to-[#4f46e5] bg-clip-text text-transparent font-bold">
+            tự tin nói tiếng Anh
+          </span>{' '}
+          và{' '}
+          <span className="bg-gradient-to-r from-[#8a2be2] via-[#a855f7] to-[#ec4899] bg-clip-text text-transparent font-bold">
+            tập trung học tập
+          </span>{' '}
+          mỗi ngày.
+        </>
+      ),
       heroDesc: 'Bạn đồng hành học tập không màn hình cho trẻ 6–11 tuổi. Nhẹ nhàng, không gây nghiện, bảo mật tuyệt đối.',
       heroCta: 'Tìm hiểu ONBI',
-      coppa: 'Thành lập 2026 • Tuân thủ COPPA',
-      intro: 'Giới thiệu',
-      timer: 'Bộ hẹn giờ',
-      engineering: 'Công nghệ',
-      pricing: 'Bảng giá',
-      legal: 'Lưu ý pháp lý: ONBI là thương hiệu đã đăng ký của ONBI Tech. Tất cả mô hình tương tác và thẻ thành viên được tạo cho mục đích minh họa sản phẩm MVP đầu tiên dự kiến sản xuất.'
+      heroSecondaryCta: 'Trải nghiệm hẹn giờ ↗',
     }
   }[language];
 
@@ -115,12 +128,7 @@ function HomePageContent() {
   };
 
   return (
-    <div ref={mainRef} className="min-h-screen bg-[#f7f6f2] text-[#18181a] font-sans antialiased selection:bg-indigo-950 selection:text-white pb-16 relative overflow-hidden">
-
-      {/* Full landing background (for everything below hero) */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <Image src="/background_full_landing.png" alt="" fill sizes="100vw" className="object-cover" priority />
-      </div>
+    <div ref={mainRef} className="min-h-screen bg-white text-[#18181a] font-sans antialiased selection:bg-indigo-950 selection:text-white pb-16 relative overflow-hidden">
 
       {/* Intro Loading Screen */}
       <AnimatePresence mode="wait">
@@ -170,13 +178,19 @@ function HomePageContent() {
                   {t.heroDesc}
                 </p>
 
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 sm:gap-2">
                   <button
                     id="hero_primary_cta"
                     onClick={() => scrollToId('pricing_section')}
                     className="bg-[#0066cc] hover:bg-[#0071e3] text-white font-normal px-8 py-3.5 rounded-full transition-all duration-200 active:scale-95 cursor-pointer text-[17px] tracking-tight shrink-0 inline-flex items-center justify-center"
                   >
                     {t.heroCta}
+                  </button>
+                  <button
+                    onClick={() => setShowTimerModal(true)}
+                    className="text-[#0066cc] hover:text-[#0071e3] font-medium hover:underline transition-all duration-200 active:scale-95 cursor-pointer text-[17px] tracking-tight shrink-0 inline-flex items-center justify-center gap-1.5 px-6 py-3.5"
+                  >
+                    {t.heroSecondaryCta}
                   </button>
                 </div>
               </motion.div>
@@ -254,71 +268,43 @@ function HomePageContent() {
         )}
       </AnimatePresence>
 
-      {/* CORE BODY WRAPPER */}
+      {/* CORE BODY WRAPPER FOR IMMERSIVE PRESENTATION (Apple Pedestal Style) */}
+      <div className="max-w-[1600px] mx-auto px-6 relative pt-20 md:pt-24 z-10">
+        {/* SECTION 2: PARENT PROBLEMS */}
+        <section id="parent_problems_section" className="scroll-mt-24">
+          <ParentProblems />
+        </section>
+      </div>
+
+      {/* CORE BODY WRAPPER FOR STANDARD LAYOUTS */}
       <div className="max-w-7xl mx-auto px-6 relative pt-20 md:pt-24 z-10">
 
         {/* MAIN SECTIONS */}
         <div className="space-y-24 md:space-y-36">
-
-          {/* SECTION 2: PARENT PROBLEMS */}
-          <section id="parent_problems_section" className="scroll-mt-24">
-            <ParentProblems />
-          </section>
 
           {/* SECTION 6: FEATURES GRID */}
           <section id="features_grid_section" className="scroll-mt-24">
             <Features />
           </section>
 
-          {/* SECTION 7: PRODUCT SPECS */}
-          <section id="product_specs_section" className="scroll-mt-24">
-            <ProductCard />
-          </section>
 
-          {/* SECTION 3: ONBI SOLUTION — temporarily hidden */}
-          {/* <section id="onbi_solution_section" className="scroll-mt-24">
-            <OnbiSolution />
-          </section> */}
 
           {/* SECTION 8: PRICING & EARLY ACCESS */}
           <section id="pricing_section" className="scroll-mt-24">
-            <EarlyAccessForm />
+            <Pricing />
           </section>
 
-          {/* SECTION 5: MEET OUR TEAM (HOW IT WORKS) */}
+          {/* SECTION 5: MEET OUR TEAM */}
           <section id="how_it_works_section" className="scroll-mt-24">
-            <HowItWorks />
+            <MeetOurTeam />
           </section>
-
-          {/* FOOTER */}
-          <footer className="landing-footer border-t border-[#ccc9bf]/30 pt-12 text-center space-y-6">
-            <div className="flex justify-between items-center flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-left">
-                <div className="w-8 h-8 bg-indigo-950 text-white rounded-lg flex items-center justify-center font-mono font-bold text-xs">
-                  O
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-[#18181a] font-mono leading-none">ONBI Tech Robotics</div>
-                  <div className="text-[9px] text-[#78756f] font-mono">{t.coppa}</div>
-                </div>
-              </div>
-
-              <div className="flex gap-4.5 text-[10px] font-mono tracking-wide text-[#78756f]">
-                <button onClick={() => scrollToId('hero_section')} className="hover:text-[#18181a] cursor-pointer">{t.intro}</button>
-                <button onClick={() => setShowTimerModal(true)} className="hover:text-[#18181a] cursor-pointer">{t.timer}</button>
-                <button onClick={() => scrollToId('product_specs_section')} className="hover:text-[#18181a] cursor-pointer">{t.engineering}</button>
-                <button onClick={() => scrollToId('pricing_section')} className="hover:text-[#18181a] cursor-pointer">{t.pricing}</button>
-              </div>
-            </div>
-
-            <p className="text-[10px] text-[#b0ada6] font-mono max-w-xl mx-auto leading-relaxed">
-              {t.legal}
-            </p>
-          </footer>
 
         </div>
 
       </div>
+
+      {/* FOOTER */}
+      <Footer onTimerClick={() => setShowTimerModal(true)} />
 
     </div>
   );

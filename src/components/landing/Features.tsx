@@ -9,8 +9,10 @@ export default function Features() {
 
   const t = {
     en: {
-      core: "Core Features",
-      heading: "How ONBI Empowers Daily Study Habits",
+      core: "Core features.",
+      headingLine1: "How ONBI empowers",
+      headingLine2: "daily study habits.",
+      description: "Designed by child psychologists and powered by safe edge-AI, ONBI creates screen-free concentration routines that children look forward to every day.",
       categories: {
         focus: "Focus Habit",
         health: "Health & Safety",
@@ -47,8 +49,10 @@ export default function Features() {
       }
     },
     vi: {
-      core: "Tính năng cốt lõi",
-      heading: "ONBI giúp con xây dựng thói quen học tập",
+      core: "Tính năng cốt lõi.",
+      headingLine1: "ONBI giúp con",
+      headingLine2: "xây dựng thói quen học tập.",
+      description: "Được thiết kế bởi các chuyên gia tâm lý và vận hành bởi công nghệ AI an toàn, ONBI kiến tạo nhịp học tập không màn hình mà trẻ vô cùng hào hứng tham gia mỗi ngày.",
       categories: {
         focus: "Thói quen học",
         health: "Sức khỏe & An toàn",
@@ -172,14 +176,23 @@ export default function Features() {
   ));
 
   return (
-    <div className="w-full" id="onbi_mvp_features_grid">
-      <div className="max-w-7xl mx-auto mb-4">
-        <span className="inline-block text-[11px] font-mono tracking-widest text-[#22d3ee] uppercase font-bold pl-4">
+    <div className="w-full space-y-10 md:space-y-14" id="onbi_mvp_features_grid">
+      <div className="max-w-[1400px] mx-auto text-left space-y-4 px-6">
+        {/* Category Label */}
+        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] tracking-tight block">
           {t.core}
         </span>
-        <h2 className="max-w-7xl pl-4 text-3xl md:text-5xl font-bold text-slate-900 font-display tracking-tight">
-          {t.heading}
+        
+        {/* Giant Two-Line Apple-style Typography */}
+        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] tracking-tight leading-[1.08] flex flex-col">
+          <span>{t.headingLine1}</span>
+          <span>{t.headingLine2}</span>
         </h2>
+        
+        {/* Apple Signature Spacious Copy */}
+        <p className="text-[19px] md:text-[21px] text-[#86868b] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+          {t.description}
+        </p>
       </div>
       <Carousel items={cards} />
     </div>

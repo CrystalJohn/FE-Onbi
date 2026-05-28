@@ -230,11 +230,13 @@ export default function EarlyAccessForm() {
 
   const t = {
     en: {
-      tag: "MEMBERSHIP PRICING",
-      heading: "Choose the Perfect Plan for Your Child",
+      tag: "Membership pricing.",
+      headingLine1: "Choose the perfect plan",
+      headingLine2: "for your child.",
       subheading: "Select a plan that fits your family's needs and help your child build natural study habits and English speaking confidence.",
       customSchool: "Looking for custom school or institutional volume setups? Contact our team",
-      reserveSpot: "Reserve Your Spot",
+      reserveSpot: "Reserve Your MVP Unit",
+      batchInfo: "First physical production batch starting Q3 2026.",
       selected: "Selected:",
       parentNameLabel: "Parent / Guardian Name",
       parentNamePlaceholder: "e.g. Eleanor Vance",
@@ -255,11 +257,13 @@ export default function EarlyAccessForm() {
       errEmail: "Please enter a valid email."
     },
     vi: {
-      tag: "BẢNG GIÁ THÀNH VIÊN",
-      heading: "Chọn gói thành viên phù hợp nhất cho con",
+      tag: "Bảng giá thành viên.",
+      headingLine1: "Chọn gói thành viên",
+      headingLine2: "phù hợp nhất cho con.",
       subheading: "Lựa chọn kế hoạch phù hợp với nhu cầu gia đình để giúp con xây dựng thói quen học tự nhiên và tự tin nói tiếng Anh.",
       customSchool: "Bạn muốn tìm kiếm giải pháp tùy chỉnh cho trường học hoặc tổ chức? Liên hệ với chúng tôi",
-      reserveSpot: "Đặt chỗ ưu tiên",
+      reserveSpot: "Đặt trước sản phẩm",
+      batchInfo: "Lô sản phẩm đầu tiên dự kiến sản xuất vào Q3 2026.",
       selected: "Đã chọn:",
       parentNameLabel: "Tên Ba mẹ / Người giám hộ",
       parentNamePlaceholder: "Ví dụ: Nguyễn Văn A",
@@ -338,23 +342,36 @@ export default function EarlyAccessForm() {
         <div className="absolute bottom-1/4 left-1/3 w-[500px] h-[300px] rounded-full bg-orange-300/10 blur-[120px]" />
       </div>
 
-      {/* Header */}
+      {/* Apple-style Premium Section Header */}
       <motion.div
-        className="text-center space-y-4 max-w-2xl mx-auto"
+        className="max-w-[1400px] mx-auto text-left space-y-4 px-6 relative z-10"
         initial="hidden"
         whileInView="visible"
         viewport={viewport}
         variants={fadeUp}
       >
-        <span className="inline-block text-[11px] font-mono tracking-widest text-[#22d3ee] uppercase font-bold">
+        {/* Category Label */}
+        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] tracking-tight block">
           {t.tag}
         </span>
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-          {t.heading}
+        
+        {/* Giant Two-Line Apple-style Typography */}
+        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] tracking-tight leading-[1.08] flex flex-col">
+          <span>{t.headingLine1}</span>
+          <span>{t.headingLine2}</span>
         </h2>
-        <p className="text-base text-slate-500 leading-relaxed max-w-xl mx-auto">
+        
+        {/* Apple Signature Spacious Copy */}
+        <p className="text-[19px] md:text-[21px] text-[#86868b] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
           {t.subheading}
         </p>
+
+        {/* Batch Release Info Badge */}
+        <div className="pt-2">
+          <span className="text-xs font-semibold text-orange-600 bg-orange-50/80 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-orange-200/50 shadow-3xs">
+            ✨ {t.batchInfo}
+          </span>
+        </div>
       </motion.div>
 
       {/* Pricing Cards */}
@@ -466,21 +483,13 @@ export default function EarlyAccessForm() {
 
             {/* Premium 3D Swirl Spherical Brand Logo matching the concept exactly */}
             {tier.id === 'monthly' && (
-              <div className="w-14 h-14 rounded-full mb-6.5 relative z-10 select-none shadow-[0_8px_24px_rgba(6,182,212,0.22)] overflow-hidden">
-                <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <defs>
-                    <radialGradient id="cyanSphere" cx="35%" cy="35%" r="65%">
-                      <stop offset="0%" stopColor="#e0f7fa" />
-                      <stop offset="40%" stopColor="#22d3ee" />
-                      <stop offset="80%" stopColor="#0891b2" />
-                      <stop offset="100%" stopColor="#0e7490" />
-                    </radialGradient>
-                  </defs>
-                  <circle cx="50" cy="50" r="50" fill="url(#cyanSphere)" />
-                  <path d="M30 50 C 30 35, 42 30, 50 30 C 65 30, 70 45, 70 55 C 70 65, 58 70, 50 70 C 35 70, 30 60, 30 50 Z" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.18" />
-                  <path d="M38 42 C 43 35, 52 35, 58 40 C 65 46, 65 54, 58 60 C 52 65, 43 65, 38 58" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" />
-                  <path d="M62 58 C 57 65, 48 65, 42 60 C 35 54, 35 46, 42 40 C 48 35, 57 35, 62 42" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" opacity="0.8" />
-                </svg>
+              <div className="w-14 h-14 rounded-full mb-6.5 relative z-10 select-none shadow-[0_8px_24px_rgba(6,182,212,0.22)] border border-cyan-300/40 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
+                <img 
+                  src="/icon_badge_Monthly Pass.png" 
+                  alt="Monthly Pass" 
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
               </div>
             )}
             {tier.id === 'device' && (
@@ -494,21 +503,13 @@ export default function EarlyAccessForm() {
               </div>
             )}
             {tier.id === 'annual' && (
-              <div className="w-14 h-14 rounded-full mb-6.5 relative z-10 select-none shadow-[0_8px_24px_rgba(245,158,11,0.22)] overflow-hidden">
-                <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <defs>
-                    <radialGradient id="amberSphere" cx="35%" cy="35%" r="65%">
-                      <stop offset="0%" stopColor="#fef3c7" />
-                      <stop offset="40%" stopColor="#fbbf24" />
-                      <stop offset="80%" stopColor="#f59e0b" />
-                      <stop offset="100%" stopColor="#b45309" />
-                    </radialGradient>
-                  </defs>
-                  <circle cx="50" cy="50" r="50" fill="url(#amberSphere)" />
-                  <path d="M30 50 C 30 35, 42 30, 50 30 C 65 30, 70 45, 70 55 C 70 65, 58 70, 50 70 C 35 70, 30 60, 30 50 Z" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.18" />
-                  <path d="M38 42 C 43 35, 52 35, 58 40 C 65 46, 65 54, 58 60 C 52 65, 43 65, 38 58" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" />
-                  <path d="M62 58 C 57 65, 48 65, 42 60 C 35 54, 35 46, 42 40 C 48 35, 57 35, 62 42" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" opacity="0.8" />
-                </svg>
+              <div className="w-14 h-14 rounded-full mb-6.5 relative z-10 select-none shadow-[0_8px_24px_rgba(245,158,11,0.22)] border border-amber-300/40 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
+                <img 
+                  src="/icon_badge_Annual Pass.png" 
+                  alt="Annual Pass" 
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
               </div>
             )}
 

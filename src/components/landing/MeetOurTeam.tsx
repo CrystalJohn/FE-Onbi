@@ -19,9 +19,10 @@ export default function HowItWorks() {
 
   const t = {
     en: {
-      tag: "The People Behind ONBI",
-      title: "Meet Our Team",
-      subTitle: "The passionate founders and engineers behind ONBI — building the future of screen-free childhood education.",
+      tag: "The people behind ONBI.",
+      titleLine1: "Meet the people",
+      titleLine2: "behind ONBI.",
+      subTitle: "A passionate team of designers, engineers, and educational visionaries building the future of screen-free childhood learning.",
       cta: "Know More About Us",
       team: [
         {
@@ -75,9 +76,10 @@ export default function HowItWorks() {
       ]
     },
     vi: {
-      tag: "Đội ngũ đằng sau ONBI",
-      title: "Gặp gỡ những người đồng hành",
-      subTitle: "Những nhà sáng tạo và kỹ sư đam mê mang đổi mới an toàn vào hành trình học tập không màn hình của con.",
+      tag: "Đội ngũ đằng sau ONBI.",
+      titleLine1: "Gặp gỡ những người",
+      titleLine2: "đồng hành cùng con.",
+      subTitle: "Những nhà sáng lập và kỹ sư đầy tâm huyết kiến tạo giải pháp an toàn, mở ra kỷ nguyên học tập không phụ thuộc màn hình.",
       cta: "Tìm hiểu thêm về chúng tôi",
       team: [
         {
@@ -136,21 +138,27 @@ export default function HowItWorks() {
 
   return (
     <div className="space-y-10" id="meet_our_team_section">
-      {/* Header */}
+      {/* Apple-style Premium Section Header */}
       <motion.div
-        className="text-center max-w-2xl mx-auto space-y-3"
+        className="max-w-[1400px] mx-auto text-left space-y-4 px-6 relative z-10"
         initial="hidden"
         whileInView="visible"
         viewport={viewport}
         variants={fadeUp}
       >
-        <span className="text-[11px] font-mono tracking-widest text-[#78756f] uppercase font-bold bg-white/60 px-3 py-1 rounded-full border border-white/65 shadow-2xs">
+        {/* Category Label */}
+        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] tracking-tight block">
           {t.tag}
         </span>
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-950 tracking-tight">
-          {t.title}
+        
+        {/* Giant Two-Line Apple-style Typography */}
+        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] tracking-tight leading-[1.08] flex flex-col">
+          <span>{t.titleLine1}</span>
+          <span>{t.titleLine2}</span>
         </h2>
-        <p className="text-sm text-[#78756f] leading-relaxed font-medium">
+        
+        {/* Apple Signature Spacious Copy */}
+        <p className="text-[19px] md:text-[21px] text-[#86868b] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
           {t.subTitle}
         </p>
       </motion.div>

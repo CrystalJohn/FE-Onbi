@@ -21,8 +21,8 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
   const t = {
     en: {
       home: 'Home',
+      problem: 'Problem',
       features: 'Features',
-      product: 'Product',
       pricing: 'Pricing',
       team: 'Meet Our Team',
       focusTimer: 'Focus Timer',
@@ -36,8 +36,8 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
     },
     vi: {
       home: 'Trang chủ',
+      problem: 'Vấn đề',
       features: 'Tính năng',
-      product: 'Sản phẩm',
       pricing: 'Bảng giá',
       team: 'Đội ngũ',
       focusTimer: 'Hẹn giờ tập trung',
@@ -79,7 +79,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
           className="flex items-center cursor-pointer"
           id="nav_logo"
         >
-          <Image src="/ONBI_loading.png" alt="ONBI" width={60} height={60} className="object-contain" />
+          <Image src="/ONBI_loading.png" alt="ONBI" width={60} height={60} className="object-contain" priority />
         </div>
 
         {/* CENTER NAV LINKS */}
@@ -91,16 +91,16 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
             {t.home}
           </button>
           <button
+            onClick={() => scrollToSection('parent_problems_section')}
+            className="text-sm font-medium text-slate-600 hover:text-[#0066cc] transition-colors cursor-pointer"
+          >
+            {t.problem}
+          </button>
+          <button
             onClick={() => scrollToSection('features_grid_section')}
             className="text-sm font-medium text-slate-600 hover:text-[#0066cc] transition-colors cursor-pointer"
           >
             {t.features}
-          </button>
-          <button
-            onClick={() => scrollToSection('product_specs_section')}
-            className="text-sm font-medium text-slate-600 hover:text-[#0066cc] transition-colors cursor-pointer"
-          >
-            {t.product}
           </button>
           <button
             onClick={() => scrollToSection('pricing_section')}
@@ -248,8 +248,8 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
       {isOpen && (
         <nav className="md:hidden mt-3 border border-gray-200/60 bg-[#f7f6f2] mx-6 p-5 rounded-2xl flex flex-col gap-3 shadow-lg">
           <button onClick={() => scrollToSection('hero_section')} className="text-left py-2 text-sm font-semibold text-slate-900">{t.home}</button>
+          <button onClick={() => scrollToSection('parent_problems_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.problem}</button>
           <button onClick={() => scrollToSection('features_grid_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.features}</button>
-          <button onClick={() => scrollToSection('product_specs_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.product}</button>
           <button onClick={() => scrollToSection('pricing_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.pricing}</button>
           <button onClick={() => scrollToSection('how_it_works_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.team}</button>
           

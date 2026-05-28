@@ -8,6 +8,8 @@ import * as THREE from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useLoader } from '@react-three/fiber';
+import { Shield, MessageSquare, MonitorOff } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Suppress THREE.Clock deprecation warning from @react-three/fiber internals
 if (typeof window !== 'undefined') {
@@ -37,20 +39,55 @@ function OnbiModel({ mood, isMobile }: { mood: RobotMood; isMobile: boolean }) {
   const clonedScene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
   const meshRef = useRef<THREE.Group>(null);
 
+  // Base beautiful starting angle (tilted ~26 degrees to show profile)
+  const defaultRotY = 0.45;
+
+  // Keep track of entrance animation state (relative multipliers/offsets)
+  const entranceRef = useRef({
+    scale: 0,
+    posY: -0.5,
+  });
+
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
 
+    // 1. Hover floating (bobbing) animation
     const bobSpeed = mood === 'focus' ? 0.8 : mood === 'rest' ? 0.4 : 1.2;
     const bobAmount = mood === 'sleep' ? 0.02 : 0.05;
-    meshRef.current.position.y = Math.sin(t * bobSpeed) * bobAmount;
+    const currentBob = Math.sin(t * bobSpeed) * bobAmount;
+
+    // 2. Smooth entrance animation (spring-lerp from 0 to 1)
+    entranceRef.current.scale = THREE.MathUtils.lerp(entranceRef.current.scale, 1, 0.05);
+    entranceRef.current.posY = THREE.MathUtils.lerp(entranceRef.current.posY, 0, 0.05);
+
+    meshRef.current.scale.setScalar(entranceRef.current.scale);
+    meshRef.current.position.y = entranceRef.current.posY + currentBob;
+
+    // 3. Look-At Mouse Pointer Interaction (Relative to defaultRotY)
+    if (!isMobile) {
+      const targetYRot = defaultRotY + (state.pointer.x * Math.PI) / 8; // Max 22.5 deg rotation around base
+      const targetXRot = -(state.pointer.y * Math.PI) / 12; // Max 15 deg tilt
+
+      meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, targetYRot, 0.08);
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, targetXRot, 0.08);
+    } else {
+      // Eases back to default catalog angle on mobile
+      meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, defaultRotY, 0.08);
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, 0, 0.08);
+    }
   });
 
   const scale = isMobile ? 1.7 : 1.8;
   const positionY = isMobile ? -0.65 : -0.8;
 
   return (
-    <group ref={meshRef}>
+    <group
+      ref={meshRef}
+      scale={0}
+      position={[0, -0.5, 0]}
+      rotation={[0, defaultRotY - Math.PI / 4, 0]}
+    >
       <primitive object={clonedScene} scale={scale} position={[0, positionY, 0]} />
     </group>
   );
@@ -73,12 +110,44 @@ export default function Robot3D({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [showBubble, setShowBubble] = useState(true);
+  const [isThinking, setIsThinking] = useState(true);
+  const { language } = useLanguage();
+
+  // Thinking indicator timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsThinking(false);
+    }, 2200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const t = {
+    en: {
+      badgePrivacy: '100% Privacy',
+      badgePrivacySub: 'Local AI processing',
+      badgeEng: 'English Companion',
+      badgeEngSub: 'Two-way voice feedback',
+      badgeScreen: 'Screen-Free',
+      badgeScreenSub: 'Zero addictive elements',
+      speechBubble: "Hi! Let's speak English and build focus habits together! 💖",
+    },
+    vi: {
+      badgePrivacy: 'Bảo mật tuyệt đối',
+      badgePrivacySub: 'Xử lý AI trực tiếp trên máy',
+      badgeEng: 'Bạn học tiếng Anh',
+      badgeEngSub: 'Hội thoại phản hồi 2 chiều',
+      badgeScreen: 'Không màn hình',
+      badgeScreenSub: 'Không gây nghiện, bảo vệ mắt',
+      speechBubble: "Chào cậu! Cùng tớ luyện nói tiếng Anh và tập trung học nhé! 💖",
+    }
+  }[language];
 
   // Detect mobile device
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     setIsMobile(mediaQuery.matches);
-    
+
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
@@ -115,8 +184,39 @@ export default function Robot3D({
 
   return (
     <div ref={containerRef} className="relative w-full aspect-square max-w-[360px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto select-none">
+
+      {/* Custom Keyframe Styles for Hardware Accelerated Floating */}
+      <style>{`
+        @keyframes float-badge {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-12px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes float-bubble {
+          0% { transform: translateY(0px) scale(0.98); }
+          50% { transform: translateY(-8px) scale(1.02); }
+          100% { transform: translateY(0px) scale(0.98); }
+        }
+        @keyframes dot-bounce {
+          0%, 100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-5px); opacity: 1; }
+        }
+        @keyframes fade-in-content {
+          from { opacity: 0; transform: translateY(3px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-float-1 { animation: float-badge 6s ease-in-out infinite; }
+        .animate-float-2 { animation: float-badge 8s ease-in-out infinite 1.2s; }
+        .animate-float-3 { animation: float-badge 7s ease-in-out infinite 2.4s; }
+        .animate-float-bubble { animation: float-bubble 5s ease-in-out infinite; }
+        .animate-dot-1 { animation: dot-bounce 1.2s infinite 0s ease-in-out; }
+        .animate-dot-2 { animation: dot-bounce 1.2s infinite 0.2s ease-in-out; }
+        .animate-dot-3 { animation: dot-bounce 1.2s infinite 0.4s ease-in-out; }
+        .animate-fade-in { animation: fade-in-content 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      `}</style>
+
       <div
-        className="absolute inset-0 rounded-full blur-[50px] md:blur-[80px] opacity-15 md:opacity-20 transition-colors duration-1000"
+        className="absolute inset-0 rounded-full blur-[50px] md:blur-[80px] opacity-15 md:opacity-20 transition-colors duration-1000 animate-pulse pointer-events-none"
         style={{ backgroundColor: getMoodColor(mood) }}
       />
 
@@ -154,16 +254,68 @@ export default function Robot3D({
         </Canvas>
       )}
 
-      <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 bg-white/80 border border-white/80 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full shadow-sm backdrop-blur-md">
-        <span className="text-[8px] md:text-[10px] font-mono font-bold uppercase tracking-widest text-indigo-950">
-          {mood === 'happy' && 'Happy Mode'}
-          {mood === 'focus' && 'Deep Focus'}
-          {mood === 'rest' && 'Rest Break'}
-          {mood === 'listening' && 'Listening'}
-          {mood === 'sleep' && 'Sleep Mode'}
-          {mood === 'alert' && 'Alert!'}
-        </span>
+      {/* ── Premium Apple-Style Floating Glassmorphic Badges ── */}
+      <div className="absolute top-[8%] left-[-16%] xl:left-[-22%] hidden md:flex items-center gap-3 bg-white/40 backdrop-blur-md border border-white/60 px-4 py-3 rounded-2xl shadow-xs hover:-translate-y-1 hover:bg-white/60 hover:shadow-sm transition-all duration-300 pointer-events-auto cursor-default select-none animate-float-1 z-20">
+        <div className="p-2 bg-indigo-950 text-white rounded-xl shadow-xs">
+          <Shield className="w-4 h-4" />
+        </div>
+        <div className="text-left leading-tight">
+          <div className="text-[12px] font-bold text-slate-900">{t.badgePrivacy}</div>
+          <div className="text-[10px] text-slate-500 mt-0.5 font-medium">{t.badgePrivacySub}</div>
+        </div>
       </div>
+
+      <div className="absolute top-[38%] right-[-16%] xl:right-[-22%] hidden md:flex items-center gap-3 bg-white/40 backdrop-blur-md border border-white/60 px-4 py-3 rounded-2xl shadow-xs hover:-translate-y-1 hover:bg-white/60 hover:shadow-sm transition-all duration-300 pointer-events-auto cursor-default select-none animate-float-2 z-20">
+        <div className="p-2 bg-indigo-950 text-white rounded-xl shadow-xs">
+          <MessageSquare className="w-4 h-4" />
+        </div>
+        <div className="text-left leading-tight">
+          <div className="text-[12px] font-bold text-slate-900">{t.badgeEng}</div>
+          <div className="text-[10px] text-slate-500 mt-0.5 font-medium">{t.badgeEngSub}</div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-[8%] left-[-10%] xl:left-[-16%] hidden md:flex items-center gap-3 bg-white/40 backdrop-blur-md border border-white/60 px-4 py-3 rounded-2xl shadow-xs hover:-translate-y-1 hover:bg-white/60 hover:shadow-sm transition-all duration-300 pointer-events-auto cursor-default select-none animate-float-3 z-20">
+        <div className="p-2 bg-indigo-950 text-white rounded-xl shadow-xs">
+          <MonitorOff className="w-4 h-4" />
+        </div>
+        <div className="text-left leading-tight">
+          <div className="text-[12px] font-bold text-slate-900">{t.badgeScreen}</div>
+          <div className="text-[10px] text-slate-500 mt-0.5 font-medium">{t.badgeScreenSub}</div>
+        </div>
+      </div>
+
+      {/* ── Premium Apple-Style Floating Speech Bubble ── */}
+      {showBubble && (
+        <div className="absolute top-[6%] left-[50%] -translate-x-1/2 md:top-[5%] md:left-[55%] md:-translate-x-0 z-30 max-w-[200px] sm:max-w-[240px] px-4 py-3 bg-white/90 backdrop-blur-md border border-white/60 shadow-md rounded-[20px] animate-float-bubble pointer-events-auto cursor-default text-left select-none group/bubble">
+          {/* Triangular Tail */}
+          <div className="absolute -bottom-1.5 left-[50%] -translate-x-1/2 md:left-12 md:-translate-x-0 w-3 h-3 bg-white border-r border-b border-white/60 rotate-45" />
+
+          {/* Close button (X) */}
+          <button 
+            onClick={() => setShowBubble(false)}
+            className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full transition-all cursor-pointer opacity-0 group-hover/bubble:opacity-100 duration-300"
+            title="Dismiss"
+          >
+            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Bubble content */}
+          {isThinking ? (
+            <div className="flex items-center gap-1.5 py-1.5 px-2 select-none">
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-dot-1" />
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-dot-2" />
+              <div className="w-2 h-2 bg-slate-400 rounded-full animate-dot-3" />
+            </div>
+          ) : (
+            <p className="text-[11px] sm:text-xs font-semibold leading-relaxed text-[#1d1d1f] pr-3 animate-fade-in">
+              {t.speechBubble}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
