@@ -64,14 +64,14 @@ export default function MiniTimer({ onStateUpdate }: MiniTimerProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-3 md:gap-4 select-none">
       {/* Circular Timer */}
       <motion.div 
-        className="relative flex items-center justify-center w-[180px] h-[180px]"
+        className="relative flex items-center justify-center w-[130px] h-[130px] md:w-[180px] md:h-[180px]"
         whileHover={{ scale: 1.03 }}
         transition={{ type: 'spring', stiffness: 260, damping: 15 }}
       >
-        <svg className="w-full h-full transform -rotate-90">
+        <svg viewBox="0 0 180 180" className="w-full h-full transform -rotate-90">
           <defs>
             <linearGradient id="miniTimerGlow" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={mode === 'focus' ? '#22d3ee' : '#f97316'} />
@@ -102,13 +102,13 @@ export default function MiniTimer({ onStateUpdate }: MiniTimerProps) {
 
         {/* Center text */}
         <div className="absolute flex flex-col items-center justify-center text-center">
-          <span className="text-[9px] font-mono tracking-widest text-slate-500 uppercase font-bold">
+          <span className="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-500 uppercase font-bold">
             {mode === 'focus' ? 'FOCUS' : 'REST'}
           </span>
-          <span className="text-3xl font-extrabold font-mono text-slate-900 tracking-tight leading-none">
+          <span className="text-xl md:text-3xl font-extrabold font-mono text-slate-900 tracking-tight leading-none">
             {formatTime(timeLeft)}
           </span>
-          <span className="text-[9px] font-mono text-slate-400 mt-0.5">
+          <span className="text-[8px] md:text-[9px] font-mono text-slate-400 mt-0.5">
             {mode === 'focus' ? '25 MIN CYCLE' : '5 MIN BREAK'}
           </span>
         </div>
@@ -118,21 +118,21 @@ export default function MiniTimer({ onStateUpdate }: MiniTimerProps) {
       <div className="flex items-center gap-2">
         <button
           onClick={toggleRun}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs text-white transition-all shadow-md cursor-pointer ${
+          className={`flex items-center gap-1.5 md:gap-2 px-3.5 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs text-white transition-all shadow-md cursor-pointer ${
             isRunning 
               ? 'bg-amber-500 hover:bg-orange-600' 
               : 'bg-indigo-950 hover:bg-indigo-900'
           }`}
         >
-          {isRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-white" />}
+          {isRunning ? <Pause className="w-3 h-3 md:w-3.5 md:h-3.5" /> : <Play className="w-3 h-3 md:w-3.5 md:h-3.5 fill-white" />}
           {isRunning ? 'PAUSE' : 'START'}
         </button>
 
         <button
           onClick={resetSession}
-          className="p-2.5 rounded-full bg-white/50 hover:bg-white/80 border border-white/60 text-slate-700 transition-all cursor-pointer"
+          className="p-1.5 md:p-2.5 rounded-full bg-white/50 hover:bg-white/80 border border-white/60 text-slate-700 transition-all cursor-pointer"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
+          <RotateCcw className="w-3 h-3 md:w-3.5 md:h-3.5" />
         </button>
       </div>
     </div>

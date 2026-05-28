@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   description: "Onbi Camera - Smart monitoring for your child",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

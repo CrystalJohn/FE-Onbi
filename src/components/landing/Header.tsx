@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight, Timer } from 'lucide-react';
 
 interface HeaderProps {
   onJoinClick?: () => void;
+  onTimerClick?: () => void;
 }
 
-export default function Header({ onJoinClick }: HeaderProps) {
+export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
@@ -29,8 +30,12 @@ export default function Header({ onJoinClick }: HeaderProps) {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 ${scrolled ? 'bg-[#f7f6f2]/95 border-b border-[#ccc9bf]/30 shadow-sm' : ''}`}>
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+    <header className={`fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 safe-padding-top ${
+      scrolled 
+        ? 'bg-[#f7f6f2]/85 border-b border-[#ccc9bf]/30 shadow-sm backdrop-blur-md [backdrop-filter:blur(12px)] [-webkit-backdrop-filter:blur(12px)]' 
+        : 'bg-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-6 px-[max(1.5rem,env(safe-area-inset-left,24px))] pr-[max(1.5rem,env(safe-area-inset-right,24px))] flex items-center justify-between">
         
         {/* LOGO */}
         <div 
@@ -78,6 +83,13 @@ export default function Header({ onJoinClick }: HeaderProps) {
         {/* RIGHT CTA BUTTONS */}
         <div className="hidden md:flex items-center gap-3">
           <button
+            onClick={onTimerClick}
+            className="text-sm font-semibold text-slate-700 px-4 py-2 rounded-full border border-slate-300 hover:border-[#22d3ee] hover:text-[#22d3ee] transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <Timer className="w-4 h-4 text-cyan-500" />
+            <span>Focus Timer</span>
+          </button>
+          <button
             onClick={() => router.push('/login')}
             className="text-sm font-semibold text-slate-700 px-5 py-2 rounded-full border border-slate-300 hover:border-[#22d3ee] hover:text-[#22d3ee] transition-all cursor-pointer"
           >
@@ -105,11 +117,18 @@ export default function Header({ onJoinClick }: HeaderProps) {
       {isOpen && (
         <nav className="md:hidden mt-3 border border-gray-200/60 bg-[#f7f6f2] mx-6 p-5 rounded-2xl flex flex-col gap-3 shadow-lg">
           <button onClick={() => scrollToSection('hero_section')} className="text-left py-2 text-sm font-semibold text-slate-900">Home</button>
-          <button onClick={() => scrollToSection('mvp_tracker_section')} className="text-left py-2 text-sm font-medium text-slate-600">Features</button>
+          <button onClick={() => scrollToSection('features_grid_section')} className="text-left py-2 text-sm font-medium text-slate-600">Features</button>
           <button onClick={() => scrollToSection('product_specs_section')} className="text-left py-2 text-sm font-medium text-slate-600">Product</button>
           <button onClick={() => scrollToSection('pricing_section')} className="text-left py-2 text-sm font-medium text-slate-600">Pricing</button>
           <button onClick={() => scrollToSection('how_it_works_section')} className="text-left py-2 text-sm font-medium text-slate-600">Meet Our Team</button>
           <div className="h-px bg-gray-200 my-2" />
+          <button
+            onClick={() => { setIsOpen(false); if (onTimerClick) onTimerClick(); }}
+            className="w-full text-center text-sm font-semibold text-slate-700 py-3 rounded-full border border-slate-300 hover:border-[#22d3ee] hover:text-[#22d3ee] transition-all flex items-center justify-center gap-1.5"
+          >
+            <Timer className="w-4 h-4 text-cyan-500" />
+            Test Focus Timer
+          </button>
           <button
             onClick={() => { setIsOpen(false); if (onJoinClick) onJoinClick(); }}
             className="w-full text-center text-sm font-semibold text-white py-3 rounded-full bg-[#22d3ee] hover:bg-cyan-400 transition-all"

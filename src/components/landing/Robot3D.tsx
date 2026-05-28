@@ -26,7 +26,7 @@ interface Robot3DProps {
 
 const MODEL_PATH = '/onbibear2-optimized.glb';
 
-function OnbiModel({ mood }: { mood: RobotMood }) {
+function OnbiModel({ mood, isMobile }: { mood: RobotMood; isMobile: boolean }) {
   const gltf = useLoader(GLTFLoader, MODEL_PATH, (loader) => {
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
@@ -46,9 +46,12 @@ function OnbiModel({ mood }: { mood: RobotMood }) {
     meshRef.current.position.y = Math.sin(t * bobSpeed) * bobAmount;
   });
 
+  const scale = isMobile ? 1.4 : 1.8;
+  const positionY = isMobile ? -0.65 : -0.8;
+
   return (
     <group ref={meshRef}>
-      <primitive object={clonedScene} scale={1.8} position={[0, -0.8, 0]} />
+      <primitive object={clonedScene} scale={scale} position={[0, positionY, 0]} />
     </group>
   );
 }
@@ -68,7 +71,18 @@ export default function Robot3D({
 }: Robot3DProps) {
   const mood = externalMood || 'happy';
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mediaQuery.matches);
+    
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   // Only render Canvas when component is in viewport
   useEffect(() => {
@@ -95,35 +109,40 @@ export default function Robot3D({
     }
   };
 
+  // Adjust camera FOV and shadow position based on screen size
+  const fov = isMobile ? 45 : 40;
+  const shadowY = isMobile ? -0.95 : -1.2;
+
   return (
-    <div ref={containerRef} className="relative w-full aspect-square max-w-[600px] mx-auto">
+    <div ref={containerRef} className="relative w-full aspect-square max-w-[280px] sm:max-w-[360px] md:max-w-[500px] lg:max-w-[600px] mx-auto select-none">
       <div
-        className="absolute inset-0 rounded-full blur-[80px] opacity-20 transition-colors duration-1000"
+        className="absolute inset-0 rounded-full blur-[50px] md:blur-[80px] opacity-15 md:opacity-20 transition-colors duration-1000"
         style={{ backgroundColor: getMoodColor(mood) }}
       />
 
       {isVisible && (
         <Canvas
-          camera={{ position: [0, 0.5, 4], fov: 40 }}
-          style={{ width: '100%', height: '100%' }}
+          camera={{ position: [0, 0.5, 4], fov }}
+          style={{ width: '100%', height: '100%', pointerEvents: isMobile ? 'none' : 'auto' }}
           frameloop="always"
+          dpr={isMobile ? [1, 1.5] : [1, 2]}
         >
           <ambientLight intensity={0.6} />
           <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
           <pointLight position={[-3, 2, 2]} intensity={0.5} color={getMoodColor(mood)} />
 
           <Suspense fallback={<LoadingFallback />}>
-            <OnbiModel mood={mood} />
+            <OnbiModel mood={mood} isMobile={isMobile} />
             <Environment preset="studio" />
             <ContactShadows
-              position={[0, -1.2, 0]}
+              position={[0, shadowY, 0]}
               opacity={0.4}
               scale={5}
               blur={2.5}
             />
           </Suspense>
 
-          {interactive && (
+          {interactive && !isMobile && (
             <OrbitControls
               enableZoom={false}
               enablePan={false}
@@ -135,8 +154,8 @@ export default function Robot3D({
         </Canvas>
       )}
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/60 bg-white/70 border border-white/80 px-3 py-1.5 rounded-full shadow-sm">
-        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-indigo-950">
+      <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 bg-white/80 border border-white/80 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full shadow-sm backdrop-blur-md">
+        <span className="text-[8px] md:text-[10px] font-mono font-bold uppercase tracking-widest text-indigo-950">
           {mood === 'happy' && 'Happy Mode'}
           {mood === 'focus' && 'Deep Focus'}
           {mood === 'rest' && 'Rest Break'}
