@@ -13,7 +13,7 @@ const teamMembers: TeamMember[] = [
   {
     name: 'Nguyễn Tấn Đạt',
     role: 'Owner',
-    avatar: '/nguyen_tan_dat_avatar.png',
+    avatar: '/nguyen_tan_dat_avatar.webp',
     highlights: [
       'Founder & Product Visionary of ONBI Tech',
       'Passionate about child-safe AI and EdTech innovation',

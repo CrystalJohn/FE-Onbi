@@ -13,13 +13,17 @@ interface LanguageContextProps {
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('vi');
 
   // Load language from localStorage if available
   useEffect(() => {
     const savedLang = localStorage.getItem('onbi_lang') as Language;
     if (savedLang === 'en' || savedLang === 'vi') {
       setLanguageState(savedLang);
+    } else {
+      // Default to Vietnamese
+      setLanguageState('vi');
+      localStorage.setItem('onbi_lang', 'vi');
     }
   }, []);
 

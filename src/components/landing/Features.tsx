@@ -94,7 +94,7 @@ export default function Features() {
     {
       category: t.categories.focus,
       title: "Pomodoro Focus Cycle",
-      src: "/Pomodoro Focus Cycle.png",
+      src: "/Pomodoro Focus Cycle.webp",
       content: (
         <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
@@ -107,7 +107,7 @@ export default function Features() {
     {
       category: t.categories.health,
       title: "Smart Posture Guardian",
-      src: "/Smart Posture Guardian.png",
+      src: "/Smart Posture Guardian.webp",
       content: (
         <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
@@ -120,7 +120,7 @@ export default function Features() {
     {
       category: t.categories.parent,
       title: "Real-time Progress Reports",
-      src: "/Real-time Progress Reports.png",
+      src: "/Real-time Progress Reports.webp",
       content: (
         <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
@@ -133,7 +133,7 @@ export default function Features() {
     {
       category: t.categories.buddy,
       title: "Friendly Study Buddy",
-      src: "/Friendly Study Buddy.png",
+      src: "/Friendly Study Buddy.webp",
       content: (
         <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
@@ -146,7 +146,7 @@ export default function Features() {
     {
       category: t.categories.english,
       title: "Daily Speaking Practice",
-      src: "/Daily Speaking Practice.png",
+      src: "/Daily Speaking Practice.webp",
       content: (
         <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
@@ -159,7 +159,7 @@ export default function Features() {
     {
       category: t.categories.updates,
       title: "Lifetime Free Updates",
-      src: "/Lifetime Free Updates.png",
+      src: "/Lifetime Free Updates.webp",
       content: (
         <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">

@@ -30,7 +30,7 @@ export default function HowItWorks() {
           role: "Owner",
           initials: "NĐ",
           color: "from-orange-400 to-amber-500",
-          avatar: "/nguyen_tan_dat_avatar.png",
+          avatar: "/nguyen_tan_dat_avatar.webp",
           description: "Founder & Product Visionary of ONBI Tech. Passionate about child-safe AI and screen-free learning solutions for children."
         },
         {
@@ -38,7 +38,7 @@ export default function HowItWorks() {
           role: "Technical Team",
           initials: "NK",
           color: "from-pink-400 to-rose-500",
-          avatar: "/Khang.png",
+          avatar: "/Khang.webp",
           description: "Creative graphic designer crafting visual identities and child-friendly UI for the ONBI brand experience."
         },
         {
@@ -46,7 +46,7 @@ export default function HowItWorks() {
           role: "Technical Team",
           initials: "TK",
           color: "from-indigo-400 to-violet-500",
-          avatar: "/kha.png",
+          avatar: "/kha.webp",
           description: "Software engineer building scalable backend systems and seamless integrations for the ONBI platform."
         },
         {
@@ -54,7 +54,7 @@ export default function HowItWorks() {
           role: "Technical Team",
           initials: "CT",
           color: "from-cyan-400 to-teal-500",
-          avatar: "/thien.png",
+          avatar: "/thien.webp",
           description: "IT specialist managing infrastructure and ensuring secure, reliable systems behind every ONBI device."
         },
         {
@@ -62,7 +62,7 @@ export default function HowItWorks() {
           role: "Technical Team",
           initials: "TP",
           color: "from-blue-400 to-indigo-500",
-          avatar: "/phuc.png",
+          avatar: "/phuc.webp",
           description: "Full-stack engineer developing the parent companion app and real-time monitoring dashboards."
         },
         {
@@ -70,7 +70,7 @@ export default function HowItWorks() {
           role: "Co-founder",
           initials: "NQ",
           color: "from-emerald-400 to-green-500",
-          avatar: "/Quy.png",
+          avatar: "/Quy.webp",
           description: "Co-founder driving ONBI's growth strategy and connecting the brand with families across Vietnam and beyond."
         }
       ]
@@ -87,7 +87,7 @@ export default function HowItWorks() {
           role: "Nhà sáng lập / Owner",
           initials: "NĐ",
           color: "from-orange-400 to-amber-500",
-          avatar: "/nguyen_tan_dat_avatar.png",
+          avatar: "/nguyen_tan_dat_avatar.webp",
           description: "Người sáng lập & Định hướng Sản phẩm của ONBI Tech. Đầy nhiệt huyết với AI an toàn cho trẻ em và các giải pháp học tập không màn hình."
         },
         {
@@ -95,7 +95,7 @@ export default function HowItWorks() {
           role: "Đội ngũ Kỹ thuật",
           initials: "NK",
           color: "from-pink-400 to-rose-500",
-          avatar: "/Khang.png",
+          avatar: "/Khang.webp",
           description: "Nhà thiết kế đồ họa sáng tạo, người xây dựng bộ nhận diện thương hiệu và giao diện thân thiện với trẻ em cho trải nghiệm ONBI."
         },
         {
@@ -103,7 +103,7 @@ export default function HowItWorks() {
           role: "Đội ngũ Kỹ thuật",
           initials: "TK",
           color: "from-indigo-400 to-violet-500",
-          avatar: "/kha.png",
+          avatar: "/kha.webp",
           description: "Kỹ sư phần mềm phát triển hệ thống backend mở rộng và tích hợp mượt mà cho nền tảng ONBI."
         },
         {
@@ -111,7 +111,7 @@ export default function HowItWorks() {
           role: "Đội ngũ Kỹ thuật",
           initials: "CT",
           color: "from-cyan-400 to-teal-500",
-          avatar: "/thien.png",
+          avatar: "/thien.webp",
           description: "Chuyên gia CNTT quản lý hạ tầng đám mây và đảm bảo hệ thống bảo mật, ổn định cho mỗi thiết bị ONBI."
         },
         {
@@ -119,7 +119,7 @@ export default function HowItWorks() {
           role: "Đội ngũ Kỹ thuật",
           initials: "TP",
           color: "from-blue-400 to-indigo-500",
-          avatar: "/phuc.png",
+          avatar: "/phuc.webp",
           description: "Kỹ sư Full-stack phát triển ứng dụng đồng hành cho ba mẹ và bảng điều khiển theo dõi thời gian thực."
         },
         {
@@ -127,7 +127,7 @@ export default function HowItWorks() {
           role: "Đồng sáng lập / Co-founder",
           initials: "NQ",
           color: "from-emerald-400 to-green-500",
-          avatar: "/Quy.png",
+          avatar: "/Quy.webp",
           description: "Đồng sáng lập thúc đẩy chiến lược phát triển của ONBI, kết nối thương hiệu với hàng triệu gia đình tại Việt Nam và quốc tế."
         }
       ]

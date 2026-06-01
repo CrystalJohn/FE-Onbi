@@ -79,7 +79,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
           className="flex items-center cursor-pointer"
           id="nav_logo"
         >
-          <Image src="/ONBI_loading.png" alt="ONBI" width={60} height={60} className="object-contain" priority />
+          <Image src="/ONBI_loading.webp" alt="ONBI" width={60} height={60} className="object-contain" priority />
         </div>
 
         {/* CENTER NAV LINKS */}
@@ -173,8 +173,8 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
             <span>{t.focusTimer}</span>
           </button>
           <button
-            onClick={() => router.push('/login')}
-            className="text-sm font-semibold text-slate-700 px-5 py-2 rounded-full border border-slate-300 hover:border-[#0066cc] hover:text-[#0066cc] transition-all duration-200 active:scale-95 cursor-pointer"
+            disabled
+            className="hidden"
           >
             {t.login}
           </button>

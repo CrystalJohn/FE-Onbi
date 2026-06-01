@@ -132,7 +132,7 @@ export default function IntroLoader({ onComplete, modelReady = false }: IntroLoa
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <img
-              src="/ONBI_loading.png"
+              src="/ONBI_loading.webp"
               alt="ONBI"
               className="w-28 h-28 sm:w-36 sm:h-36 object-contain drop-shadow-[0_0_30px_rgba(34,211,238,0.5)]"
             />

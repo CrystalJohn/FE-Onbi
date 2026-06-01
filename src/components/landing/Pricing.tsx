@@ -485,7 +485,7 @@ export default function EarlyAccessForm() {
             {tier.id === 'monthly' && (
               <div className="w-14 h-14 rounded-full mb-6.5 relative z-10 select-none shadow-[0_8px_24px_rgba(6,182,212,0.22)] border border-cyan-300/40 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
                 <img 
-                  src="/icon_badge_Monthly Pass.png" 
+                  src="/icon_badge_Monthly Pass.webp" 
                   alt="Monthly Pass" 
                   className="w-full h-full object-cover"
                   draggable={false}
@@ -505,7 +505,7 @@ export default function EarlyAccessForm() {
             {tier.id === 'annual' && (
               <div className="w-14 h-14 rounded-full mb-6.5 relative z-10 select-none shadow-[0_8px_24px_rgba(245,158,11,0.22)] border border-amber-300/40 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
                 <img 
-                  src="/icon_badge_Annual Pass.png" 
+                  src="/icon_badge_Annual Pass.webp" 
                   alt="Annual Pass" 
                   className="w-full h-full object-cover"
                   draggable={false}
