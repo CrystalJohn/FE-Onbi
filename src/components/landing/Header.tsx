@@ -124,7 +124,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
               onClick={() => setIsLangOpen(!isLangOpen)}
               className="text-sm font-medium text-slate-700 hover:text-slate-900 px-3 py-2 rounded-full hover:bg-[#ccc9bf]/20 transition-all duration-200 cursor-pointer flex items-center gap-1.5"
             >
-              <img src={t.flag} alt="" className="w-5 h-3.5 object-cover rounded-xs border border-slate-200 shadow-3xs" />
+              <Image src={t.flag} alt="" width={20} height={14} className="w-5 h-3.5 object-cover rounded-xs border border-slate-200 shadow-3xs" />
               <span className="font-semibold text-slate-700">{t.langName}</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
@@ -145,7 +145,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
                       language === 'en' ? 'text-[#0066cc] bg-blue-50/40' : 'text-slate-700'
                     }`}
                   >
-                    <img src="/Flag_of_the_United_States.png" alt="US" className="w-5 h-3.5 object-cover rounded-xs border border-slate-200 shrink-0" />
+                    <Image src="/Flag_of_the_United_States.png" alt="US" width={20} height={14} className="w-5 h-3.5 object-cover rounded-xs border border-slate-200 shrink-0" />
                     <span>English (US)</span>
                   </button>
                   <button
@@ -157,7 +157,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
                       language === 'vi' ? 'text-[#0066cc] bg-blue-50/40' : 'text-slate-700'
                     }`}
                   >
-                    <img src="/Flag_of_Vietnam.png" alt="VN" className="w-5 h-3.5 object-cover rounded-xs border border-slate-200 shrink-0" />
+                    <Image src="/Flag_of_Vietnam.png" alt="VN" width={20} height={14} className="w-5 h-3.5 object-cover rounded-xs border border-slate-200 shrink-0" />
                     <span>Tiếng Việt</span>
                   </button>
                 </div>
@@ -195,7 +195,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
               onClick={() => setIsLangOpen(!isLangOpen)}
               className="text-xs font-semibold text-slate-700 hover:text-slate-900 px-2.5 py-1.5 rounded-full bg-slate-100/80 hover:bg-slate-200/80 transition-all cursor-pointer flex items-center gap-1"
             >
-              <img src={t.flag} alt="" className="w-4 h-2.5 object-cover rounded-xs border border-slate-200" />
+              <Image src={t.flag} alt="" width={16} height={10} className="w-4 h-2.5 object-cover rounded-xs border border-slate-200" />
               <span className="uppercase text-[10px] tracking-wider text-slate-700 font-bold">
                 {language === 'en' ? 'EN' : 'VI'}
               </span>
@@ -215,7 +215,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
                       language === 'en' ? 'text-[#0066cc]' : 'text-slate-700'
                     }`}
                   >
-                    <img src="/Flag_of_the_United_States.png" alt="US" className="w-4 h-2.5 object-cover rounded-xs border border-slate-200 shrink-0" />
+                    <Image src="/Flag_of_the_United_States.png" alt="US" width={16} height={10} className="w-4 h-2.5 object-cover rounded-xs border border-slate-200 shrink-0" />
                     <span>English</span>
                   </button>
                   <button
@@ -227,7 +227,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
                       language === 'vi' ? 'text-[#0066cc]' : 'text-slate-700'
                     }`}
                   >
-                    <img src="/Flag_of_Vietnam.png" alt="VN" className="w-4 h-2.5 object-cover rounded-xs border border-slate-200 shrink-0" />
+                    <Image src="/Flag_of_Vietnam.png" alt="VN" width={16} height={10} className="w-4 h-2.5 object-cover rounded-xs border border-slate-200 shrink-0" />
                     <span>Tiếng Việt</span>
                   </button>
                 </div>

@@ -8,11 +8,13 @@ import IntroLoader from '@/components/landing/IntroLoader';
 import ParentProblems from '@/components/landing/ParentProblems';
 import { RobotMood } from '@/types/landing';
 import { motion, AnimatePresence } from 'motion/react';
-import { gsap, useGSAP } from '@/lib/gsap';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 
 // Lazy load heavy components (Three.js + below-fold sections)
-const Robot3D = dynamic(() => import('@/components/landing/Robot3D'), { ssr: false });
+const Robot3D = dynamic(() => import('@/components/landing/Robot3D'), { 
+  ssr: false,
+  loading: () => <div className="w-full aspect-square max-w-[360px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto" />
+});
 const MiniTimer = dynamic(() => import('@/components/landing/MiniTimer'));
 const Features = dynamic(() => import('@/components/landing/Features'));
 const MeetOurTeam = dynamic(() => import('@/components/landing/MeetOurTeam'));
@@ -31,18 +33,19 @@ function HomePageContent() {
     en: {
       heroTitle: (
         <>
-          Build{' '}
+          Help your child{' '}
           <span className="bg-gradient-to-r from-[#0066cc] via-[#2f80ed] to-[#4f46e5] bg-clip-text text-transparent font-bold">
-            English confidence
-          </span>{' '}
-          and{' '}
+            focus and study better
+          </span>
+          ,<br className="hidden sm:inline" />{' '}
+          so you don't have to{' '}
           <span className="bg-gradient-to-r from-[#8a2be2] via-[#a855f7] to-[#ec4899] bg-clip-text text-transparent font-bold">
-            focus habits
-          </span>{' '}
-          in kids.
+            remind them every day
+          </span>
+          .
         </>
       ),
-      heroDesc: 'A screen-free study companion for children aged 6–11. Gentle routines, zero screens, complete privacy.',
+      heroDesc: 'The ONBI companion robot automatically tracks Pomodoro study sessions, sends gentle reminders, and syncs real-time progress updates to parents\' phones.',
       heroCta: 'Order Your ONBI',
       heroSecondaryCta: 'Try Focus Timer ↗',
     },
@@ -51,46 +54,30 @@ function HomePageContent() {
         <>
           Giúp con{' '}
           <span className="bg-gradient-to-r from-[#0066cc] via-[#2f80ed] to-[#4f46e5] bg-clip-text text-transparent font-bold">
-            tự tin nói tiếng Anh
-          </span>{' '}
-          và{' '}
+            tập trung học tốt hơn
+          </span>
+          ,<br className="hidden sm:inline" />{' '}
+          ba mẹ{' '}
           <span className="bg-gradient-to-r from-[#8a2be2] via-[#a855f7] to-[#ec4899] bg-clip-text text-transparent font-bold">
-            tập trung học tập
-          </span>{' '}
-          mỗi ngày.
+            bớt phải nhắc mỗi ngày
+          </span>
+          .
         </>
       ),
-      heroDesc: 'Bạn đồng hành học tập không màn hình cho trẻ 6–11 tuổi. Nhẹ nhàng, không gây nghiện, bảo mật tuyệt đối.',
+      heroDesc: 'Robot bạn học ONBI tự động theo dõi phiên học Pomodoro, nhắc nhở nhẹ nhàng và cập nhật tiến độ học tập về điện thoại phụ huynh.',
       heroCta: 'Tìm hiểu ONBI',
       heroSecondaryCta: 'Trải nghiệm hẹn giờ ↗',
     }
   }[language];
 
-  // GSAP scroll animations for footer
-  useGSAP(() => {
-    gsap.from('.landing-footer', {
-      y: 20,
-      opacity: 0,
-      duration: 0.6,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: '.landing-footer',
-        start: 'top 90%',
-        once: true,
-      }
-    });
-  }, { scope: mainRef });
-
-  // Preload the 3D model during intro loader
+  // Preload the 3D model in background (don't block page)
   useEffect(() => {
     const preload = async () => {
       try {
         const res = await fetch('/onbibear2-optimized.glb');
-        // Read the full response to ensure it's cached by the browser
         await res.blob();
         setModelReady(true);
       } catch {
-        // If preload fails, don't block the page forever
         setModelReady(true);
       }
     };
@@ -98,21 +85,8 @@ function HomePageContent() {
   }, []);
 
   const handleLoaderComplete = useCallback(() => {
-    // Only dismiss loader when model is also ready
-    if (modelReady) {
-      setIsLoading(false);
-    }
-  }, [modelReady]);
-
-  // If loader animation finished but model wasn't ready yet,
-  // dismiss as soon as model becomes ready
-  useEffect(() => {
-    if (modelReady && isLoading) {
-      // Small delay to let the loader finish its animation gracefully
-      const timeout = setTimeout(() => setIsLoading(false), 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [modelReady, isLoading]);
+    setIsLoading(false);
+  }, []);
 
   const scrollToId = (id: string) => {
     const element = document.getElementById(id);
@@ -137,7 +111,12 @@ function HomePageContent() {
             key="loader-component"
             className="fixed inset-0 z-[100]"
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.65, ease: "easeInOut" } }}
+            exit={{ 
+              opacity: 0,
+              scale: 1.15,
+              filter: "blur(15px)",
+              transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+            }}
           >
             <IntroLoader onComplete={handleLoaderComplete} modelReady={modelReady} />
           </motion.div>
@@ -226,42 +205,86 @@ function HomePageContent() {
 
             {/* Modal Box */}
             <motion.div
-              className="relative w-full max-w-sm bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.12)] rounded-3xl p-6 overflow-hidden flex flex-col items-center text-center z-10"
-              initial={{ opacity: 0, scale: 0.9, y: 15 }}
+              className="relative w-full max-w-sm md:max-w-5xl bg-white md:bg-[#f3f8fe] border border-slate-200/80 shadow-[0_25px_60px_rgba(0,0,0,0.18)] rounded-3xl overflow-hidden flex flex-col z-10"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 15 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 22 }}
             >
-              {/* Blur accent lights inside modal */}
-              <div className="absolute -top-10 -right-10 w-28 h-28 bg-[#22d3ee]/15 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+              {/* Desktop view: Beautiful visual background of ONBI Focus Routine */}
+              <div className="hidden md:block absolute inset-0 z-0 select-none pointer-events-none">
+                <Image
+                  src="/pomodoro-timer.png"
+                  alt="ONBI Focus Routine"
+                  fill
+                  className="object-cover object-left"
+                  priority
+                />
+                {/* Premium gradient overlay to blend into the interactive timer side smoothly */}
+                <div className="absolute inset-y-0 right-0 w-[45%] bg-gradient-to-l from-[#f3f8fe] via-[#f3f8fe]/95 to-transparent" />
+              </div>
 
               {/* Close (X) Trigger */}
               <button
                 onClick={() => setShowTimerModal(false)}
-                className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 rounded-full transition-colors cursor-pointer"
+                className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 rounded-full transition-colors cursor-pointer z-50 shadow-2xs"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
 
-              {/* Title Header */}
-              <div className="mb-2 mt-1">
-                <span className="inline-flex items-center gap-1 text-[9px] font-mono tracking-widest text-slate-500 uppercase font-bold bg-white/80 border border-white px-2.5 py-0.5 rounded-full shadow-2xs">
-                  🤖 INTERACTIVE SIMULATION
-                </span>
-                <h3 className="font-display text-lg font-extrabold text-slate-950 mt-2 tracking-tight">
-                  ONBI Focus Timer
-                </h3>
-                <p className="text-[11px] text-[#78756f] max-w-xs mt-1.5 leading-relaxed font-medium">
-                  Observe how ONBI's emotions change in real-time behind this popup as you start cycles or take breaks!
-                </p>
-              </div>
+              {/* Main Container Grid */}
+              <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 w-full h-full min-h-[400px] md:min-h-[480px]">
+                {/* Left Side spacer on Desktop to let the image steps show through */}
+                <div className="hidden md:block md:col-span-7" />
 
-              {/* MiniTimer dial component */}
-              <div className="w-full py-2 flex justify-center">
-                <MiniTimer onStateUpdate={handleMoodFromTimer} />
+                {/* Right Side: Interactive Timer Panel */}
+                <div className="col-span-1 md:col-span-5 flex flex-col items-center justify-center p-6 md:p-8 bg-white md:bg-transparent rounded-3xl md:rounded-none z-10 text-center">
+                  
+                  {/* Mobile Header: Visible only on mobile */}
+                  <div className="block md:hidden text-center mt-2 mb-4 px-4">
+                    <span className="inline-flex items-center gap-1 text-[9px] font-mono tracking-widest text-slate-500 uppercase font-bold bg-slate-50 border border-slate-100 px-2.5 py-0.5 rounded-full shadow-3xs">
+                      🤖 INTERACTIVE SIMULATION
+                    </span>
+                    <h3 className="font-display text-lg font-extrabold text-slate-950 mt-1 tracking-tight">
+                      ONBI Focus Timer
+                    </h3>
+                    <p className="text-[11px] text-[#78756f] max-w-xs mx-auto mt-1 leading-relaxed font-medium">
+                      Observe how ONBI's emotions change in real-time behind this popup as you start cycles or take breaks!
+                    </p>
+                  </div>
+
+                  {/* Desktop Header: Visible only on desktop */}
+                  <div className="hidden md:block text-center mb-6">
+                    <span className="inline-flex items-center gap-1.5 text-[9px] font-mono tracking-widest text-indigo-600 uppercase font-extrabold bg-indigo-50 border border-indigo-100/50 px-3 py-1 rounded-full shadow-3xs animate-pulse">
+                      ⚡ LIVE FOCUS TIMER
+                    </span>
+                    <p className="text-[11px] text-slate-500 max-w-[240px] mx-auto mt-2.5 leading-relaxed font-medium">
+                      Start a cycle and watch the ONBI 3D robot behind this modal change its mood!
+                    </p>
+                  </div>
+
+                  {/* MiniTimer dial component */}
+                  <div className="w-full flex justify-center py-2 scale-95 md:scale-100">
+                    <MiniTimer onStateUpdate={handleMoodFromTimer} />
+                  </div>
+
+                  {/* Mobile Routine Image Card: Visible only on mobile */}
+                  <div className="block md:hidden mt-4 pt-4 border-t border-slate-100 w-full">
+                    <p className="text-[10px] font-bold text-slate-400 mb-2.5 uppercase tracking-wider text-center">
+                      ONBI Focus Routine
+                    </p>
+                    <div className="relative w-full aspect-[2/1] overflow-hidden rounded-2xl border border-slate-100">
+                      <Image
+                        src="/pomodoro-timer.png"
+                        alt="ONBI Focus Routine"
+                        fill
+                        className="object-cover object-left"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>

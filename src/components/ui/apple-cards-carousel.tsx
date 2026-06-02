@@ -41,13 +41,38 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
       carouselRef.current.scrollLeft = initialScroll;
       checkScrollability();
     }
+
+    const handleResize = () => {
+      checkScrollability();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, [initialScroll]);
 
   const checkScrollability = () => {
     if (carouselRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth);
+      setCanScrollLeft(scrollLeft > 2);
+
+      const flexContainer = carouselRef.current.querySelector(".flex-row");
+      if (flexContainer && flexContainer.children.length > 0) {
+        const lastCard = flexContainer.children[flexContainer.children.length - 1] as HTMLElement;
+        if (lastCard) {
+          const innerCard = lastCard.querySelector("button") || lastCard;
+          const containerRect = carouselRef.current.getBoundingClientRect();
+          const lastCardRect = innerCard.getBoundingClientRect();
+
+          // Stop scrolling when the right edge of the last card is fully visible in the carousel container
+          const isLastCardVisible = lastCardRect.right <= containerRect.right + 20;
+          setCanScrollRight(!isLastCardVisible);
+          return;
+        }
+      }
+
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
     }
   };
 
@@ -77,7 +102,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   };
 
   const isMobile = () => {
-    return window && window.innerWidth < 768;
+    return typeof window !== "undefined" && window.innerWidth < 768;
   };
 
   return (
