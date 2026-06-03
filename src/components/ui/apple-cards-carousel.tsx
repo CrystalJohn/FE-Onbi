@@ -140,14 +140,14 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
         </div>
         <div className="flex justify-end gap-2 mr-10">
           <button
-            className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-50"
+            className="relative z-40 h-10 w-10 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200/50 dark:border-zinc-700/50 flex items-center justify-center disabled:opacity-30 disabled:scale-100 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
             onClick={scrollLeft}
             disabled={!canScrollLeft}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
           <button
-            className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-50"
+            className="relative z-40 h-10 w-10 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200/50 dark:border-zinc-700/50 flex items-center justify-center disabled:opacity-30 disabled:scale-100 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
             onClick={scrollRight}
             disabled={!canScrollRight}
           >
@@ -218,7 +218,7 @@ export const Card = ({
             className="max-w-2xl mx-auto bg-white dark:bg-neutral-900 z-[210] mt-24 mb-10 p-6 md:p-8 rounded-2xl font-sans relative shadow-2xl"
           >
             <button
-              className="absolute top-4 right-4 h-8 w-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 h-8 w-8 bg-slate-100 dark:bg-zinc-800 text-slate-650 dark:text-zinc-350 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-slate-900 dark:hover:text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
               onClick={handleClose}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>

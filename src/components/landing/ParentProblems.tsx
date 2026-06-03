@@ -119,27 +119,25 @@ export default function ParentProblems() {
         viewport={viewport}
         variants={fadeUp}
       >
-        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] tracking-tight block">
+        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
           {t.tag}
         </span>
-        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] tracking-tight leading-[1.08] flex flex-col">
+        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08] flex flex-col">
           <span>{t.titleLine1}</span>
           <span>{t.titleLine2}</span>
         </h2>
-        <p className="text-[19px] md:text-[21px] text-[#86868b] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+        <p className="text-[19px] md:text-[21px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
           {t.description}
         </p>
       </motion.div>
 
       {/* ── Main Pedestal Container ── */}
-      <div className="bg-white border border-[#e8e8ed]/80 rounded-[32px] md:rounded-[36px] p-5 sm:p-7 md:p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.015)] relative overflow-hidden z-10 max-w-[1400px] mx-auto w-full">
-        <div className="absolute inset-0 bg-gradient-to-tr from-slate-50/30 via-white to-slate-50/10 pointer-events-none" />
+      <div className="bg-white dark:bg-zinc-900 border border-[#e8e8ed]/80 dark:border-zinc-800/80 rounded-[32px] md:rounded-[36px] p-5 sm:p-7 md:p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.015)] relative overflow-hidden z-10 max-w-[1400px] mx-auto w-full">
+        <div className="absolute inset-0 bg-gradient-to-tr from-slate-50/30 dark:from-zinc-950/20 via-white dark:via-zinc-900 to-slate-50/10 dark:to-zinc-950/10 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col-reverse lg:flex-row gap-8 lg:gap-16">
 
-          {/* ── LEFT COLUMN: Apple-style Vertical Inline Accordion ──
-              Clicking a title expands its content directly below it.
-              The styling transforms seamlessly between inactive pills and gorgeous active cards. */}
+          {/* ── LEFT COLUMN: Apple-style Vertical Inline Accordion ── */}
           <div className="w-full lg:w-[45%] flex flex-col justify-start space-y-4 lg:space-y-5">
             {t.problems.map((prob) => {
               const TabIcon = prob.icon;
@@ -150,8 +148,8 @@ export default function ParentProblems() {
                   key={prob.id}
                   className={`w-full rounded-[24px] md:rounded-[28px] border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                     isSelected
-                      ? 'bg-[#f5f5f7] border-[#e8e8ed]/80 p-5 md:p-6 shadow-2xs'
-                      : 'bg-[#f5f5f7]/60 hover:bg-[#f5f5f7] border-transparent p-4 hover:shadow-3xs'
+                      ? 'bg-[#f5f5f7] dark:bg-zinc-950 border-[#e8e8ed]/80 dark:border-zinc-850 p-5 md:p-6 shadow-2xs'
+                      : 'bg-[#f5f5f7]/60 dark:bg-zinc-950/40 hover:bg-[#f5f5f7] dark:hover:bg-zinc-950/80 border-transparent p-4 hover:shadow-3xs'
                   }`}
                 >
                   {/* Accordion Item Header Trigger */}
@@ -162,8 +160,8 @@ export default function ParentProblems() {
                     {/* Transforming Circle Indicator */}
                     <div className={`p-2 rounded-full transition-all duration-500 flex items-center justify-center shrink-0 ${
                       isSelected
-                        ? 'bg-[#1d1d1f] text-white shadow-sm scale-105'
-                        : 'bg-white text-slate-500 group-hover:text-slate-800 shadow-3xs'
+                        ? 'bg-[#1d1d1f] dark:bg-white text-white dark:text-zinc-900 shadow-sm scale-105'
+                        : 'bg-white dark:bg-zinc-800 text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-zinc-250 shadow-3xs'
                     }`}>
                       {isSelected ? (
                         <TabIcon className="w-4 h-4" />
@@ -174,14 +172,14 @@ export default function ParentProblems() {
 
                     {/* Tab Title */}
                     <span className={`font-semibold text-[15px] md:text-[16px] transition-colors duration-300 flex-1 ${
-                      isSelected ? 'text-[#1d1d1f] font-bold' : 'text-slate-600 group-hover:text-slate-950'
+                      isSelected ? 'text-[#1d1d1f] dark:text-white font-bold' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-950 dark:group-hover:text-white'
                     }`}>
                       {prob.tabTitle}
                     </span>
 
                     {/* Expand text label for collapsed items */}
                     {!isSelected && (
-                      <span className="text-[10px] font-bold text-slate-400 opacity-60 tracking-wider pr-1 hidden sm:block">
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 opacity-60 tracking-wider pr-1 hidden sm:block">
                         EXPAND
                       </span>
                     )}
@@ -196,28 +194,28 @@ export default function ParentProblems() {
                     <div className="space-y-4 pt-1">
                       {/* Accent & Subtitle */}
                       <div className="space-y-2">
-                        <span className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full block w-fit leading-none text-slate-800 bg-white border border-slate-200/60 shadow-3xs">
+                        <span className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full block w-fit leading-none text-slate-800 dark:text-slate-355 bg-white dark:bg-zinc-900 border border-slate-200/60 dark:border-zinc-800/80 shadow-3xs">
                           {prob.accent}
                         </span>
-                        <h3 className="font-semibold text-lg md:text-xl tracking-tight leading-tight text-[#1d1d1f]">
+                        <h3 className="font-semibold text-lg md:text-xl tracking-tight leading-tight text-[#1d1d1f] dark:text-white">
                           {prob.title}
                         </h3>
                       </div>
 
                       {/* Description */}
-                      <p className="text-[14px] md:text-[15px] text-[#1d1d1f]/80 leading-relaxed font-normal">
+                      <p className="text-[14px] md:text-[15px] text-[#1d1d1f]/80 dark:text-slate-300 leading-relaxed font-normal">
                         {prob.description}
                       </p>
 
                       {/* ONBI Solution Box */}
-                      <div className="p-4 md:p-5 rounded-2xl shadow-3xs bg-white border border-[#e8e8ed]/60">
+                      <div className="p-4 md:p-5 rounded-2xl shadow-3xs bg-white dark:bg-zinc-900 border border-[#e8e8ed]/60 dark:border-zinc-850">
                         <div className="flex items-center gap-1.5 mb-2 text-indigo-650">
                           <Sparkles className="w-3.5 h-3.5 text-indigo-600 fill-indigo-600/10" />
                           <span className="text-[10px] font-bold tracking-widest uppercase leading-none text-indigo-600">
                             {t.solutionLabel}
                           </span>
                         </div>
-                        <p className="text-[13px] md:text-[14px] font-medium leading-relaxed opacity-90 text-slate-800">
+                        <p className="text-[13px] md:text-[14px] font-medium leading-relaxed opacity-90 text-slate-800 dark:text-slate-200">
                           {prob.solution}
                         </p>
                       </div>
@@ -232,16 +230,16 @@ export default function ParentProblems() {
           <div className="w-full lg:w-[55%] flex items-center justify-center min-h-[300px] md:min-h-[400px]">
             {/* All 3 videos rendered simultaneously, only active is visible.
                 Stacked pattern ensures instant transitions without flickering or delay. */}
-            <div className="w-full h-full min-h-[320px] md:min-h-[500px] rounded-[32px] md:rounded-[40px] bg-[#f5f5f7] border border-slate-100 shadow-inner relative overflow-hidden">
+            <div className="w-full h-full min-h-[320px] md:min-h-[500px] rounded-[32px] md:rounded-[40px] bg-[#f5f5f7] dark:bg-zinc-950 border border-slate-100 dark:border-zinc-850 shadow-inner relative overflow-hidden">
               {TAB_IDS.map((id) => (
                 <video
                   key={id}
                   src={
                     id === 'pomodoro'
-                      ? '/Pomodoro_video.mp4'
+                      ? '/Coaching Time_video.mp4'
                       : id === 'tracking'
-                      ? '/Tracking_video.mp4'
-                      : '/Posture_video.mp4'
+                      ? '/English Speaking_video.mp4'
+                      : '/Screen Distraction_video.mp4'
                   }
                   autoPlay
                   loop

@@ -254,43 +254,43 @@ export default function EarlyAccessForm() {
     vi: {
       tag: "Bảng giá thành viên.",
       headingLine1: "Chọn gói phù hợp",
-      headingLine2: "cho gia đình.",
-      subheading: "Mua robot ONBI hoặc gia hạn app để tiếp tục theo dõi thói quen học tập, Pomodoro và báo cáo tiến độ của con.",
-      toggleNoDevice: "Mua mới",
-      toggleHasDevice: "Đã có ONBI",
-      toggleHelperText: "Mua mới gồm robot + app. Đã có ONBI dùng để gia hạn Premium.",
-      checkoutTitle: "Đặt trước ONBI",
-      checkoutSub: "Để lại thông tin, đội ngũ ONBI sẽ liên hệ xác nhận khi sản phẩm sẵn sàng.",
+      headingLine2: "cho gia đình bạn.",
+      subheading: "Đăng ký nhận thông tin sớm để sở hữu robot ONBI và trải nghiệm ứng dụng theo dõi học tập tự động.",
+      toggleNoDevice: "Sở hữu Robot ONBI",
+      toggleHasDevice: "Gia hạn Ứng dụng",
+      toggleHelperText: "Đăng ký nhận thông tin mua mới Robot + App, hoặc gia hạn riêng gói phần mềm nếu đã có thiết bị.",
+      checkoutTitle: "Đăng ký nhận thông tin sớm",
+      checkoutSub: "Để lại thông tin bên dưới, đội ngũ ONBI sẽ liên hệ tư vấn ngay khi sản phẩm ra mắt.",
       parentNameLabel: "Tên Ba mẹ / Người giám hộ",
       parentNamePlaceholder: "Ví dụ: Nguyễn Văn A",
       phoneLabel: "Số điện thoại liên hệ",
       phonePlaceholder: "Ví dụ: 0912345678",
       emailLabel: "Địa chỉ Email",
       emailPlaceholder: "Ví dụ: bame@gmail.com",
-      addressLabel: "Địa chỉ nhận hàng",
+      addressLabel: "Địa chỉ nhận hàng (Dự kiến)",
       addressPlaceholder: "Ví dụ: Số 123 Đường Táo, Quận 1, TP. HCM",
-      btnSubmitDevice: "Đặt trước ONBI",
+      btnSubmitDevice: "Đăng ký thông tin",
       errName: "Vui lòng nhập tên của ba mẹ.",
       errPhone: "Vui lòng nhập số điện thoại liên hệ.",
       errEmail: "Vui lòng nhập email hợp lệ.",
       errAddress: "Vui lòng nhập địa chỉ giao hàng.",
-      successTitle: "Đặt trước thành công!",
-      successSub: "Thẻ đặt trước của bạn đã sẵn sàng!",
-      cardTitle: "THẺ ĐẶT TRƯỚC ONBI",
+      successTitle: "Đăng ký thành công!",
+      successSub: "Cảm ơn ba mẹ đã quan tâm đến ONBI",
+      cardTitle: "MÃ ĐĂNG KÝ SỚM",
       member: "Phụ huynh",
-      placement: "Số thứ tự đặt",
-      btnDone: "Đặt trước thêm đơn khác",
-      benefitsLabel: "Tóm tắt đăng ký",
+      placement: "Số thứ tự",
+      btnDone: "Đăng ký thêm thông tin",
+      benefitsLabel: "Tóm tắt gói đăng ký",
       shippingFee: "Phí vận chuyển",
-      shippingFree: "Miễn phí giao hàng",
-      batchInfo: "Dự kiến giao hàng Q3/2026",
-      detailsTitle: "Thông tin Đặt trước",
+      shippingFree: "Miễn phí",
+      batchInfo: "Dự kiến ra mắt Q3/2026",
+      detailsTitle: "Thông tin Đăng ký",
       summaryRobot: "Robot ONBI IoT",
       summaryPremium: "3 tháng Premium",
       summaryGift: "Tặng kèm",
       summaryDelivery: "Vận chuyển",
       summaryFree: "Miễn phí",
-      summaryTotal: "Tổng tạm tính",
+      summaryTotal: "Giá dự kiến",
       copied: "Đã chép!",
     }
   }[language];
@@ -357,22 +357,22 @@ export default function EarlyAccessForm() {
         viewport={viewport}
         variants={fadeUp}
       >
-        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] tracking-tight block">
+        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
           {t.tag}
         </span>
 
-        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] tracking-tight leading-[1.08] flex flex-col">
+        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08] flex flex-col">
           <span>{t.headingLine1}</span>
           <span>{t.headingLine2}</span>
         </h2>
 
-        <p className="text-[19px] md:text-[21px] text-[#86868b] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+        <p className="text-[19px] md:text-[21px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
           {t.subheading}
         </p>
 
         {/* Batch Release Info Badge */}
         <div className="pt-2">
-          <span className="text-xs font-semibold text-orange-600 bg-orange-50/80 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-orange-200/50 shadow-3xs">
+          <span className="text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-50/80 dark:bg-orange-950/20 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-orange-200/50 dark:border-orange-900/30 shadow-3xs">
             ✨ {t.batchInfo}
           </span>
         </div>
@@ -380,10 +380,10 @@ export default function EarlyAccessForm() {
 
       {/* D2C SEGMENTED TOGGLE (iOS Style) */}
       <div className="flex flex-col items-center justify-center relative z-20 px-6 gap-2">
-        <div className="relative flex p-1 bg-slate-100/80 backdrop-blur-md rounded-full border border-slate-200/60 max-w-xs w-full shadow-2xs select-none">
+        <div className="relative flex p-1 bg-slate-100/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full border border-slate-200/60 dark:border-zinc-800 max-w-xs w-full shadow-2xs select-none">
           {/* Sliding white background pill */}
           <motion.div
-            className="absolute top-1 bottom-1 bg-white rounded-full shadow-sm z-0"
+            className="absolute top-1 bottom-1 bg-white dark:bg-zinc-850 rounded-full shadow-sm z-0"
             layoutId="activeSegment"
             style={{ width: 'calc(50% - 4px)' }}
             animate={{ x: hasDevice ? '100%' : '0%' }}
@@ -391,18 +391,18 @@ export default function EarlyAccessForm() {
           />
           <button
             onClick={() => { setHasDevice(false); setIsSubmitted(false); }}
-            className={`flex-1 relative z-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${!hasDevice ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
+            className={`flex-1 relative z-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${!hasDevice ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
           >
             {t.toggleNoDevice}
           </button>
           <button
             onClick={() => { setHasDevice(true); setIsSubmitted(false); }}
-            className={`flex-1 relative z-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${hasDevice ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
+            className={`flex-1 relative z-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${hasDevice ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
           >
             {t.toggleHasDevice}
           </button>
         </div>
-        <p className="text-center text-[11px] md:text-xs text-slate-500 font-medium max-w-md mt-1 px-4 leading-normal">
+        <p className="text-center text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium max-w-md mt-1 px-4 leading-normal">
           {t.toggleHelperText}
         </p>
       </div>
@@ -422,7 +422,7 @@ export default function EarlyAccessForm() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ type: 'spring', stiffness: 200, damping: 24 }}
-                  className="relative rounded-[32px] p-7 md:p-8 flex flex-col transition-all duration-500 ease-[0.16,1,0.3,1] bg-white/80 backdrop-blur-xl border border-sky-100 shadow-[0_30px_70px_rgba(14,165,233,0.06),_0_0_40px_rgba(168,85,247,0.02)] z-10 w-full select-none overflow-hidden isolate"
+                  className="relative rounded-[32px] p-7 md:p-8 flex flex-col transition-all duration-500 ease-[0.16,1,0.3,1] bg-white/80 dark:bg-zinc-900/60 backdrop-blur-xl border border-sky-100 dark:border-zinc-800 shadow-[0_30px_70px_rgba(14,165,233,0.06),_0_0_40px_rgba(168,85,247,0.02)] z-10 w-full select-none overflow-hidden isolate"
                 >
                   {/* Glowing background highlights */}
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-bl from-sky-400/12 via-cyan-400/3 to-transparent rounded-[30px] pointer-events-none z-0" />
@@ -444,7 +444,7 @@ export default function EarlyAccessForm() {
 
                   {/* Badge */}
                   {activeTiers[1].badge && (
-                    <span className="absolute top-5 right-5 text-[8.5px] font-black font-mono tracking-widest px-3 py-1.5 rounded-full uppercase border bg-sky-50 text-sky-700 border-sky-200/50 shadow-[0_0_15px_rgba(14,165,233,0.1)] backdrop-blur-md z-10 flex items-center gap-1">
+                    <span className="absolute top-5 right-5 text-[8.5px] font-black font-mono tracking-widest px-3 py-1.5 rounded-full uppercase border bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-400 border-sky-200/50 dark:border-sky-900/30 shadow-[0_0_15px_rgba(14,165,233,0.1)] backdrop-blur-md z-10 flex items-center gap-1">
                       <svg viewBox="0 0 24 24" className="w-3 h-3 fill-sky-600 animate-spin" style={{ animationDuration: '6s' }}>
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
@@ -453,32 +453,32 @@ export default function EarlyAccessForm() {
                   )}
 
                   {/* Icon badge frame */}
-                  <div className="w-14 h-14 rounded-full mb-6 relative z-10 shadow-[0_8px_24px_rgba(14,165,233,0.15)] border border-sky-200/40 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
+                  <div className="w-14 h-14 rounded-full mb-6 relative z-10 shadow-[0_8px_24px_rgba(14,165,233,0.15)] border border-sky-200/40 dark:border-sky-900/30 overflow-hidden flex items-center justify-center bg-white/40 dark:bg-zinc-800/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
                     <Image src="/icon_badge_pricing_card.webp" alt="ONBI IoT" width={56} height={56} className="w-full h-full object-cover" draggable={false} />
                   </div>
 
-                  <h3 className="text-xl font-bold text-slate-900 mb-1 z-10">{activeTiers[1].name}</h3>
-                  <p className="text-sm text-slate-500 font-medium leading-relaxed mb-5 min-h-[24px] z-10">{activeTiers[1].description}</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 z-10">{activeTiers[1].name}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-5 min-h-[24px] z-10">{activeTiers[1].description}</p>
 
                   <div className="flex items-baseline gap-1.5 mb-4 z-10">
-                    <span className="text-3xl font-black text-slate-900 tracking-tight">{activeTiers[1].price}</span>
-                    <span className="text-xs font-semibold text-slate-400">/{activeTiers[1].period}</span>
+                    <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{activeTiers[1].price}</span>
+                    <span className="text-xs font-semibold text-slate-400 dark:text-slate-505">/{activeTiers[1].period}</span>
                   </div>
 
                   {/* Divider */}
                   <div className="relative flex items-center my-5 select-none z-10">
-                    <div className="flex-grow border-t border-slate-200/60" />
-                    <span className="mx-3 flex-shrink text-[9px] font-mono font-bold tracking-[0.2em] text-slate-400 uppercase">
+                    <div className="flex-grow border-t border-slate-200/60 dark:border-zinc-800" />
+                    <span className="mx-3 flex-shrink text-[9px] font-mono font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase">
                       {activeTiers[1].dividerLabel}
                     </span>
-                    <div className="flex-grow border-t border-slate-200/60" />
+                    <div className="flex-grow border-t border-slate-200/60 dark:border-zinc-800" />
                   </div>
 
                   {/* Benefits */}
                   <div className="space-y-3.5 z-10">
                     {activeTiers[1].features.map((feat, idx) => (
-                      <div key={idx} className="flex items-center gap-3 text-sm text-slate-700 font-medium">
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center bg-cyan-500/10 text-cyan-600 shrink-0 shadow-2xs">
+                      <div key={idx} className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300 font-medium">
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center bg-cyan-500/10 dark:bg-cyan-950/30 text-cyan-600 dark:text-cyan-400 shrink-0 shadow-2xs">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
                         </div>
                         <span>{feat}</span>
@@ -504,11 +504,11 @@ export default function EarlyAccessForm() {
                       <button
                         key={tier.id}
                         onClick={() => { setActiveSubTier(tier.id as 'monthly' | 'annual'); setIsSubmitted(false); }}
-                        className={`w-full text-left relative rounded-[32px] p-7 md:p-8 bg-white/80 backdrop-blur-xl border transition-all duration-500 ease-[0.16,1,0.3,1] outline-none select-none cursor-pointer flex flex-col overflow-hidden isolate ${isSelected
+                        className={`w-full text-left relative rounded-[32px] p-7 md:p-8 bg-white/80 dark:bg-zinc-900/60 backdrop-blur-xl border transition-all duration-500 ease-[0.16,1,0.3,1] outline-none select-none cursor-pointer flex flex-col overflow-hidden isolate ${isSelected
                           ? isCyan
-                            ? 'border-cyan-300 shadow-[0_25px_60px_rgba(6,182,212,0.06)] scale-[1.01]'
-                            : 'border-amber-300 shadow-[0_25px_60px_rgba(245,158,11,0.06)] scale-[1.01]'
-                          : 'border-slate-200/60 opacity-60 hover:opacity-90 hover:scale-[1.005]'
+                            ? 'border-cyan-300 dark:border-cyan-500/50 shadow-[0_25px_60px_rgba(6,182,212,0.06)] scale-[1.01]'
+                            : 'border-amber-300 dark:border-amber-500/50 shadow-[0_25px_60px_rgba(245,158,11,0.06)] scale-[1.01]'
+                          : 'border-slate-200/60 dark:border-zinc-800/60 opacity-60 hover:opacity-90 dark:hover:opacity-100 hover:scale-[1.005]'
                           }`}
                       >
                         {/* Radial Glow Overlay */}
@@ -550,20 +550,20 @@ export default function EarlyAccessForm() {
                         {tier.badge && (
                           <span className={`absolute top-5 right-5 text-[8.5px] font-black font-mono tracking-widest px-3 py-1.5 rounded-full uppercase border backdrop-blur-md shadow-3xs z-10 ${isSelected
                             ? isCyan
-                              ? 'bg-cyan-500/10 text-cyan-700 border-cyan-500/30'
-                              : 'bg-amber-500/10 text-amber-700 border-amber-500/30'
-                            : 'bg-slate-100/80 text-slate-500 border-slate-200/50'
+                              ? 'bg-cyan-500/10 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-400 border-cyan-500/30 dark:border-cyan-800/50'
+                              : 'bg-amber-500/10 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-500/30 dark:border-amber-800/50'
+                            : 'bg-slate-100/80 dark:bg-zinc-800/80 text-slate-500 dark:text-slate-400 border-slate-200/50 dark:border-zinc-800'
                             }`}>
                             {tier.badge}
                           </span>
                         )}
 
                         {/* Icon badge frame */}
-                        <div className={`w-14 h-14 rounded-full mb-5.5 relative z-10 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md border transition-all duration-300 hover:scale-105 ${isSelected
+                        <div className={`w-14 h-14 rounded-full mb-5.5 relative z-10 overflow-hidden flex items-center justify-center bg-white/40 dark:bg-zinc-800/40 backdrop-blur-md border transition-all duration-300 hover:scale-105 ${isSelected
                           ? isCyan
-                            ? 'border-cyan-300/40 shadow-[0_8px_24px_rgba(6,182,212,0.15)]'
-                            : 'border-amber-300/40 shadow-[0_8px_24px_rgba(245,158,11,0.15)]'
-                          : 'border-slate-200'
+                            ? 'border-cyan-300/40 dark:border-cyan-800/40 shadow-[0_8px_24px_rgba(6,182,212,0.15)]'
+                            : 'border-amber-300/40 dark:border-amber-800/40 shadow-[0_8px_24px_rgba(245,158,11,0.15)]'
+                          : 'border-slate-200 dark:border-zinc-800'
                           }`}>
                           <img
                             src={isCyan ? "/icon_badge_Monthly Pass.webp" : "/icon_badge_Annual Pass.webp"}
@@ -574,16 +574,16 @@ export default function EarlyAccessForm() {
                         </div>
 
                         <div className="flex items-center gap-2 mb-1 z-10">
-                          <h3 className="text-xl font-bold text-slate-900 leading-none">{tier.name}</h3>
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-none">{tier.name}</h3>
                           {isSelected && (
                             <CheckCircle2 className={`w-5 h-5 shrink-0 ${isCyan ? 'text-cyan-500' : 'text-amber-500'}`} />
                           )}
                         </div>
-                        <p className="text-sm text-slate-500 leading-relaxed mb-4 pr-10 min-h-[24px] z-10">{tier.description}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 pr-10 min-h-[24px] z-10">{tier.description}</p>
 
                         <div className="flex items-baseline gap-1.5 z-10">
-                          <span className="text-3xl font-black text-slate-900 tracking-tight">{tier.price}</span>
-                          <span className="text-xs font-semibold text-slate-400">/{tier.period}</span>
+                          <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{tier.price}</span>
+                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-505">/{tier.period}</span>
                         </div>
 
                         {/* Expandable features summary on selection */}
@@ -594,17 +594,17 @@ export default function EarlyAccessForm() {
                           className="overflow-hidden w-full"
                         >
                           <div className="relative flex items-center my-4.5 select-none z-10">
-                            <div className="flex-grow border-t border-slate-200/50" />
-                            <span className="mx-3 flex-shrink text-[9px] font-mono font-bold tracking-[0.2em] text-slate-400 uppercase">
+                            <div className="flex-grow border-t border-slate-200/50 dark:border-zinc-800" />
+                            <span className="mx-3 flex-shrink text-[9px] font-mono font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase">
                               {tier.dividerLabel}
                             </span>
-                            <div className="flex-grow border-t border-slate-200/50" />
+                            <div className="flex-grow border-t border-slate-200/50 dark:border-zinc-800" />
                           </div>
 
                           <div className="space-y-2.5 pb-5 pt-1">
                             {tier.features.map((feat, idx) => (
-                              <div key={idx} className="flex items-center gap-2.5 text-xs text-slate-650 font-medium">
-                                <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs bg-slate-100 text-slate-650`}>
+                              <div key={idx} className="flex items-center gap-2.5 text-xs text-slate-650 dark:text-slate-350 font-medium">
+                                <div className="w-4.5 h-4.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs bg-slate-100 dark:bg-zinc-800 text-slate-650 dark:text-slate-300">
                                   <Check className="w-3 h-3 stroke-[3]" />
                                 </div>
                                 <span>{feat}</span>
@@ -622,7 +622,7 @@ export default function EarlyAccessForm() {
 
           {/* RIGHT COLUMN: CHECKOUT/PRE-ORDER HUB */}
           <div className="w-full lg:col-span-7">
-            <div className="relative w-full bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-[32px] p-6 md:p-9.5 overflow-hidden">
+            <div className="relative w-full bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/60 dark:border-zinc-800 shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-[32px] p-6 md:p-9.5 overflow-hidden animate-all duration-500">
 
               {/* Blur neon light accents inside right panel */}
               <div className={`absolute -top-10 -right-10 w-44 h-44 rounded-full blur-3xl pointer-events-none transition-all duration-500 ${activeSelectedTier.colorTheme === 'cyan'
@@ -643,17 +643,17 @@ export default function EarlyAccessForm() {
                     className="space-y-8 relative z-10"
                   >
                     {/* Header */}
-                    <div className="border-b border-slate-200/50 pb-5">
-                      <h3 className="font-display text-2xl font-extrabold text-slate-900 tracking-tight">
+                    <div className="border-b border-slate-200/50 dark:border-zinc-800 pb-5">
+                      <h3 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                         {t.checkoutTitle}
                       </h3>
-                      <p className="text-xs md:text-sm text-slate-500 mt-1.5 font-medium leading-relaxed">
+                      <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium leading-relaxed">
                         {t.checkoutSub}
                       </p>
                     </div>
 
                     {errorMsg && (
-                      <div className="p-3.5 bg-red-50 text-red-600 rounded-2xl text-xs border border-red-100 flex items-center gap-2">
+                      <div className="p-3.5 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl text-xs border border-red-100 dark:border-red-900/30 flex items-center gap-2">
                         <ShieldAlert className="w-4 h-4 shrink-0" />
                         <span className="font-semibold">{errorMsg}</span>
                       </div>
@@ -665,7 +665,7 @@ export default function EarlyAccessForm() {
                         
                         {/* Parent Name */}
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                             {t.parentNameLabel}
                           </label>
                           <input
@@ -673,29 +673,29 @@ export default function EarlyAccessForm() {
                             required
                             value={parentName}
                             onChange={(e) => setParentName(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                            className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-3xs animate-all duration-300"
                             placeholder={t.parentNamePlaceholder}
                           />
                         </div>
 
                         {/* Contact Phone */}
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                             {t.phoneLabel}
                           </label>
                           <input
-                            type="tel"
+                            type="text"
                             required
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                            className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-3xs animate-all duration-300"
                             placeholder={t.phonePlaceholder}
                           />
                         </div>
 
                         {/* Email Address */}
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                             {t.emailLabel}
                           </label>
                           <input
@@ -703,7 +703,7 @@ export default function EarlyAccessForm() {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                            className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-3xs animate-all duration-300"
                             placeholder={t.emailPlaceholder}
                           />
                         </div>
@@ -711,7 +711,7 @@ export default function EarlyAccessForm() {
                         {/* Shipping Address */}
                         <div className="overflow-hidden transition-all duration-500 ease-[0.16,1,0.3,1]" style={{ height: !hasDevice ? 'auto' : 0, opacity: !hasDevice ? 1 : 0 }}>
                           <div className="pt-2 space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                               {t.addressLabel}
                             </label>
                             <input
@@ -719,7 +719,7 @@ export default function EarlyAccessForm() {
                               required={!hasDevice}
                               value={shippingAddress}
                               onChange={(e) => setShippingAddress(e.target.value)}
-                              className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                              className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-3xs animate-all duration-300"
                               placeholder={t.addressPlaceholder}
                             />
                           </div>
@@ -727,36 +727,36 @@ export default function EarlyAccessForm() {
 
                       </div>
 
-                      {/* Order Summary */}
-                      <div className="bg-slate-50/70 border border-slate-200/60 rounded-3xl p-6 shadow-sm font-sans mt-4">
+                      {/* Registration Info */}
+                      <div className="bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100/60 dark:border-blue-900/30 rounded-2xl p-5 font-sans mt-4">
                         <div className="w-full">
-                          <span className="text-[10px] font-bold text-slate-400 block tracking-wider uppercase mb-3.5 font-mono">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-455 block tracking-wider uppercase mb-3.5 font-mono">
                             {t.benefitsLabel}
                           </span>
                           <div className="space-y-3.5">
-                            <div className="flex justify-between items-center text-xs text-slate-650 font-medium">
+                            <div className="flex justify-between items-center text-xs text-slate-650 dark:text-slate-350 font-medium">
                               <span>{!hasDevice ? t.summaryRobot : `${language === 'vi' ? 'Gia hạn:' : 'Renewal:'} ${activeSelectedTier.name}`}</span>
-                              <span className="font-bold text-slate-800">{activeSelectedTier.price}</span>
+                              <span className="font-bold text-slate-850 dark:text-slate-200">{activeSelectedTier.price}</span>
                             </div>
                             {!hasDevice && (
-                              <div className="flex justify-between items-center text-xs text-slate-655 font-medium">
+                              <div className="flex justify-between items-center text-xs text-slate-655 dark:text-slate-350 font-medium">
                                 <span>{t.summaryPremium}</span>
-                                <span className="font-bold text-indigo-650 bg-indigo-50 border border-indigo-100/50 px-2 py-0.5 rounded-md text-[10px]">
+                                <span className="font-bold text-indigo-650 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100/50 dark:border-indigo-900/30 px-2 py-0.5 rounded-md text-[10px]">
                                   {t.summaryGift}
                                 </span>
                               </div>
                             )}
-                            <div className="flex justify-between items-center text-xs text-slate-655 font-medium">
+                            <div className="flex justify-between items-center text-xs text-slate-655 dark:text-slate-355 font-medium">
                               <span>{t.summaryDelivery}</span>
-                              <span className="font-bold text-emerald-600">{!hasDevice ? t.summaryFree : '--'}</span>
+                              <span className="font-bold text-emerald-600 dark:text-emerald-450">{!hasDevice ? t.summaryFree : '--'}</span>
                             </div>
                           </div>
                         </div>
 
-                        <div className="border-t border-slate-200/80 pt-4 mt-4 w-full">
+                        <div className="border-t border-blue-100/80 dark:border-zinc-800 pt-3 mt-3 w-full">
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.summaryTotal}:</span>
-                            <span className="text-xl font-black text-slate-900 tracking-tight">{activeSelectedTier.price}</span>
+                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{t.summaryTotal}:</span>
+                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{activeSelectedTier.price}</span>
                           </div>
                         </div>
                       </div>
@@ -782,48 +782,37 @@ export default function EarlyAccessForm() {
                     className="flex flex-col items-center justify-center gap-7 text-center relative z-10 py-6"
                   >
                     <div className="flex flex-col items-center gap-3">
-                      <div className={`inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-full border shadow-2xs ${activeDetails.badgeColor} border-current/25 bg-white/90`}>
+                      <div className={`inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-full border shadow-2xs ${activeDetails.badgeColor} border-current/25 bg-white/90 dark:bg-zinc-900/90`}>
                         <Check className="w-4 h-4 stroke-[3]" /> {t.successTitle}
                       </div>
-                      <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{t.successSub}</h3>
+                      <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t.successSub}</h3>
                     </div>
 
-                    {/* 3D Holo-card */}
-                    <div
-                      ref={cardRef}
-                      className="w-full max-w-[320px] h-[190px] cursor-pointer relative"
-                      onMouseMove={handleMouseMove}
-                      onMouseLeave={handleMouseLeave}
-                      style={{ perspective: 1000 }}
-                    >
-                      <motion.div
-                        className={`absolute inset-0 bg-gradient-to-br ${activeDetails.gradient} border p-5.5 rounded-3xl flex flex-col justify-between text-white shadow-2xl overflow-hidden`}
-                        style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-                        whileHover={{ scale: 1.03 }}
-                      >
-                        {/* Metallic glowing pass backplate overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none" />
-
-                        <div className="flex justify-between items-start z-10">
-                          <span className="text-[9px] font-mono font-black tracking-widest text-slate-300 uppercase">{t.cardTitle}</span>
-                          <div className="w-8 h-5.5 bg-gradient-to-tr from-amber-400 to-amber-200 rounded-sm shadow-inner" />
+                    {/* Simple Success Ticket */}
+                    <div className="w-full max-w-[320px] bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-850 rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden my-4">
+                      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-cyan-400" />
+                      
+                      <div className="w-14 h-14 bg-blue-50/80 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 rounded-full flex items-center justify-center text-blue-500 dark:text-blue-400 mb-5">
+                        <Gift className="w-6 h-6" />
+                      </div>
+                      
+                      <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
+                        {t.cardTitle}
+                      </div>
+                      <div className="text-xl font-black text-slate-800 dark:text-slate-200 tracking-wider mb-5 font-mono">
+                        {passCode}
+                      </div>
+                      
+                      <div className="flex flex-row justify-between w-full border-t border-slate-100 dark:border-zinc-800 pt-5">
+                        <div className="text-left">
+                          <div className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">{t.member}</div>
+                          <div className="text-sm font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">{parentName}</div>
                         </div>
-                        <div className="text-center my-3 z-10">
-                          <div className={`text-lg md:text-xl font-mono font-black tracking-widest ${activeDetails.textColor}`}>
-                            {passCode}
-                          </div>
+                        <div className="text-right">
+                          <div className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">{t.placement}</div>
+                          <div className="text-sm font-bold text-emerald-500">#{reservationNum}</div>
                         </div>
-                        <div className="flex justify-between items-end z-10 border-t border-white/10 pt-2.5">
-                          <div className="text-left font-mono">
-                            <div className="text-[7px] text-slate-400 uppercase tracking-wider">{t.member}</div>
-                            <div className="text-xs font-extrabold text-white truncate max-w-[140px]">{parentName}</div>
-                          </div>
-                          <div className="text-right font-mono">
-                            <div className="text-[7px] text-slate-400 uppercase tracking-wider">{t.placement}</div>
-                            <div className="text-xs font-extrabold text-emerald-400">#{reservationNum}</div>
-                          </div>
-                        </div>
-                      </motion.div>
+                      </div>
                     </div>
 
                     {/* Copy pass code & Done control tray */}
@@ -831,8 +820,8 @@ export default function EarlyAccessForm() {
                       <button
                         onClick={() => handleCopy(passCode, 'copylink')}
                         className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${copiedText === 'copylink'
-                          ? 'bg-emerald-50 border-emerald-300 text-emerald-600'
-                          : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/80 text-emerald-600 dark:text-emerald-455'
+                          : 'bg-slate-100 dark:bg-zinc-900 hover:bg-slate-200 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-350'
                           }`}
                       >
                         <ClipboardCopy className="w-4 h-4" />
@@ -840,7 +829,7 @@ export default function EarlyAccessForm() {
                       </button>
                       <button
                         onClick={() => { setIsSubmitted(false); setParentName(''); setPhone(''); setEmail(''); setShippingAddress(''); }}
-                        className="px-6 py-3.5 rounded-xl text-xs font-bold text-slate-550 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+                        className="px-6 py-3.5 rounded-xl text-xs font-bold text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-850 border border-transparent hover:border-slate-200 dark:hover:border-zinc-700 transition-all cursor-pointer"
                       >
                         {t.btnDone}
                       </button>

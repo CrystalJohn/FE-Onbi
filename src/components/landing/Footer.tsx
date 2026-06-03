@@ -99,11 +99,11 @@ export default function Footer({ onTimerClick }: FooterProps) {
   };
 
   return (
-    <footer className="landing-footer w-full bg-[#f5f5f7] text-[#86868b] text-[12px] font-normal leading-relaxed py-8 md:py-12 px-6 mt-16 border-t border-[#ccc9bf]/30">
+    <footer className="landing-footer w-full bg-[#f5f5f7] dark:bg-black text-[#86868b] dark:text-zinc-500 text-[12px] font-normal leading-relaxed py-8 md:py-12 px-6 mt-16 border-t border-[#ccc9bf]/30 dark:border-zinc-900">
       <div className="max-w-[1024px] mx-auto space-y-6">
         
         {/* ── FOOTNOTES / LEGAL NOTES ── */}
-        <div className="space-y-2 border-b border-[#d2d2d7] pb-6 font-light text-[11px] leading-[1.6]">
+        <div className="space-y-2 border-b border-[#d2d2d7] dark:border-zinc-800 pb-6 font-light text-[11px] leading-[1.6]">
           <p>{t.footnote1}</p>
           <p>{t.footnote2}</p>
         </div>
@@ -112,13 +112,13 @@ export default function Footer({ onTimerClick }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-4">
           {t.cols.map((col, idx) => (
             <div key={idx} className="space-y-3">
-              <h4 className="font-semibold text-[#1d1d1f] tracking-tight">{col.title}</h4>
+              <h4 className="font-semibold text-[#1d1d1f] dark:text-white tracking-tight">{col.title}</h4>
               <ul className="space-y-2">
                 {col.links.map((link, lIdx) => (
                   <li key={lIdx}>
                     <button
                       onClick={() => handleLinkClick(link)}
-                      className="hover:text-[#1d1d1f] hover:underline cursor-pointer transition-colors text-left"
+                      className="hover:text-[#1d1d1f] dark:hover:text-white hover:underline cursor-pointer transition-colors text-left"
                     >
                       {link.label}
                     </button>
@@ -130,28 +130,28 @@ export default function Footer({ onTimerClick }: FooterProps) {
         </div>
 
         {/* ── BREADCRUMBS TRAIL (Apple signature) ── */}
-        <div className="border-t border-[#d2d2d7] pt-5 flex items-center gap-1.5 text-[11px] font-light text-[#515154]">
-          <span className="cursor-pointer hover:text-[#1d1d1f]" onClick={() => scrollToId('hero_section')}>ONBI</span>
+        <div className="border-t border-[#d2d2d7] dark:border-zinc-800 pt-5 flex items-center gap-1.5 text-[11px] font-light text-[#515154] dark:text-zinc-500">
+          <span className="cursor-pointer hover:text-[#1d1d1f] dark:hover:text-white" onClick={() => scrollToId('hero_section')}>ONBI</span>
           <span>&gt;</span>
-          <span className="text-[#86868b]">Smart IoT Study Companion</span>
+          <span className="text-[#86868b] dark:text-zinc-400">Smart IoT Study Companion</span>
         </div>
 
         {/* ── COPYRIGHT & POLICY LINKS ── */}
-        <div className="pt-2 flex flex-col lg:flex-row lg:justify-between gap-4 text-[11px] text-[#86868b] border-t border-[#d2d2d7]/50 pt-4 font-light">
+        <div className="pt-2 flex flex-col lg:flex-row lg:justify-between gap-4 text-[11px] text-[#86868b] dark:text-zinc-500 border-t border-[#d2d2d7]/50 dark:border-zinc-800 pt-4 font-light">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <span>{t.copyright}</span>
-            <span className="hidden sm:inline text-[#d2d2d7]">|</span>
-            <span className="text-[#515154] font-medium">{t.coppa}</span>
+            <span className="hidden sm:inline text-[#d2d2d7] dark:text-zinc-800">|</span>
+            <span className="text-[#515154] dark:text-zinc-400 font-medium">{t.coppa}</span>
           </div>
 
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[#515154] font-light">
-            <a href="#" className="hover:underline hover:text-[#1d1d1f]">{t.privacy}</a>
-            <span className="text-[#d2d2d7]">|</span>
-            <a href="#" className="hover:underline hover:text-[#1d1d1f]">{t.terms}</a>
-            <span className="text-[#d2d2d7]">|</span>
-            <a href="#" className="hover:underline hover:text-[#1d1d1f]">{t.sales}</a>
-            <span className="text-[#d2d2d7]">|</span>
-            <a href="#" className="hover:underline hover:text-[#1d1d1f]">{t.legal}</a>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[#515154] dark:text-zinc-450 font-light">
+            <a href="#" className="hover:underline hover:text-[#1d1d1f] dark:hover:text-white">{t.privacy}</a>
+            <span className="text-[#d2d2d7] dark:text-zinc-800">|</span>
+            <a href="#" className="hover:underline hover:text-[#1d1d1f] dark:hover:text-white">{t.terms}</a>
+            <span className="text-[#d2d2d7] dark:text-zinc-800">|</span>
+            <a href="#" className="hover:underline hover:text-[#1d1d1f] dark:hover:text-white">{t.sales}</a>
+            <span className="text-[#d2d2d7] dark:text-zinc-800">|</span>
+            <a href="#" className="hover:underline hover:text-[#1d1d1f] dark:hover:text-white">{t.legal}</a>
           </div>
         </div>
 

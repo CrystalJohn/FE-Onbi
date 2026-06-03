@@ -196,18 +196,18 @@ export default function HowItWorks() {
         variants={fadeUp}
       >
         {/* Category Label */}
-        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] tracking-tight block">
+        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
           {t.tag}
         </span>
 
         {/* Giant Two-Line Apple-style Typography */}
-        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] tracking-tight leading-[1.08] flex flex-col">
+        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08] flex flex-col">
           <span>{t.titleLine1}</span>
           <span>{t.titleLine2}</span>
         </h2>
 
         {/* Apple Signature Spacious Copy */}
-        <p className="text-[19px] md:text-[21px] text-[#86868b] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+        <p className="text-[19px] md:text-[21px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
           {t.subTitle}
         </p>
       </motion.div>
@@ -239,11 +239,10 @@ export default function HowItWorks() {
               >
                 {/* Main Card */}
                 <div
-                  className="relative rounded-3xl overflow-hidden cursor-pointer select-none transition-all duration-500"
+                  className="relative rounded-3xl overflow-hidden cursor-pointer select-none transition-all duration-500 bg-[#f5f5f7] dark:bg-zinc-900 border border-transparent dark:border-zinc-850"
                   style={{
                     width: `${cardWidth}px`,
                     height: `${cardWidth * 1.15}px`,
-                    background: '#f5f5f7',
                     boxShadow: isActive
                       ? '0 25px 50px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04)'
                       : '0 5px 15px rgba(0,0,0,0.03)',
@@ -277,17 +276,17 @@ export default function HowItWorks() {
 
                   {/* Floating Nameplate at the bottom — premium glassmorphism rounded pill */}
                   <div
-                    className="absolute bottom-4 inset-x-4 bg-white/75 backdrop-blur-md px-4 py-3 z-30 border border-white/50 rounded-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.04)] transition-all duration-300"
+                    className="absolute bottom-4 inset-x-4 bg-white/75 dark:bg-zinc-950/75 backdrop-blur-md px-4 py-3 z-30 border border-white/50 dark:border-zinc-800/50 rounded-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.04)] transition-all duration-300"
                     style={{
                       boxShadow: isActive 
                         ? '0 8px 32px 0 rgba(31,38,135,0.08), inset 0 0 0 1px rgba(255,255,255,0.6)' 
                         : '0 4px 16px 0 rgba(31,38,135,0.02), inset 0 0 0 1px rgba(255,255,255,0.4)'
                     }}
                   >
-                    <h3 className="font-display text-sm font-bold text-slate-900 tracking-tight leading-tight">
+                    <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
                       {member.name}
                     </h3>
-                    <p className={`text-[10px] font-semibold mt-0.5 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`}>
+                    <p className={`text-[10px] font-semibold mt-0.5 ${isActive ? 'text-indigo-650 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
                       {member.role}
                     </p>
                   </div>
@@ -301,7 +300,7 @@ export default function HowItWorks() {
       {/* Indicator Controls Pill */}
       <div className="flex justify-center items-center mt-6 z-20 relative gap-3">
         {/* Left Container: Dots Pill */}
-        <div className="bg-[#eef1f6] backdrop-blur-md rounded-full px-5 py-3.5 flex items-center shadow-xs border border-slate-200/30">
+        <div className="bg-[#eef1f6] dark:bg-zinc-900 backdrop-blur-md rounded-full px-5 py-3.5 flex items-center shadow-xs border border-slate-200/30 dark:border-zinc-800">
           <div className="flex items-center gap-2.5">
             {team.map((_, idx) => {
               const isActive = idx === activeIndex;
@@ -316,14 +315,14 @@ export default function HowItWorks() {
                   }}
                 >
                   {isActive ? (
-                    <div className="w-full h-1.5 bg-slate-300 rounded-full overflow-hidden relative">
+                    <div className="w-full h-1.5 bg-slate-300 dark:bg-zinc-800 rounded-full overflow-hidden relative">
                       <div
-                        className="absolute inset-y-0 left-0 bg-slate-600 rounded-full transition-all duration-100 ease-linear"
+                        className="absolute inset-y-0 left-0 bg-slate-600 dark:bg-zinc-400 rounded-full transition-all duration-100 ease-linear"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                   ) : (
-                    <div className="w-2 h-2 bg-slate-400 hover:bg-slate-500 rounded-full transition-all duration-300" />
+                    <div className="w-2 h-2 bg-slate-400 dark:bg-zinc-650 hover:bg-slate-500 dark:hover:bg-zinc-400 rounded-full transition-all duration-300" />
                   )}
                 </button>
               );
@@ -334,14 +333,14 @@ export default function HowItWorks() {
         {/* Right Container: Separate Play/Pause Button */}
         <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-11 h-11 rounded-full bg-[#eef1f6] hover:bg-[#e2e8f0] active:scale-95 text-slate-800 flex items-center justify-center transition-all cursor-pointer border border-slate-200/30 shadow-xs"
+          className="w-11 h-11 rounded-full bg-[#eef1f6] dark:bg-zinc-900 hover:bg-[#e2e8f0] dark:hover:bg-zinc-800 active:scale-95 text-slate-800 dark:text-zinc-200 flex items-center justify-center transition-all cursor-pointer border border-slate-200/30 dark:border-zinc-800 shadow-xs"
         >
           {isPlaying ? (
-            <svg className="w-3.5 h-3.5 fill-slate-800" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 fill-slate-800 dark:fill-zinc-200" viewBox="0 0 24 24">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           ) : (
-            <svg className="w-3.5 h-3.5 fill-slate-800 translate-x-[1px]" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 fill-slate-800 dark:fill-zinc-200 translate-x-[1px]" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
           )}
