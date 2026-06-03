@@ -76,25 +76,6 @@ export default function MiniTimer({ onStateUpdate }: MiniTimerProps) {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-
-
-        {/* Center Robot Video overlay */}
-        <div 
-          className="absolute w-[82px] h-[82px] md:w-[114px] md:h-[114px] rounded-full overflow-hidden border border-slate-100 bg-white flex items-center justify-center pointer-events-none select-none z-10"
-          style={{
-            boxShadow: '0 0 25px rgba(34, 211, 238, 0.15), inset 0 0 10px rgba(0, 102, 204, 0.05)',
-          }}
-        >
-          <video
-            ref={videoRef}
-            src="/onbi-cheer.mp4"
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover mix-blend-screen scale-110"
-          />
-        </div>
-
   return (
     <div className="flex flex-col items-center gap-3 md:gap-4 select-none">
       {/* Circular Timer */}

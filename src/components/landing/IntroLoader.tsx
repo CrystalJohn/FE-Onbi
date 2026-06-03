@@ -6,10 +6,9 @@ import { useLanguage } from '@/context/LanguageContext';
 
 interface IntroLoaderProps {
   onComplete: () => void;
-  modelReady?: boolean;
 }
 
-export default function IntroLoader({ onComplete, modelReady = false }: IntroLoaderProps) {
+export default function IntroLoader({ onComplete }: IntroLoaderProps) {
   const [percent, setPercent] = useState<number>(0);
   const [minTimeReached, setMinTimeReached] = useState(false);
   const { language } = useLanguage();
@@ -62,18 +61,18 @@ export default function IntroLoader({ onComplete, modelReady = false }: IntroLoa
   // Status telemetry messages in sync with loading percentages
   const statusMessages = {
     vi: [
-      { max: 25, text: "🤖 Khởi chạy hệ thống ONBI..." },
-      { max: 55, text: "🧠 Tải mô hình trí tuệ 3D..." },
-      { max: 80, text: "🛡️ Thiết lập vùng học tập an toàn..." },
-      { max: 95, text: "🔋 Đồng bộ hóa không gian học tập..." },
-      { max: 100, text: "✨ Hệ thống đã sẵn sàng." }
+      { max: 25, text: "Khởi chạy hệ thống ONBI..." },
+      { max: 55, text: "Chuẩn bị trải nghiệm học tập..." },
+      { max: 80, text: "Thiết lập vùng học tập an toàn..." },
+      { max: 95, text: "Đồng bộ hóa không gian học tập..." },
+      { max: 100, text: "Hệ thống đã sẵn sàng." }
     ],
     en: [
-      { max: 25, text: "🤖 Initializing ONBI core..." },
-      { max: 55, text: "🧠 Preloading neural 3D graphics..." },
-      { max: 80, text: "🛡️ Configuring safe study zone..." },
-      { max: 95, text: "🔋 Calibrating study workspace..." },
-      { max: 100, text: "✨ System is ready." }
+      { max: 25, text: "Initializing ONBI core..." },
+      { max: 55, text: "Preparing the study experience..." },
+      { max: 80, text: "Configuring safe study zone..." },
+      { max: 95, text: "Calibrating study workspace..." },
+      { max: 100, text: "System is ready." }
     ]
   }[language];
 

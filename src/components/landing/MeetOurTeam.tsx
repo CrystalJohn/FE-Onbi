@@ -82,9 +82,9 @@ export default function HowItWorks() {
     },
     vi: {
       tag: "Đội ngũ đằng sau ONBI.",
-      titleLine1: "Gặp gỡ những người",
-      titleLine2: "đồng hành cùng con.",
-      subTitle: "Những nhà sáng lập và kỹ sư đầy tâm huyết kiến tạo giải pháp an toàn, mở ra kỷ nguyên học tập không phụ thuộc màn hình.",
+      titleLine1: "Cùng xây dựng một người bạn học tập",
+      titleLine2: "đáng tin cậy cho trẻ.",
+      subTitle: "Chúng tôi phát triển ONBI với mục tiêu giúp trẻ hình thành thói quen học đều đặn hơn, đồng thời giúp phụ huynh theo dõi quá trình học của con một cách nhẹ nhàng, rõ ràng và an toàn.",
       team: [
         {
           name: "Nguyễn Tấn Đạt",

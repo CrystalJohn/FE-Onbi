@@ -3,9 +3,9 @@
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useSpring, useMotionValue, useTransform } from 'motion/react';
-import { Check, ArrowRight, ClipboardCopy, Phone, Mail, Bot, User, Smartphone, Cpu, Gift, Percent, Calendar, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Check, ArrowRight, ClipboardCopy, Bot, User, Smartphone, Cpu, Gift, Percent, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { fadeUp, staggerContainer, viewport } from '@/lib/animations';
+import { fadeUp, viewport } from '@/lib/animations';
 
 interface PricingTier {
   id: string;
@@ -19,7 +19,7 @@ interface PricingTier {
   features: string[];
   cta: string;
   highlighted: boolean;
-  colorTheme: 'cyan' | 'purple' | 'amber';
+  colorTheme: 'cyan' | 'purple' | 'amber' | 'blue';
 }
 
 const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
@@ -28,8 +28,8 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
       {
         id: 'monthly',
         name: 'Thành viên Tháng',
-        badge: 'Quyền truy cập ứng dụng',
-        description: 'Dành cho phụ huynh đã sở hữu thiết bị ONBI và muốn duy trì các tính năng theo dõi, báo cáo và cảnh báo thông minh mỗi tháng.',
+        badge: 'Gia hạn app',
+        description: 'Duy trì các tính năng theo dõi và nhắc nhở thông minh mỗi tháng.',
         price: '149.000đ',
         period: 'tháng',
         quickSpecs: [
@@ -38,12 +38,10 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
         ],
         dividerLabel: 'QUYỀN TRUY CẬP THÁNG +',
         features: [
-          'Xem lại lịch sử phiên học',
-          'Theo dõi tiến trình tự động',
-          'Cảnh báo mất tập trung & sai tư thế',
-          'Robot nhắc học thông minh',
-          'Thông báo realtime cho phụ huynh',
-          'Báo cáo ngày / tuần'
+          'Tự động Pomodoro 25/5',
+          'Theo dõi realtime trên app',
+          'Cảnh báo tư thế & tập trung',
+          'Báo cáo tiến độ chi tiết cho ba mẹ'
         ],
         cta: 'Đăng ký theo Tháng',
         highlighted: false,
@@ -53,31 +51,29 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
         id: 'device',
         name: 'Trọn gói ONBI IoT',
         badge: 'Phổ biến nhất',
-        description: 'Sở hữu robot học tập thông minh ONBI kèm 3 tháng Premium để theo dõi, nhắc nhở và báo cáo quá trình học của con theo thời gian thực.',
+        description: 'Robot ONBI + 3 tháng Premium',
         price: '4.599.000đ',
         period: 'một lần',
         quickSpecs: [
-          { icon: 'bot', text: '1 robot IoT vật lý (Đợt #1)' },
+          { icon: 'bot', text: 'Robot ONBI đặt tại bàn học' },
           { icon: 'gift', text: 'Tặng 3 tháng Premium' }
         ],
         dividerLabel: 'TRỌN GÓI ONBI IoT +',
         features: [
-          'Thiết bị ONBI đồng hành học tập cùng con',
-          '3 tháng Premium miễn phí',
-          'Theo dõi phiên học Pomodoro 25/5',
-          'Live View & Snapshot khi cần',
-          'Cảnh báo rời bàn, sai tư thế, mất tập trung',
-          'Dashboard báo cáo tiến độ cho ba mẹ'
+          'Robot ONBI đặt tại bàn học',
+          'Tự động Pomodoro 25/5',
+          'Theo dõi realtime trên app',
+          'Tặng 3 tháng Premium'
         ],
-        cta: 'Đặt mua Trọn gói IoT',
+        cta: 'Đặt trước ONBI',
         highlighted: true,
-        colorTheme: 'purple',
+        colorTheme: 'blue',
       },
       {
         id: 'annual',
         name: 'Thành viên Năm',
         badge: 'Tiết kiệm 11%',
-        description: 'Giải pháp dài hạn giúp duy trì thói quen học tập đều đặn, theo dõi tiến độ và nhận báo cáo thông minh cho phụ huynh.',
+        description: 'Duy trì các tính năng theo dõi và nhắc nhở thông minh trọn năm.',
         price: '1.599.000đ',
         period: 'năm',
         quickSpecs: [
@@ -85,12 +81,11 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
         ],
         dividerLabel: 'QUYỀN TRUY CẬP NĂM +',
         features: [
-          '12 tháng Premium đầy đủ',
-          'Tiết kiệm 11% so với trả tháng',
-          'Xem lại lịch sử phiên học',
-          'Theo dõi tiến trình tự động',
-          'Cảnh báo mất tập trung & sai tư thế',
-          'Báo cáo ngày / tuần cho phụ huynh'
+          'Tự động Pomodoro 25/5',
+          'Theo dõi realtime trên app',
+          'Cảnh báo tư thế & tập trung',
+          'Báo cáo tiến độ chi tiết cho ba mẹ',
+          'Tiết kiệm 11% so với trả tháng'
         ],
         cta: 'Đăng ký theo Năm',
         highlighted: false,
@@ -103,8 +98,8 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
     {
       id: 'monthly',
       name: 'Monthly Pass',
-      badge: 'App Access',
-      description: 'For parents who already own the ONBI device and want to maintain smart tracking, reporting, and alerting features every month.',
+      badge: 'App Renewal',
+      description: 'Maintain smart tracking, reporting, and alerting features every month.',
       price: '149,000đ',
       period: 'month',
       quickSpecs: [
@@ -113,12 +108,10 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
       ],
       dividerLabel: 'MONTHLY ACCESS +',
       features: [
-        'Review study session history',
-        'Automated progress tracking',
-        'Alerts for distraction & poor posture',
-        'Smart robot study reminders',
-        'Real-time notifications for parents',
-        'Daily & weekly reports'
+        'Automated 25/5 Pomodoro',
+        'Real-time app tracking',
+        'Posture & focus alerts',
+        'Detailed parent dashboard reports'
       ],
       cta: 'Subscribe Monthly',
       highlighted: false,
@@ -128,31 +121,29 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
       id: 'device',
       name: 'ONBI IoT Bundle',
       badge: 'Most Popular',
-      description: 'Own the ONBI smart learning robot plus 3 months of Premium to track, remind, and report your child\'s study progress in real-time.',
+      description: 'ONBI Robot + 3 months Premium',
       price: '4,599,000đ',
       period: 'one-time',
       quickSpecs: [
-        { icon: 'bot', text: '1 physical IoT robot (Batch #1)' },
-        { icon: 'gift', text: '3 months of free Premium' }
+        { icon: 'bot', text: 'ONBI Robot at study desk' },
+        { icon: 'gift', text: 'Free 3 months Premium' }
       ],
       dividerLabel: 'ONBI IoT BUNDLE +',
       features: [
-        'ONBI smart robot companion for active learning',
-        '3 months of free Premium access',
-        'Track 25/5 Pomodoro study sessions',
-        'Real-time Live View & manual Snapshots',
-        'Smart alerts for table leaving, poor posture & distraction',
-        'Parent dashboard with comprehensive progress reports'
+        'ONBI Robot at study desk',
+        'Automated 25/5 Pomodoro',
+        'Real-time app tracking',
+        'Free 3 months Premium'
       ],
-      cta: 'Reserve IoT Bundle',
+      cta: 'Pre-order ONBI',
       highlighted: true,
-      colorTheme: 'purple',
+      colorTheme: 'blue',
     },
     {
       id: 'annual',
       name: 'Annual Pass',
       badge: 'Save 11%',
-      description: 'A long-term solution to maintain regular study habits, track progress, and receive smart reports for parents.',
+      description: 'Maintain smart tracking, reporting, and alerting features all year round.',
       price: '1,599,000đ',
       period: 'year',
       quickSpecs: [
@@ -160,37 +151,17 @@ const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
       ],
       dividerLabel: 'ANNUAL ACCESS +',
       features: [
-        '12 months of full Premium access',
-        'Save 11% compared to monthly pass',
-        'Review study session history',
-        'Automated progress tracking',
-        'Alerts for distraction & poor posture',
-        'Daily & weekly reports for parents'
+        'Automated 25/5 Pomodoro',
+        'Real-time app tracking',
+        'Posture & focus alerts',
+        'Detailed parent dashboard reports',
+        'Save 11% compared to monthly pass'
       ],
       cta: 'Subscribe Annually',
       highlighted: false,
       colorTheme: 'amber',
     },
   ];
-};
-
-const renderSpecIcon = (iconName: string) => {
-  switch (iconName) {
-    case 'user':
-      return <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
-    case 'smartphone':
-      return <Smartphone className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
-    case 'cpu':
-      return <Cpu className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
-    case 'bot':
-      return <Bot className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
-    case 'gift':
-      return <Gift className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
-    case 'percent':
-      return <Percent className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
-    default:
-      return <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />;
-  }
 };
 
 export default function EarlyAccessForm() {
@@ -207,11 +178,9 @@ export default function EarlyAccessForm() {
   const [shippingAddress, setShippingAddress] = useState('');
 
   // Submission & UX states
-  const [showQRStep, setShowQRStep] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [copiedText, setCopiedText] = useState<'copylink' | 'copycode' | null>(null);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [copiedText, setCopiedText] = useState<'copylink' | null>(null);
   const [reservationNum] = useState<number>(() => Math.floor(400 + Math.random() * 200));
   const [passCode, setPassCode] = useState('');
 
@@ -243,136 +212,96 @@ export default function EarlyAccessForm() {
     en: {
       tag: "Membership pricing.",
       headingLine1: "Choose the perfect plan",
-      headingLine2: "for your child.",
-      subheading: "Select a plan that fits your family's needs and help your child build natural study habits and English speaking confidence.",
-      toggleNoDevice: "🤖 New Order (Need Robot)",
-      toggleHasDevice: "💳 Renewal (Own Robot)",
-      checkoutTitle: "Interactive Checkout Hub",
+      headingLine2: "for your family.",
+      subheading: "Purchase the ONBI robot or renew the app to continue tracking study habits, Pomodoro cycles, and progress reports.",
+      toggleNoDevice: "New Purchase",
+      toggleHasDevice: "Already have ONBI",
+      toggleHelperText: "New purchase includes robot + app. Already have ONBI to renew Premium.",
+      checkoutTitle: "Pre-order ONBI",
+      checkoutSub: "Leave your details below. The ONBI team will reach out for confirmation when the product is ready.",
       parentNameLabel: "Parent / Guardian Name",
-      parentNamePlaceholder: "Eleanor Vance",
+      parentNamePlaceholder: "e.g. Eleanor Vance",
       phoneLabel: "Phone Number",
       phonePlaceholder: "e.g. 0912345678",
       emailLabel: "Email Address",
-      emailPlaceholder: "parent@study.com",
-      addressLabel: "Shipping Address (For physical robot delivery)",
-      addressPlaceholder: "123 Apple St, District 1, HCMC",
-      billedNow: "Billed now:",
-      transferNote: "Scan QR code via banking app or transfer manually to complete your placement.",
-      copyBtn: "Copy",
-      copied: "Copied!",
-      btnSubmitDevice: "Reserve IoT Bundle & Place Order ↗",
-      btnSubmitSubscription: "Activate Membership Pass ↗",
+      emailPlaceholder: "e.g. parent@study.com",
+      addressLabel: "Shipping Address",
+      addressPlaceholder: "e.g. 123 Apple St, District 1, HCMC",
+      btnSubmitDevice: "Pre-order ONBI",
       errName: "Please enter your name.",
       errPhone: "Please enter your phone number.",
       errEmail: "Please enter a valid email.",
       errAddress: "Please enter your shipping address.",
-      successTitle: "Order Confirmed!",
-      successSub: "Your ONBI Member Pass is Sealed",
-      cardTitle: "ONBI MEMBER PASS",
-      member: "Member",
-      placement: "Placement",
-      btnDone: "Place Another Order",
-      benefitsLabel: "Package benefits:",
-      invoiceSummary: "Open bank app to scan QR",
+      successTitle: "Pre-ordered Successfully!",
+      successSub: "Your ONBI Pre-order Pass is Ready",
+      cardTitle: "ONBI PRE-ORDER PASS",
+      member: "Parent",
+      placement: "Pre-order No.",
+      btnDone: "Place Another Pre-order",
+      benefitsLabel: "Registration Summary",
       shippingFee: "Shipping Fee",
       shippingFree: "Free Delivery",
-      deviceBundle: "ONBI Smart Robot Hardware",
-      subActive: "Premium App access",
-      included: "Included",
-      paymentCardTitle: "ONBI DEBIT HUB",
-      customSchool: "Looking for custom school or institutional volume setups? Contact our team",
-      batchInfo: "First physical production batch starting Q3 2026.",
-      passDetails: "Pass Details",
-      selected: "Selected:",
-      detailsTitle: "Customer Details",
-      bankName: "Bank: VPBank (Napas247)",
-      bankOwner: "Account Owner: NGUYEN TUAN KHA",
-      bankNumber: "Account Number: 0835173787",
-      btnProceedPayment: "Confirm Info & Get Payment QR ↗",
-      btnConfirmTransferred: "I have transferred successfully ✓",
-      orderSummaryTitle: "Order Information Summary",
-      qrInstruction: "Open bank app to scan QR code",
+      batchInfo: "Estimated shipping Q3/2026",
+      detailsTitle: "Pre-order Contact Details",
+      summaryRobot: "Robot ONBI IoT",
+      summaryPremium: "3 months Premium",
+      summaryGift: "Free of charge",
+      summaryDelivery: "Delivery",
+      summaryFree: "Free",
+      summaryTotal: "Estimated Total",
+      copied: "Copied!",
     },
     vi: {
       tag: "Bảng giá thành viên.",
-      headingLine1: "Chọn gói thành viên",
-      headingLine2: "phù hợp nhất cho con.",
-      subheading: "Lựa chọn kế hoạch phù hợp với nhu cầu gia đình để giúp con xây dựng thói quen học tự nhiên và tự tin nói tiếng Anh.",
-      toggleNoDevice: "Đặt mua mới (Chưa có Robot)",
-      toggleHasDevice: "Gia hạn / Nâng cấp (Đã có Robot)",
-      checkoutTitle: "Trung tâm Đăng ký & Thanh toán",
+      headingLine1: "Chọn gói phù hợp",
+      headingLine2: "cho gia đình.",
+      subheading: "Mua robot ONBI hoặc gia hạn app để tiếp tục theo dõi thói quen học tập, Pomodoro và báo cáo tiến độ của con.",
+      toggleNoDevice: "Mua mới",
+      toggleHasDevice: "Đã có ONBI",
+      toggleHelperText: "Mua mới gồm robot + app. Đã có ONBI dùng để gia hạn Premium.",
+      checkoutTitle: "Đặt trước ONBI",
+      checkoutSub: "Để lại thông tin, đội ngũ ONBI sẽ liên hệ xác nhận khi sản phẩm sẵn sàng.",
       parentNameLabel: "Tên Ba mẹ / Người giám hộ",
-      parentNamePlaceholder: "Nguyễn Văn A",
+      parentNamePlaceholder: "Ví dụ: Nguyễn Văn A",
       phoneLabel: "Số điện thoại liên hệ",
       phonePlaceholder: "Ví dụ: 0912345678",
       emailLabel: "Địa chỉ Email",
-      emailPlaceholder: "bame@gmail.com",
-      addressLabel: "Địa chỉ nhận hàng (Để vận chuyển Robot)",
+      emailPlaceholder: "Ví dụ: bame@gmail.com",
+      addressLabel: "Địa chỉ nhận hàng",
       addressPlaceholder: "Ví dụ: Số 123 Đường Táo, Quận 1, TP. HCM",
-      billedNow: "Tổng số tiền:",
-      transferNote: "Quét mã QR qua ứng dụng Ngân hàng để thanh toán và giữ số thứ tự ưu tiên.",
-      copyBtn: "Chép",
-      copied: "Đã chép!",
-      btnSubmitDevice: "Đặt mua Trọn gói IoT ↗",
-      btnSubmitSubscription: "Kích hoạt gói Thành viên ↗",
-      errName: "Vui lòng nhập tên của bạn.",
+      btnSubmitDevice: "Đặt trước ONBI",
+      errName: "Vui lòng nhập tên của ba mẹ.",
       errPhone: "Vui lòng nhập số điện thoại liên hệ.",
       errEmail: "Vui lòng nhập email hợp lệ.",
       errAddress: "Vui lòng nhập địa chỉ giao hàng.",
-      successTitle: "Đặt đơn thành công!",
-      successSub: "Thẻ thành viên của bạn đã sẵn sàng!",
-      cardTitle: "THẺ THÀNH VIÊN ONBI",
-      member: "Thành viên",
-      placement: "Số thứ tự",
-      btnDone: "Thực hiện đơn khác",
-      benefitsLabel: "Quyền lợi bao gồm:",
-      invoiceSummary: "Mở app ngân hàng để quét mã QR",
+      successTitle: "Đặt trước thành công!",
+      successSub: "Thẻ đặt trước của bạn đã sẵn sàng!",
+      cardTitle: "THẺ ĐẶT TRƯỚC ONBI",
+      member: "Phụ huynh",
+      placement: "Số thứ tự đặt",
+      btnDone: "Đặt trước thêm đơn khác",
+      benefitsLabel: "Tóm tắt đăng ký",
       shippingFee: "Phí vận chuyển",
       shippingFree: "Miễn phí giao hàng",
-      deviceBundle: "Robot thông minh ONBI IoT",
-      subActive: "Quyền Premium của tài khoản",
-      included: "Đã bao gồm",
-      paymentCardTitle: "THẺ THANH TOÁN ONBI",
-      customSchool: "Bạn muốn tìm kiếm giải pháp tùy chỉnh cho trường học hoặc tổ chức? Liên hệ với chúng tôi",
-      batchInfo: "Lô sản phẩm đầu tiên dự kiến sản xuất vào Q3 2026.",
-      passDetails: "Chi tiết thẻ",
-      selected: "Đã chọn:",
-      detailsTitle: "Thông tin Khách hàng",
-      bankName: "Ngân hàng: VPBank (Napas247)",
-      bankOwner: "Chủ tài khoản: NGUYEN TUAN KHA",
-      bankNumber: "Số tài khoản: 0835173787",
-      btnProceedPayment: "Xác nhận thông tin & Nhận mã QR thanh toán ↗",
-      btnConfirmTransferred: "Tôi đã chuyển khoản thành công ✓",
-      orderSummaryTitle: "Tóm tắt thông tin đơn hàng",
-      qrInstruction: "Mở app ngân hàng để quét mã QR",
+      batchInfo: "Dự kiến giao hàng Q3/2026",
+      detailsTitle: "Thông tin Đặt trước",
+      summaryRobot: "Robot ONBI IoT",
+      summaryPremium: "3 tháng Premium",
+      summaryGift: "Tặng kèm",
+      summaryDelivery: "Vận chuyển",
+      summaryFree: "Miễn phí",
+      summaryTotal: "Tổng tạm tính",
+      copied: "Đã chép!",
     }
   }[language];
 
-  const handleCopy = (text: string, type: 'copylink' | 'copycode') => {
+  const handleCopy = (text: string, type: 'copylink') => {
     navigator.clipboard.writeText(text);
     setCopiedText(type);
     setTimeout(() => setCopiedText(null), 2000);
   };
 
-  const handleCopyField = (text: string, fieldName: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(fieldName);
-    setTimeout(() => setCopiedField(null), 2000);
-  };
-
-  const getSubmitButtonText = () => {
-    if (language === 'vi') {
-      return !hasDevice
-        ? "Đặt mua Trọn gói ONBI IoT ↗"
-        : `Đăng ký gói ${activeSelectedTier.name} ↗`;
-    } else {
-      return !hasDevice
-        ? "Order ONBI IoT Bundle ↗"
-        : `Subscribe to ${activeSelectedTier.name} ↗`;
-    }
-  };
-
-  const handleProceedToQR = (e: React.FormEvent) => {
+  const handlePreOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!parentName.trim()) { setErrorMsg(t.errName); return; }
     if (!phone.trim()) { setErrorMsg(t.errPhone); return; }
@@ -380,12 +309,8 @@ export default function EarlyAccessForm() {
     if (!hasDevice && !shippingAddress.trim()) { setErrorMsg(t.errAddress); return; }
 
     setErrorMsg('');
-    setShowQRStep(true);
-  };
-
-  const handleConfirmPayment = () => {
     const suffix = Math.floor(1000 + Math.random() * 9000);
-    setPassCode(`ONBI-2026-CH${hasDevice ? 'SUB' : 'DEV'}-${suffix}`);
+    setPassCode(`ONBI-2026-PRE-${hasDevice ? 'SUB' : 'DEV'}-${suffix}`);
     setIsSubmitted(true);
   };
 
@@ -393,19 +318,19 @@ export default function EarlyAccessForm() {
     const tier = activeSelectedTier;
     if (tier.id === 'monthly') {
       return {
-        gradient: 'from-cyan-950 to-slate-900 border-cyan-800',
+        gradient: 'from-cyan-900 to-slate-900 border-cyan-800',
         textColor: 'text-cyan-400',
         badgeColor: 'bg-cyan-50 text-cyan-700'
       };
     } else if (tier.id === 'device') {
       return {
-        gradient: 'from-purple-950 to-slate-900 border-purple-900',
-        textColor: 'text-purple-400',
-        badgeColor: 'bg-purple-50 text-purple-700'
+        gradient: 'from-blue-900 to-slate-900 border-blue-800',
+        textColor: 'text-blue-400',
+        badgeColor: 'bg-blue-50 text-blue-700'
       };
     } else {
       return {
-        gradient: 'from-amber-950 to-slate-900 border-amber-800',
+        gradient: 'from-amber-900 to-slate-900 border-amber-800',
         textColor: 'text-amber-400',
         badgeColor: 'bg-amber-50 text-amber-700'
       };
@@ -414,22 +339,8 @@ export default function EarlyAccessForm() {
 
   const activeDetails = getSelectedTierDetails();
 
-  // Render VPBank VietQR Code crop image provided by user
-  const renderVirtualQR = () => {
-    return (
-      <div className="flex flex-col items-center justify-center p-4.5 bg-white rounded-2xl shadow-inner border border-slate-100 select-none">
-        <img
-          src="/QR-for-pricing.jpg"
-          alt="VPBank VietQR Payment"
-          className="w-36 h-36 md:w-44 md:h-44 bg-white rounded-lg object-contain"
-          draggable={false}
-        />
-      </div>
-    );
-  };
-
   return (
-    <div className="space-y-14 relative" id="onbi_pricing_section_container">
+    <div className="space-y-20 relative" id="onbi_pricing_section_container">
 
       {/* Soft premium mesh background glows to elevate glassmorphism contrast */}
       <div className="absolute inset-0 -top-20 z-0 pointer-events-none overflow-hidden select-none">
@@ -468,9 +379,8 @@ export default function EarlyAccessForm() {
       </motion.div>
 
       {/* D2C SEGMENTED TOGGLE (iOS Style) */}
-      <div className="flex justify-center relative z-20 px-6">
-        <div className="relative flex p-1 bg-slate-100/80 backdrop-blur-md rounded-full border border-slate-200/60 max-w-lg w-full shadow-2xs select-none">
-
+      <div className="flex flex-col items-center justify-center relative z-20 px-6 gap-2">
+        <div className="relative flex p-1 bg-slate-100/80 backdrop-blur-md rounded-full border border-slate-200/60 max-w-xs w-full shadow-2xs select-none">
           {/* Sliding white background pill */}
           <motion.div
             className="absolute top-1 bottom-1 bg-white rounded-full shadow-sm z-0"
@@ -480,27 +390,28 @@ export default function EarlyAccessForm() {
             transition={{ type: 'spring', stiffness: 260, damping: 26 }}
           />
           <button
-            onClick={() => { setHasDevice(false); setIsSubmitted(false); setShowQRStep(false); }}
-            className={`flex-1 relative z-10 py-3 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${!hasDevice ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'
-              }`}
+            onClick={() => { setHasDevice(false); setIsSubmitted(false); }}
+            className={`flex-1 relative z-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${!hasDevice ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
           >
             {t.toggleNoDevice}
           </button>
           <button
-            onClick={() => { setHasDevice(true); setIsSubmitted(false); setShowQRStep(false); }}
-            className={`flex-1 relative z-10 py-3 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${hasDevice ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'
-              }`}
+            onClick={() => { setHasDevice(true); setIsSubmitted(false); }}
+            className={`flex-1 relative z-10 py-2.5 rounded-full text-xs md:text-sm font-bold tracking-tight text-center cursor-pointer transition-colors ${hasDevice ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
           >
             {t.toggleHasDevice}
           </button>
         </div>
+        <p className="text-center text-[11px] md:text-xs text-slate-500 font-medium max-w-md mt-1 px-4 leading-normal">
+          {t.toggleHelperText}
+        </p>
       </div>
 
       {/* CORE SPLIT SCREEN GRID */}
-      <div className="max-w-[1400px] mx-auto px-6 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-6 relative z-10 mt-8 md:mt-12">
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 items-start">
 
-          {/* LEFT COLUMN: GÓI CHỌN (Increased size to 5/12 ~ 42% width) */}
+          {/* LEFT COLUMN: GÓI CHỌN */}
           <div className="w-full lg:col-span-5 flex flex-col gap-5">
             <AnimatePresence mode="wait">
               {!hasDevice ? (
@@ -511,55 +422,50 @@ export default function EarlyAccessForm() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ type: 'spring', stiffness: 200, damping: 24 }}
-                  className="relative rounded-[32px] p-7 md:p-8 flex flex-col transition-all duration-500 ease-[0.16,1,0.3,1] bg-white/70 backdrop-blur-xl border-2 border-purple-400/45 shadow-[0_30px_70px_rgba(147,51,234,0.11),_0_0_40px_rgba(147,51,234,0.06)] scale-[1.01] z-10 w-full select-none overflow-hidden isolate"
+                  className="relative rounded-[32px] p-7 md:p-8 flex flex-col transition-all duration-500 ease-[0.16,1,0.3,1] bg-white/80 backdrop-blur-xl border border-sky-100 shadow-[0_30px_70px_rgba(14,165,233,0.06),_0_0_40px_rgba(168,85,247,0.02)] z-10 w-full select-none overflow-hidden isolate"
                 >
-                  {/* Glowing background highlights covering the ENTIRE card to prevent sharp straight lines */}
-                  <div className="absolute inset-0 w-full h-full bg-gradient-to-bl from-purple-500/18 via-purple-500/3 to-transparent rounded-[30px] pointer-events-none z-0" />
-                  <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-orange-400/20 blur-3xl pointer-events-none z-0" />
+                  {/* Glowing background highlights */}
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-bl from-sky-400/12 via-cyan-400/3 to-transparent rounded-[30px] pointer-events-none z-0" />
+                  <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-purple-500/5 blur-3xl pointer-events-none z-0" />
 
-                  {/* Thick isometric chevrons and starry sky from original design */}
-                  <div className="absolute top-0 right-0 w-48 h-48 opacity-95 pointer-events-none z-0 select-none overflow-hidden rounded-tr-[30px]">
-                    <svg viewBox="0 0 100 100" className="w-full h-full text-purple-400/35 overflow-visible" style={{ overflow: 'visible' }}>
+                  {/* Blue/Cyan Chevrons */}
+                  <div className="absolute top-0 right-0 w-48 h-48 opacity-90 pointer-events-none z-0 select-none overflow-hidden rounded-tr-[30px]">
+                    <svg viewBox="0 0 100 100" className="w-full h-full text-cyan-400/20 overflow-visible" style={{ overflow: 'visible' }}>
                       <defs>
-                        <linearGradient id="chevPurpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#a855f7" stopOpacity="0.9" />
-                          <stop offset="100%" stopColor="#6366f1" stopOpacity="0.05" />
+                        <linearGradient id="chevBlueCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.7" />
+                          <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.05" />
                         </linearGradient>
                       </defs>
-                      <path d="M55 -10 L95 30 L60 65" fill="none" stroke="url(#chevPurpleGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M35 10 L75 50 L40 85" fill="none" stroke="url(#chevPurpleGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-                      <circle cx="82" cy="18" r="1.5" fill="white" className="animate-ping" />
-                      <circle cx="74" cy="52" r="0.9" fill="white" />
-                      <circle cx="45" cy="12" r="0.8" fill="white" />
-                      <path d="M55 20 L56 22 L58 23 L56 24 L55 26 L54 24 L52 23 L54 22 Z" fill="white" opacity="0.95" />
-                      <path d="M75 45 L76 47 L78 48 L76 49 L75 51 L74 49 L72 48 L74 47 Z" fill="white" opacity="0.8" />
+                      <path d="M55 -10 L95 30 L60 65" fill="none" stroke="url(#chevBlueCyanGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M35 10 L75 50 L40 85" fill="none" stroke="url(#chevBlueCyanGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
                     </svg>
                   </div>
 
-                  {/* Premium Glowing Glassmorphic Badge with slow rotating star */}
+                  {/* Badge */}
                   {activeTiers[1].badge && (
-                    <span className="absolute top-5 right-5 text-[9px] font-black font-mono tracking-widest px-3 py-1.5 rounded-full uppercase border bg-purple-600/10 text-purple-700 border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.15)] backdrop-blur-md z-10 flex items-center gap-1.5 animate-pulse">
-                      <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-purple-650 animate-spin" style={{ animationDuration: '6s' }}>
+                    <span className="absolute top-5 right-5 text-[8.5px] font-black font-mono tracking-widest px-3 py-1.5 rounded-full uppercase border bg-sky-50 text-sky-700 border-sky-200/50 shadow-[0_0_15px_rgba(14,165,233,0.1)] backdrop-blur-md z-10 flex items-center gap-1">
+                      <svg viewBox="0 0 24 24" className="w-3 h-3 fill-sky-600 animate-spin" style={{ animationDuration: '6s' }}>
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
                       <span>{activeTiers[1].badge}</span>
                     </span>
                   )}
 
-                  {/* Physical Badge Icon */}
-                  <div className="w-14 h-14 rounded-full mb-6 relative z-10 shadow-[0_8px_24px_rgba(139,92,246,0.25)] border border-purple-300/40 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
+                  {/* Icon badge frame */}
+                  <div className="w-14 h-14 rounded-full mb-6 relative z-10 shadow-[0_8px_24px_rgba(14,165,233,0.15)] border border-sky-200/40 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md transition-all duration-300 hover:scale-105">
                     <Image src="/icon_badge_pricing_card.webp" alt="ONBI IoT" width={56} height={56} className="w-full h-full object-cover" draggable={false} />
                   </div>
 
                   <h3 className="text-xl font-bold text-slate-900 mb-1 z-10">{activeTiers[1].name}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed mb-5 min-h-[36px]">{activeTiers[1].description}</p>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed mb-5 min-h-[24px] z-10">{activeTiers[1].description}</p>
 
                   <div className="flex items-baseline gap-1.5 mb-4 z-10">
                     <span className="text-3xl font-black text-slate-900 tracking-tight">{activeTiers[1].price}</span>
                     <span className="text-xs font-semibold text-slate-400">/{activeTiers[1].period}</span>
                   </div>
 
-                  {/* Premium Divider styled after the concept design */}
+                  {/* Divider */}
                   <div className="relative flex items-center my-5 select-none z-10">
                     <div className="flex-grow border-t border-slate-200/60" />
                     <span className="mx-3 flex-shrink text-[9px] font-mono font-bold tracking-[0.2em] text-slate-400 uppercase">
@@ -568,33 +474,16 @@ export default function EarlyAccessForm() {
                     <div className="flex-grow border-t border-slate-200/60" />
                   </div>
 
-                  {/* Specs with Highly Prominent Glowing Gift Pill for 'Tặng 3 tháng Premium' */}
+                  {/* Benefits */}
                   <div className="space-y-3.5 z-10">
-                    {activeTiers[1].quickSpecs.map((spec, sIdx) => {
-                      const isGiftPromo = spec.text.toLowerCase().includes('premium') || spec.text.toLowerCase().includes('tặng 3 tháng');
-
-                      return (
-                        <div
-                          key={sIdx}
-                          className={`flex items-center gap-2.5 transition-all duration-300 ${isGiftPromo
-                            ? 'text-[12.5px] font-extrabold text-purple-900 bg-gradient-to-r from-purple-100/95 via-indigo-50/95 to-purple-100/95 border-2 border-purple-400/70 px-4 py-2.5 rounded-2xl shadow-[0_6px_20px_rgba(168,85,247,0.25),_0_0_10px_rgba(168,85,247,0.15)] max-w-fit scale-[1.04] transform -translate-x-0.5'
-                            : 'text-[11px] text-slate-600 font-medium'
-                            }`}
-                        >
-                          {isGiftPromo ? (
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <Gift className="w-4.5 h-4.5 text-purple-750 shrink-0 animate-bounce" style={{ animationDuration: '2s' }} />
-                              <span className="text-[9px] font-black font-mono tracking-widest px-2 py-0.5 rounded-md bg-purple-600 text-white uppercase shadow-3xs leading-none">
-                                GIFT
-                              </span>
-                            </div>
-                          ) : (
-                            renderSpecIcon(spec.icon)
-                          )}
-                          <span>{spec.text}</span>
+                    {activeTiers[1].features.map((feat, idx) => (
+                      <div key={idx} className="flex items-center gap-3 text-sm text-slate-700 font-medium">
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center bg-cyan-500/10 text-cyan-600 shrink-0 shadow-2xs">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
                         </div>
-                      );
-                    })}
+                        <span>{feat}</span>
+                      </div>
+                    ))}
                   </div>
                 </motion.div>
               ) : (
@@ -614,36 +503,32 @@ export default function EarlyAccessForm() {
                     return (
                       <button
                         key={tier.id}
-                        onClick={() => { setActiveSubTier(tier.id as 'monthly' | 'annual'); setIsSubmitted(false); setShowQRStep(false); }}
-                        className={`w-full text-left relative rounded-[32px] p-7 md:p-8 bg-white/70 backdrop-blur-xl border-2 transition-all duration-500 ease-[0.16,1,0.3,1] outline-none select-none cursor-pointer flex flex-col overflow-hidden isolate ${isSelected
+                        onClick={() => { setActiveSubTier(tier.id as 'monthly' | 'annual'); setIsSubmitted(false); }}
+                        className={`w-full text-left relative rounded-[32px] p-7 md:p-8 bg-white/80 backdrop-blur-xl border transition-all duration-500 ease-[0.16,1,0.3,1] outline-none select-none cursor-pointer flex flex-col overflow-hidden isolate ${isSelected
                           ? isCyan
-                            ? 'border-cyan-300 shadow-[0_25px_60px_rgba(6,182,212,0.08)] scale-[1.01]'
-                            : 'border-amber-300 shadow-[0_25px_60px_rgba(245,158,11,0.08)] scale-[1.01]'
+                            ? 'border-cyan-300 shadow-[0_25px_60px_rgba(6,182,212,0.06)] scale-[1.01]'
+                            : 'border-amber-300 shadow-[0_25px_60px_rgba(245,158,11,0.06)] scale-[1.01]'
                           : 'border-slate-200/60 opacity-60 hover:opacity-90 hover:scale-[1.005]'
                           }`}
                       >
-                        {/* Radial Glow Overlay covering the ENTIRE card to prevent sharp lines */}
+                        {/* Radial Glow Overlay */}
                         {isSelected && (
-                          <div className={`absolute inset-0 w-full h-full bg-gradient-to-bl ${isCyan ? 'from-cyan-400/18 via-cyan-400/3' : 'from-amber-400/18 via-amber-400/3'
+                          <div className={`absolute inset-0 w-full h-full bg-gradient-to-bl ${isCyan ? 'from-cyan-400/10 via-cyan-400/3' : 'from-amber-400/10 via-amber-400/3'
                             } to-transparent pointer-events-none z-0`} />
                         )}
 
-                        {/* Thick rounded chevron tracks overlapping perfectly like the concept */}
+                        {/* Chevrons */}
                         {isCyan ? (
                           <div className="absolute top-0 right-0 w-44 h-44 opacity-80 pointer-events-none z-0 select-none overflow-hidden rounded-tr-[30px]">
-                            <svg viewBox="0 0 100 100" className="w-full h-full text-cyan-400/25 overflow-visible" style={{ overflow: 'visible' }}>
+                            <svg viewBox="0 0 100 100" className="w-full h-full text-cyan-400/20 overflow-visible" style={{ overflow: 'visible' }}>
                               <defs>
                                 <linearGradient id="chevCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8" />
+                                  <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.7" />
                                   <stop offset="100%" stopColor="#0d9488" stopOpacity="0.05" />
                                 </linearGradient>
                               </defs>
                               <path d="M55 -10 L95 30 L60 65" fill="none" stroke="url(#chevCyanGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
-                              <path d="M35 10 L75 50 L40 85" fill="none" stroke="url(#chevCyanGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-                              <circle cx="82" cy="18" r="1.2" fill="white" />
-                              <circle cx="70" cy="52" r="0.8" fill="white" />
-                              <circle cx="45" cy="12" r="1" fill="white" />
-                              <path d="M55 20 L56 22 L58 23 L56 24 L55 26 L54 24 L52 23 L54 22 Z" fill="white" opacity="0.9" />
+                              <path d="M35 10 L75 50 L40 85" fill="none" stroke="url(#chevCyanGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
                             </svg>
                           </div>
                         ) : (
@@ -651,26 +536,22 @@ export default function EarlyAccessForm() {
                             <svg viewBox="0 0 100 100" className="w-full h-full text-amber-400/25 overflow-visible" style={{ overflow: 'visible' }}>
                               <defs>
                                 <linearGradient id="chevAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
+                                  <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.7" />
                                   <stop offset="100%" stopColor="#f97316" stopOpacity="0.05" />
                                 </linearGradient>
                               </defs>
                               <path d="M55 -10 L95 30 L60 65" fill="none" stroke="url(#chevAmberGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
-                              <path d="M35 10 L75 50 L40 85" fill="none" stroke="url(#chevAmberGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-                              <circle cx="82" cy="18" r="1.2" fill="white" />
-                              <circle cx="70" cy="52" r="0.8" fill="white" />
-                              <circle cx="45" cy="12" r="1" fill="white" />
-                              <path d="M55 20 L56 22 L58 23 L56 24 L55 26 L54 24 L52 23 L54 22 Z" fill="white" opacity="0.8" />
+                              <path d="M35 10 L75 50 L40 85" fill="none" stroke="url(#chevAmberGrad)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
                             </svg>
                           </div>
                         )}
 
-                        {/* Top corner badge with glassmorphism */}
+                        {/* Top corner badge */}
                         {tier.badge && (
                           <span className={`absolute top-5 right-5 text-[8.5px] font-black font-mono tracking-widest px-3 py-1.5 rounded-full uppercase border backdrop-blur-md shadow-3xs z-10 ${isSelected
                             ? isCyan
-                              ? 'bg-cyan-500/10 text-cyan-700 border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.12)] animate-pulse'
-                              : 'bg-amber-500/10 text-amber-700 border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.12)]'
+                              ? 'bg-cyan-500/10 text-cyan-700 border-cyan-500/30'
+                              : 'bg-amber-500/10 text-amber-700 border-amber-500/30'
                             : 'bg-slate-100/80 text-slate-500 border-slate-200/50'
                             }`}>
                             {tier.badge}
@@ -680,8 +561,8 @@ export default function EarlyAccessForm() {
                         {/* Icon badge frame */}
                         <div className={`w-14 h-14 rounded-full mb-5.5 relative z-10 overflow-hidden flex items-center justify-center bg-white/40 backdrop-blur-md border transition-all duration-300 hover:scale-105 ${isSelected
                           ? isCyan
-                            ? 'border-cyan-300/40 shadow-[0_8px_24px_rgba(6,182,212,0.22)]'
-                            : 'border-amber-300/40 shadow-[0_8px_24px_rgba(245,158,11,0.22)]'
+                            ? 'border-cyan-300/40 shadow-[0_8px_24px_rgba(6,182,212,0.15)]'
+                            : 'border-amber-300/40 shadow-[0_8px_24px_rgba(245,158,11,0.15)]'
                           : 'border-slate-200'
                           }`}>
                           <img
@@ -698,7 +579,7 @@ export default function EarlyAccessForm() {
                             <CheckCircle2 className={`w-5 h-5 shrink-0 ${isCyan ? 'text-cyan-500' : 'text-amber-500'}`} />
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 leading-relaxed mb-4 pr-10 min-h-[36px]">{tier.description}</p>
+                        <p className="text-sm text-slate-500 leading-relaxed mb-4 pr-10 min-h-[24px] z-10">{tier.description}</p>
 
                         <div className="flex items-baseline gap-1.5 z-10">
                           <span className="text-3xl font-black text-slate-900 tracking-tight">{tier.price}</span>
@@ -712,7 +593,6 @@ export default function EarlyAccessForm() {
                           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                           className="overflow-hidden w-full"
                         >
-                          {/* Premium Divider styled after the concept design */}
                           <div className="relative flex items-center my-4.5 select-none z-10">
                             <div className="flex-grow border-t border-slate-200/50" />
                             <span className="mx-3 flex-shrink text-[9px] font-mono font-bold tracking-[0.2em] text-slate-400 uppercase">
@@ -721,36 +601,15 @@ export default function EarlyAccessForm() {
                             <div className="flex-grow border-t border-slate-200/50" />
                           </div>
 
-                          {/* Highlights 'Save / Tiết kiệm' spec with glowing glassmorphic pill */}
                           <div className="space-y-2.5 pb-5 pt-1">
-                            {tier.quickSpecs.map((spec, sIdx) => {
-                              const isPromoSpec = spec.text.toLowerCase().includes('tiết kiệm') || spec.text.toLowerCase().includes('save') || spec.text.toLowerCase().includes('%');
-
-                              return (
-                                <div
-                                  key={sIdx}
-                                  className={`flex items-center gap-2.5 transition-all duration-300 ${isPromoSpec
-                                    ? isCyan
-                                      ? 'text-[12.5px] font-extrabold text-cyan-900 bg-gradient-to-r from-cyan-100/95 via-teal-50/95 to-cyan-100/95 border-2 border-cyan-400 px-4 py-2.5 rounded-2xl shadow-[0_6px_20px_rgba(6,182,212,0.25)] max-w-fit scale-[1.04] transform -translate-x-0.5'
-                                      : 'text-[12.5px] font-extrabold text-amber-900 bg-gradient-to-r from-amber-100/95 via-orange-50/95 to-amber-100/95 border-2 border-amber-400 px-4 py-2.5 rounded-2xl shadow-[0_6px_20px_rgba(245,158,11,0.25)] max-w-fit scale-[1.04] transform -translate-x-0.5'
-                                    : 'text-[11px] text-slate-600 font-medium'
-                                    }`}
-                                >
-                                  {isPromoSpec ? (
-                                    <div className="flex items-center gap-1.5 shrink-0">
-                                      <Percent className={`w-4.5 h-4.5 shrink-0 ${isCyan ? 'text-cyan-700' : 'text-amber-700'}`} />
-                                      <span className={`text-[9px] font-black font-mono tracking-widest px-2 py-0.5 rounded-md text-white uppercase shadow-3xs leading-none ${isCyan ? 'bg-cyan-600' : 'bg-amber-600'
-                                        }`}>
-                                        PROMO
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    renderSpecIcon(spec.icon)
-                                  )}
-                                  <span>{spec.text}</span>
+                            {tier.features.map((feat, idx) => (
+                              <div key={idx} className="flex items-center gap-2.5 text-xs text-slate-650 font-medium">
+                                <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs bg-slate-100 text-slate-650`}>
+                                  <Check className="w-3 h-3 stroke-[3]" />
                                 </div>
-                              );
-                            })}
+                                <span>{feat}</span>
+                              </div>
+                            ))}
                           </div>
                         </motion.div>
                       </button>
@@ -761,22 +620,22 @@ export default function EarlyAccessForm() {
             </AnimatePresence>
           </div>
 
-          {/* RIGHT COLUMN: CHECKOUT HUB (Adjusted to col-span-7 ~ 58% width) */}
+          {/* RIGHT COLUMN: CHECKOUT/PRE-ORDER HUB */}
           <div className="w-full lg:col-span-7">
             <div className="relative w-full bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-[32px] p-6 md:p-9.5 overflow-hidden">
 
               {/* Blur neon light accents inside right panel */}
               <div className={`absolute -top-10 -right-10 w-44 h-44 rounded-full blur-3xl pointer-events-none transition-all duration-500 ${activeSelectedTier.colorTheme === 'cyan'
                 ? 'bg-cyan-500/10'
-                : activeSelectedTier.colorTheme === 'purple'
-                  ? 'bg-purple-500/10'
+                : activeSelectedTier.colorTheme === 'blue'
+                  ? 'bg-blue-500/10'
                   : 'bg-amber-500/10'
                 }`} />
 
               <AnimatePresence mode="wait">
                 {!isSubmitted ? (
                   <motion.div
-                    key={showQRStep ? "checkout-qr" : "checkout-form"}
+                    key="preorder-form"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -785,11 +644,11 @@ export default function EarlyAccessForm() {
                   >
                     {/* Header */}
                     <div className="border-b border-slate-200/50 pb-5">
-                      <h3 className="font-display text-xl font-extrabold text-slate-900 tracking-tight">
+                      <h3 className="font-display text-2xl font-extrabold text-slate-900 tracking-tight">
                         {t.checkoutTitle}
                       </h3>
-                      <p className="text-xs text-slate-400 mt-1 font-medium">
-                        {t.selected} <span className="font-bold text-slate-700">{activeSelectedTier.name}</span>
+                      <p className="text-xs md:text-sm text-slate-500 mt-1.5 font-medium leading-relaxed">
+                        {t.checkoutSub}
                       </p>
                     </div>
 
@@ -800,454 +659,120 @@ export default function EarlyAccessForm() {
                       </div>
                     )}
 
-                    {!showQRStep ? (
-                      // BƯỚC 1: NHẬP THÔNG TIN VÀ XEM HÓA ĐƠN SƠ BỘ (ẨN QR)
-                      <form onSubmit={handleProceedToQR} className="space-y-8">
-                        {/* Grid 2 Column on Desktop */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                          {/* 1. Benefits details (Left Grid subcolumn) */}
-                          <div className="space-y-5">
-                            <h4 className="text-xs font-bold font-mono tracking-widest text-slate-500 uppercase">
-                              {t.benefitsLabel}
-                            </h4>
-                            <ul className="space-y-3.5">
-                              {activeSelectedTier.features.slice(0, 6).map((feat, idx) => (
-                                <li key={idx} className="flex items-start gap-2.5 text-[12px] text-slate-650 font-medium">
-                                  <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-2xs ${activeSelectedTier.colorTheme === 'cyan'
-                                    ? 'bg-cyan-500/10 text-cyan-600'
-                                    : activeSelectedTier.colorTheme === 'purple'
-                                      ? 'bg-purple-500/10 text-purple-600'
-                                      : 'bg-amber-500/10 text-amber-600'
-                                    }`}>
-                                    <Check className="w-2.5 h-2.5 stroke-[3]" />
-                                  </div>
-                                  <span>{feat.replace('(AI-based)', '')}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          {/* 2. Form User Info (Right Grid subcolumn) */}
-                          <div className="space-y-4">
-                            <h4 className="text-xs font-bold font-mono tracking-widest text-slate-500 uppercase mb-1">
-                              {t.detailsTitle}
-                            </h4>
-
-                            {/* Parent Name */}
-                            <div className="relative group">
-                              <input
-                                type="text"
-                                required
-                                value={parentName}
-                                onChange={(e) => setParentName(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200/80 focus:border-slate-900 rounded-xl px-4 py-3.5 pt-6 text-sm outline-none transition-colors peer font-sans text-slate-800"
-                                placeholder=" "
-                              />
-                              <label className="absolute left-4 top-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-3.5 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-slate-600 pointer-events-none">
-                                {t.parentNameLabel}
-                              </label>
-                            </div>
-
-                            {/* Contact Phone */}
-                            <div className="relative group">
-                              <input
-                                type="tel"
-                                required
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200/80 focus:border-slate-900 rounded-xl px-4 py-3.5 pt-6 text-sm outline-none transition-colors peer font-sans text-slate-800"
-                                placeholder=" "
-                              />
-                              <label className="absolute left-4 top-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-3.5 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-slate-600 pointer-events-none">
-                                {t.phoneLabel}
-                              </label>
-                            </div>
-
-                            {/* Email Address */}
-                            <div className="relative group">
-                              <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200/80 focus:border-slate-900 rounded-xl px-4 py-3.5 pt-6 text-sm outline-none transition-colors peer font-sans text-slate-800"
-                                placeholder=" "
-                              />
-                              <label className="absolute left-4 top-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-3.5 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-slate-600 pointer-events-none">
-                                {t.emailLabel}
-                              </label>
-                            </div>
-
-                            {/* Shipping Address */}
-                            <div className="overflow-hidden transition-all duration-500 ease-[0.16,1,0.3,1]" style={{ height: !hasDevice ? 'auto' : 0, opacity: !hasDevice ? 1 : 0 }}>
-                              <div className="pt-1.5 relative group">
-                                <input
-                                  type="text"
-                                  required={!hasDevice}
-                                  value={shippingAddress}
-                                  onChange={(e) => setShippingAddress(e.target.value)}
-                                  className="w-full bg-slate-50 border border-slate-200/80 focus:border-slate-900 rounded-xl px-4 py-3.5 pt-6 text-sm outline-none transition-colors peer font-sans text-slate-800"
-                                  placeholder=" "
-                                />
-                                <label className="absolute left-4 top-3.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider transition-all peer-placeholder-shown:text-xs peer-placeholder-shown:top-5 peer-placeholder-shown:font-medium peer-focus:top-3.5 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-slate-600 pointer-events-none">
-                                  {t.addressLabel}
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-
+                    {/* Form fields */}
+                    <form onSubmit={handlePreOrderSubmit} className="space-y-6">
+                      <div className="space-y-4">
+                        
+                        {/* Parent Name */}
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            {t.parentNameLabel}
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={parentName}
+                            onChange={(e) => setParentName(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                            placeholder={t.parentNamePlaceholder}
+                          />
                         </div>
 
-                        {/* Interactive Bank Card & Billing Summary in 50/50 Split */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-
-                          {/* Interactive Bank Card */}
-                          <div className="flex flex-col">
-                            <div className="w-full relative rounded-3xl p-6.5 text-white overflow-hidden shadow-2xl border border-[#1e294b] select-none bg-gradient-to-br from-[#0c1330] to-[#04071a] flex flex-col justify-between aspect-[1.586/1] md:min-h-[225px] transition-all duration-500">
-                              <div className={`absolute -top-12 -right-12 w-36 h-36 rounded-full blur-3xl opacity-35 pointer-events-none transition-colors duration-500 ${activeSelectedTier.colorTheme === 'cyan'
-                                ? 'bg-cyan-500'
-                                : activeSelectedTier.colorTheme === 'purple'
-                                  ? 'bg-purple-500'
-                                  : 'bg-amber-500'
-                                }`} />
-
-                              <div className="flex justify-between items-start z-10 pt-1">
-                                <span className="text-3xl font-display font-black tracking-[0.2em] text-white leading-none">
-                                  ONBI
-                                </span>
-                              </div>
-
-                              <div className="flex justify-between items-center z-10 my-3">
-                                <div className="flex items-center gap-3.5">
-                                  <div className="w-10 h-7.5 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 rounded-md border border-amber-300/40 shadow-sm relative overflow-hidden">
-                                    <div className="absolute inset-x-0 top-1/2 h-[1px] bg-amber-600/30" />
-                                    <div className="absolute inset-y-0 left-1/2 w-[1px] bg-amber-600/30" />
-                                    <div className="absolute inset-2 border border-amber-600/20 rounded-xs" />
-                                  </div>
-                                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-300/80 fill-none stroke-current" strokeWidth="2.5" strokeLinecap="round">
-                                    <path d="M12 2a15.3 15.3 0 0 1 4 10a15.3 15.3 0 0 1-4 10" strokeLinecap="round" />
-                                    <path d="M8 5a10.6 10.6 0 0 1 3 7a10.6 10.6 0 0 1-3 7" strokeLinecap="round" />
-                                    <path d="M4 8a6 6 0 0 1 2 4a6 6 0 0 1-2 4" strokeLinecap="round" />
-                                  </svg>
-                                </div>
-
-                                <div className="text-right">
-                                  <span className="text-[7px] font-mono text-slate-400 uppercase tracking-widest block leading-none">{t.billedNow}</span>
-                                  <span className="text-2xl font-black font-mono tracking-tight text-white mt-1.5 block leading-none">
-                                    {activeSelectedTier.price}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex justify-between items-end z-10 border-t border-white/5 pt-3">
-                                <div className="text-left font-mono">
-                                  <div className="text-[7px] text-slate-400 uppercase tracking-widest mb-0.5 leading-none">{t.member}</div>
-                                  <div className="text-xs font-bold text-slate-100 truncate max-w-[155px] uppercase tracking-wider leading-none">
-                                    {parentName || 'GUEST MEMBER'}
-                                  </div>
-                                </div>
-
-                                <div className="text-right flex flex-col items-end select-none leading-none">
-                                  <span className="text-xl font-display font-black italic tracking-wide text-white leading-none">
-                                    ONBI
-                                  </span>
-                                  <span className="text-[7px] font-mono tracking-widest text-slate-400 uppercase mt-1 leading-none">
-                                    Pay VIP
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Invoice Summary */}
-                          <div className="flex flex-col justify-between bg-slate-50/70 border border-slate-200/50 rounded-3xl p-6.5 relative min-h-[225px]">
-                            <div className="font-mono w-full">
-                              <span className="text-[10px] font-bold text-slate-400 block tracking-wider uppercase mb-3">
-                                {language === 'vi' ? "TỔNG HÓA ĐƠN TẠM TÍNH" : "ESTIMATED SUMMARY"}
-                              </span>
-                              <div className="space-y-3">
-                                <div className="flex justify-between items-center text-[12px] text-slate-500">
-                                  <span>{!hasDevice ? t.deviceBundle : t.subActive}</span>
-                                  <span className="font-semibold text-slate-700">{activeSelectedTier.price}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-[12px] text-slate-500">
-                                  <span>{t.shippingFee}</span>
-                                  <span className="font-semibold text-emerald-600">{t.shippingFree}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="border-t border-slate-200/40 pt-4.5 mt-3 w-full">
-                              <div className="flex justify-between items-center text-xs font-mono">
-                                <span className="font-bold text-slate-600">{language === 'vi' ? "TỔNG THANH TOÁN:" : "TOTAL DUE:"}</span>
-                                <span className="text-sm font-black text-slate-900">{activeSelectedTier.price}</span>
-                              </div>
-                            </div>
-                          </div>
-
+                        {/* Contact Phone */}
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            {t.phoneLabel}
+                          </label>
+                          <input
+                            type="tel"
+                            required
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                            placeholder={t.phonePlaceholder}
+                          />
                         </div>
 
-                        {/* Primary Order CTA */}
-                        <button
-                          type="submit"
-                          className="w-full py-4.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 hover:-translate-y-0.5 cursor-pointer bg-[#0066cc] hover:bg-[#0071e3] text-white shadow-lg shadow-blue-500/10 hover:shadow-blue-500/25 flex items-center justify-center gap-2 group"
-                        >
-                          <span>{getSubmitButtonText()}</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </button>
-                      </form>
-                    ) : (
-                      // BƯỚC 2: MÀN HÌNH HIỂN THỊ VIETQR PHÓNG TO VÀ XÁC NHẬN CHUYỂN KHOẢN
-                      <div className="space-y-8">
-                        {/* Read-Only Client Summary Badge */}
-                        <div className="bg-slate-50/90 border border-slate-200/50 rounded-2xl p-5 space-y-3.5 relative">
-                          <div className="flex justify-between items-center border-b border-slate-200/40 pb-2.5">
-                            <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                              <Check className="w-4 h-4 text-emerald-600 stroke-[3]" /> {t.orderSummaryTitle}
-                            </h4>
-                            <button
-                              type="button"
-                              onClick={() => setShowQRStep(false)}
-                              className="text-[10px] font-extrabold text-indigo-650 hover:text-indigo-800 cursor-pointer transition-colors"
-                            >
-                              [Chỉnh sửa thông tin]
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3 text-xs text-slate-655">
-                            <div><span className="font-bold text-slate-400 uppercase text-[8.5px] block tracking-wider">Tên phụ huynh</span> <span className="font-bold text-slate-800 text-[13px]">{parentName}</span></div>
-                            <div><span className="font-bold text-slate-400 uppercase text-[8.5px] block tracking-wider">Số điện thoại</span> <span className="font-bold text-slate-800 text-[13px]">{phone}</span></div>
-                            <div><span className="font-bold text-slate-400 uppercase text-[8.5px] block tracking-wider">Địa chỉ Email</span> <span className="font-bold text-slate-800 text-[13px]">{email}</span></div>
-                            {!hasDevice && (
-                              <div className="sm:col-span-3 border-t border-slate-200/30 pt-2.5"><span className="font-bold text-slate-400 uppercase text-[8.5px] block tracking-wider">Địa chỉ giao hàng</span> <span className="font-bold text-slate-800 text-[12px]">{shippingAddress}</span></div>
-                            )}
+                        {/* Email Address */}
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            {t.emailLabel}
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                            placeholder={t.emailPlaceholder}
+                          />
+                        </div>
+
+                        {/* Shipping Address */}
+                        <div className="overflow-hidden transition-all duration-500 ease-[0.16,1,0.3,1]" style={{ height: !hasDevice ? 'auto' : 0, opacity: !hasDevice ? 1 : 0 }}>
+                          <div className="pt-2 space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                              {t.addressLabel}
+                            </label>
+                            <input
+                              type="text"
+                              required={!hasDevice}
+                              value={shippingAddress}
+                              onChange={(e) => setShippingAddress(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-4 text-base outline-none transition-all font-sans text-slate-800 placeholder:text-slate-400 shadow-3xs"
+                              placeholder={t.addressPlaceholder}
+                            />
                           </div>
                         </div>
 
-                        {/* Interactive Bank Card & Real QR Code Box in 50/50 Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pt-2">
-
-                          {/* Left Column: ATM Card & Receipt */}
-                          <div className="space-y-6 flex flex-col">
-                            {/* ATM Card */}
-                            <div className="w-full max-w-sm mx-auto lg:mx-0">
-                              <div className="w-full relative rounded-3xl p-6.5 text-white overflow-hidden shadow-2xl border border-[#1e294b] select-none bg-gradient-to-br from-[#0c1330] to-[#04071a] flex flex-col justify-between aspect-[1.586/1] md:min-h-[225px] transition-all duration-500">
-                                <div className={`absolute -top-12 -right-12 w-36 h-36 rounded-full blur-3xl opacity-35 pointer-events-none transition-colors duration-500 ${activeSelectedTier.colorTheme === 'cyan'
-                                  ? 'bg-cyan-500'
-                                  : activeSelectedTier.colorTheme === 'purple'
-                                    ? 'bg-purple-500'
-                                    : 'bg-amber-500'
-                                  }`} />
-
-                                <div className="flex justify-between items-start z-10 pt-1">
-                                  <span className="text-3xl font-display font-black tracking-[0.2em] text-white leading-none">
-                                    ONBI
-                                  </span>
-                                </div>
-
-                                <div className="flex justify-between items-center z-10 my-3">
-                                  <div className="flex items-center gap-3.5">
-                                    <div className="w-10 h-7.5 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 rounded-md border border-amber-300/40 shadow-sm relative overflow-hidden">
-                                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-amber-600/30" />
-                                      <div className="absolute inset-y-0 left-1/2 w-[1px] bg-amber-600/30" />
-                                      <div className="absolute inset-2 border border-amber-600/20 rounded-xs" />
-                                    </div>
-                                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-300/80 fill-none stroke-current" strokeWidth="2.5" strokeLinecap="round">
-                                      <path d="M12 2a15.3 15.3 0 0 1 4 10a15.3 15.3 0 0 1-4 10" strokeLinecap="round" />
-                                      <path d="M8 5a10.6 10.6 0 0 1 3 7a10.6 10.6 0 0 1-3 7" strokeLinecap="round" />
-                                      <path d="M4 8a6 6 0 0 1 2 4a6 6 0 0 1-2 4" strokeLinecap="round" />
-                                    </svg>
-                                  </div>
-
-                                  <div className="text-right">
-                                    <span className="text-[7px] font-mono text-slate-400 uppercase tracking-widest block leading-none">{t.billedNow}</span>
-                                    <span className="text-2xl font-black font-mono tracking-tight text-white mt-1.5 block leading-none">
-                                      {activeSelectedTier.price}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="flex justify-between items-end z-10 border-t border-white/5 pt-3">
-                                  <div className="text-left font-mono">
-                                    <div className="text-[7px] text-slate-400 uppercase tracking-widest mb-0.5 leading-none">{t.member}</div>
-                                    <div className="text-xs font-bold text-slate-100 truncate max-w-[155px] uppercase tracking-wider leading-none">
-                                      {parentName || 'GUEST MEMBER'}
-                                    </div>
-                                  </div>
-
-                                  <div className="text-right flex flex-col items-end select-none leading-none">
-                                    <span className="text-xl font-display font-black italic tracking-wide text-white leading-none">
-                                      ONBI
-                                    </span>
-                                    <span className="text-[7px] font-mono tracking-widest text-slate-400 uppercase mt-1 leading-none">
-                                      Pay VIP
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Receipt / Invoice Details */}
-                            <div className="bg-slate-50/70 border border-slate-200/50 rounded-3xl p-6 relative">
-                              <div className="font-mono w-full">
-                                <span className="text-[10px] font-bold text-slate-400 block tracking-wider uppercase mb-3">
-                                  {language === 'vi' ? "CHI TIẾT HÓA ĐƠN" : "INVOICE DETAILS"}
-                                </span>
-                                <div className="space-y-3">
-                                  <div className="flex justify-between items-center text-[12px] text-slate-600">
-                                    <span className="font-medium text-slate-500">{language === 'vi' ? "Dịch vụ đăng ký" : "Subscribed Item"}</span>
-                                    <span className="font-bold text-slate-700">{!hasDevice ? t.deviceBundle : t.subActive}</span>
-                                  </div>
-                                  <div className="flex justify-between items-center text-[12px] text-slate-600">
-                                    <span className="font-medium text-slate-500">{language === 'vi' ? "Phương thức" : "Payment Method"}</span>
-                                    <span className="font-bold text-slate-700">{language === 'vi' ? "Chuyển khoản VietQR" : "VietQR Instant Transfer"}</span>
-                                  </div>
-                                  <div className="flex justify-between items-center text-[12px] text-slate-600">
-                                    <span className="font-medium text-slate-500">{language === 'vi' ? "Phí vận chuyển" : "Delivery Fee"}</span>
-                                    <span className="font-bold text-emerald-600">{t.shippingFree}</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="border-t border-slate-200/50 pt-4.5 mt-4 w-full">
-                                <div className="flex justify-between items-center text-xs font-mono">
-                                  <span className="font-bold text-slate-600">{language === 'vi' ? "TỔNG THỰC NHẬN:" : "TOTAL DUE:"}</span>
-                                  <span className="text-base font-black text-emerald-600">{activeSelectedTier.price}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Right Column: QR Code & Transfer Details */}
-                          <div className="space-y-6">
-
-                            {/* VietQR Box */}
-                            <div className="flex flex-col justify-center items-center gap-4 bg-white border border-slate-200/60 rounded-3xl p-6 shadow-2xs relative">
-                              <div className="relative group select-none">
-                                <div className="absolute inset-0 bg-indigo-500/5 blur-xl rounded-2xl group-hover:scale-105 transition-transform" />
-                                {renderVirtualQR()}
-                              </div>
-
-                              <div className="text-center font-mono w-full">
-                                <span className="text-[12px] font-black text-indigo-750 block tracking-wider uppercase font-sans">
-                                  {t.qrInstruction}
-                                </span>
-                                <span className="text-[10px] text-slate-400 block mt-1">
-                                  {language === 'vi' ? "Quét mã bằng ứng dụng ngân hàng để tự động điền thông tin" : "Scan via banking app to autofill details"}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Copyable Details Box */}
-                            <div className="bg-slate-50/70 border border-slate-200/50 rounded-3xl p-6.5 space-y-4">
-                              <h5 className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">
-                                {language === 'vi' ? "THÔNG TIN CHUYỂN KHOẢN THỦ CÔNG" : "MANUAL TRANSFER DETAILS"}
-                              </h5>
-                              <div className="space-y-3.5 text-xs text-slate-600">
-
-                                {/* Bank Name */}
-                                <div className="flex justify-between items-center py-0.5">
-                                  <span className="text-slate-400 font-medium">{language === 'vi' ? "Ngân hàng" : "Bank"}</span>
-                                  <span className="font-extrabold text-slate-800">VPBank (Napas247)</span>
-                                </div>
-
-                                {/* Account Number */}
-                                <div className="flex justify-between items-center border-t border-slate-200/30 pt-3">
-                                  <span className="text-slate-400 font-medium">{language === 'vi' ? "Số tài khoản" : "Account Number"}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono font-extrabold text-slate-800 text-sm">0835173787</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleCopyField('0835173787', 'account')}
-                                      className={`p-1.5 rounded-lg border transition-all cursor-pointer ${copiedField === 'account'
-                                        ? 'bg-emerald-50 border-emerald-300 text-emerald-600'
-                                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-                                        }`}
-                                      title="Copy"
-                                    >
-                                      {copiedField === 'account' ? (
-                                        <span className="text-[9px] font-bold px-0.5 text-emerald-650">Đã chép!</span>
-                                      ) : (
-                                        <ClipboardCopy className="w-3.5 h-3.5" />
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Account Owner */}
-                                <div className="flex justify-between items-center border-t border-slate-200/30 pt-3">
-                                  <span className="text-slate-400 font-medium">{language === 'vi' ? "Chủ tài khoản" : "Account Owner"}</span>
-                                  <span className="font-extrabold text-slate-800 uppercase">NGUYEN TUAN KHA</span>
-                                </div>
-
-                                {/* Amount */}
-                                <div className="flex justify-between items-center border-t border-slate-200/30 pt-3">
-                                  <span className="text-slate-400 font-medium">{language === 'vi' ? "Số tiền" : "Amount"}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono font-extrabold text-slate-850 text-sm">{activeSelectedTier.price}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleCopyField(activeSelectedTier.price.replace(/\D/g, ''), 'amount')}
-                                      className={`p-1.5 rounded-lg border transition-all cursor-pointer ${copiedField === 'amount'
-                                        ? 'bg-emerald-50 border-emerald-300 text-emerald-600'
-                                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-                                        }`}
-                                      title="Copy"
-                                    >
-                                      {copiedField === 'amount' ? (
-                                        <span className="text-[9px] font-bold px-0.5 text-emerald-650">Đã chép!</span>
-                                      ) : (
-                                        <ClipboardCopy className="w-3.5 h-3.5" />
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Transfer Content */}
-                                <div className="flex justify-between items-center border-t border-slate-200/30 pt-3">
-                                  <span className="text-slate-400 font-medium">{language === 'vi' ? "Cú pháp chuyển khoản" : "Transfer Syntax"}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono font-extrabold text-indigo-700 uppercase">{`ONBI ${phone}`}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleCopyField(`ONBI ${phone}`, 'content')}
-                                      className={`p-1.5 rounded-lg border transition-all cursor-pointer ${copiedField === 'content'
-                                        ? 'bg-emerald-50 border-emerald-300 text-emerald-600'
-                                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-                                        }`}
-                                      title="Copy"
-                                    >
-                                      {copiedField === 'content' ? (
-                                        <span className="text-[9px] font-bold px-0.5 text-emerald-650">Đã chép!</span>
-                                      ) : (
-                                        <ClipboardCopy className="w-3.5 h-3.5" />
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-
-                              </div>
-                            </div>
-
-                          </div>
-
-                        </div>
-
-                        {/* Confirmation CTA button */}
-                        <button
-                          type="button"
-                          onClick={handleConfirmPayment}
-                          className="w-full py-4.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 hover:-translate-y-0.5 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/25 flex items-center justify-center gap-2 group animate-bounce"
-                          style={{ animationDuration: '3s' }}
-                        >
-                          <span>{t.btnConfirmTransferred}</span>
-                          <Check className="w-4 h-4" />
-                        </button>
                       </div>
-                    )}
+
+                      {/* Order Summary */}
+                      <div className="bg-slate-50/70 border border-slate-200/60 rounded-3xl p-6 shadow-sm font-sans mt-4">
+                        <div className="w-full">
+                          <span className="text-[10px] font-bold text-slate-400 block tracking-wider uppercase mb-3.5 font-mono">
+                            {t.benefitsLabel}
+                          </span>
+                          <div className="space-y-3.5">
+                            <div className="flex justify-between items-center text-xs text-slate-650 font-medium">
+                              <span>{!hasDevice ? t.summaryRobot : `${language === 'vi' ? 'Gia hạn:' : 'Renewal:'} ${activeSelectedTier.name}`}</span>
+                              <span className="font-bold text-slate-800">{activeSelectedTier.price}</span>
+                            </div>
+                            {!hasDevice && (
+                              <div className="flex justify-between items-center text-xs text-slate-655 font-medium">
+                                <span>{t.summaryPremium}</span>
+                                <span className="font-bold text-indigo-650 bg-indigo-50 border border-indigo-100/50 px-2 py-0.5 rounded-md text-[10px]">
+                                  {t.summaryGift}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex justify-between items-center text-xs text-slate-655 font-medium">
+                              <span>{t.summaryDelivery}</span>
+                              <span className="font-bold text-emerald-600">{!hasDevice ? t.summaryFree : '--'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="border-t border-slate-200/80 pt-4 mt-4 w-full">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.summaryTotal}:</span>
+                            <span className="text-xl font-black text-slate-900 tracking-tight">{activeSelectedTier.price}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Primary Order CTA */}
+                      <button
+                        type="submit"
+                        className="w-full py-4.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 hover:-translate-y-0.5 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/10 hover:shadow-blue-500/25 flex items-center justify-center gap-2 group"
+                      >
+                        <span>{t.btnSubmitDevice}</span>
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </button>
+                    </form>
                   </motion.div>
                 ) : (
-                  // HOLOGRAPHIC DIGITAL PASS SUCCESS SCREEN (Replaces checkout form inside right panel)
+                  // PRE-ORDER COUPON SUCCESS SCREEN (Replaces preorder form inside right panel)
                   <motion.div
                     key="success-screen"
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -1263,7 +788,7 @@ export default function EarlyAccessForm() {
                       <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{t.successSub}</h3>
                     </div>
 
-                    {/* 3D Holo-card styled dynamically based on chosen tier */}
+                    {/* 3D Holo-card */}
                     <div
                       ref={cardRef}
                       className="w-full max-w-[320px] h-[190px] cursor-pointer relative"
@@ -1311,11 +836,11 @@ export default function EarlyAccessForm() {
                           }`}
                       >
                         <ClipboardCopy className="w-4 h-4" />
-                        <span>{copiedText === 'copylink' ? t.copied : t.copyBtn + ' ' + t.passDetails}</span>
+                        <span>{copiedText === 'copylink' ? t.copied : language === 'vi' ? 'Chép mã đặt trước' : 'Copy pre-order code'}</span>
                       </button>
                       <button
-                        onClick={() => { setIsSubmitted(false); setShowQRStep(false); setParentName(''); setPhone(''); setEmail(''); setShippingAddress(''); }}
-                        className="px-6 py-3.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+                        onClick={() => { setIsSubmitted(false); setParentName(''); setPhone(''); setEmail(''); setShippingAddress(''); }}
+                        className="px-6 py-3.5 rounded-xl text-xs font-bold text-slate-550 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all cursor-pointer"
                       >
                         {t.btnDone}
                       </button>
@@ -1327,17 +852,6 @@ export default function EarlyAccessForm() {
           </div>
 
         </div>
-      </div>
-
-      {/* Footer Contact For Custom */}
-      <div className="text-center pt-6 relative z-10">
-        <button
-          onClick={() => { setHasDevice(false); setIsSubmitted(false); setShowQRStep(false); }}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-[#22d3ee] transition-colors group cursor-pointer"
-        >
-          <Mail className="w-4 h-4 text-slate-400 group-hover:rotate-6 transition-transform" />
-          <span>{t.customSchool}</span>
-        </button>
       </div>
 
     </div>

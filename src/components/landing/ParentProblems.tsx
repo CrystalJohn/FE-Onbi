@@ -17,13 +17,13 @@ import { useLanguage } from '@/context/LanguageContext';
 // showcase on the right.
 // ─────────────────────────────────────────────────────────────────────────────
 
-type TabId = 'practice' | 'time' | 'focus';
+type TabId = 'pomodoro' | 'tracking' | 'posture';
 
-const TAB_IDS: TabId[] = ['practice', 'time', 'focus'];
+const TAB_IDS: TabId[] = ['pomodoro', 'tracking', 'posture'];
 
 export default function ParentProblems() {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<TabId>('practice');
+  const [activeTab, setActiveTab] = useState<TabId>('pomodoro');
 
   const handleTabClick = (tabId: TabId) => {
     setActiveTab(tabId);
@@ -39,32 +39,32 @@ export default function ParentProblems() {
       solutionLabel: "ONBI SOLUTION",
       problems: [
         {
-          id: 'practice' as const,
-          tabTitle: "English Speaking",
-          title: "Lack English Speaking Practice",
-          accent: "Dialogue Barrier",
-          description: "Children learn vocabulary on apps but have no one to converse with. Without daily speaking practice, they know English but hesitate to open their mouths when meeting foreigners.",
-          solution: "ONBI creates a two-way conversational environment right at the desk. Children can speak, hear feedback, and get pronunciation corrections.",
-          icon: MessageSquareX,
-        },
-        {
-          id: 'time' as const,
-          tabTitle: "Coaching Time",
-          title: "No Parental Time to Coach",
-          accent: "Constant Supervision",
-          description: "Correcting pronunciation, reminding children to sit properly, monitoring focus — all are necessary, but parents work all day.",
-          solution: "ONBI automatically starts the lesson when the child sits at the desk, guides step-by-step, and sends progress reports to parents' phones.",
+          id: 'pomodoro' as const,
+          tabTitle: "Auto Pomodoro",
+          accent: "25/5 STUDY RHYTHM",
+          title: "Children struggle to start and maintain consistent study sessions",
+          description: "Many children sit at their desk but don't know where to begin — prone to procrastination or fragmented study. Without a clear rhythm, building long focus and a daily habit becomes very difficult.",
+          solution: "ONBI automatically activates a 25-minute focus + 5-minute break cycle when your child sits down to study. The robot helps them start at the right time, study at a stable pace, and gradually build a lasting self-study habit.",
           icon: Timer,
         },
         {
-          id: 'focus' as const,
-          tabTitle: "Screen Distraction",
-          title: "Struggle to Focus Alone",
-          accent: "Screen Distractions",
-          description: "Tablets are full of games and videos. Left to study alone, children switch to YouTube in less than 5 minutes.",
-          solution: "ONBI keeps the study rhythm with 25m focus + 5m break cycles. The camera tracks posture and reminds them immediately. No screens.",
+          id: 'tracking' as const,
+          tabTitle: "Real-time Tracking",
+          accent: "LIVE UPDATES",
+          title: "Parents can't always be there to know if their child is really studying",
+          description: "Busy parents can't monitor every session. It's hard to know whether the child has started, left the desk mid-way, or how many focus minutes were actually completed today.",
+          solution: "ONBI records study status in real time and sends clear updates to parents' phones. You can track study time, session progress, and key activity milestones — without needing to sit beside your child.",
           icon: Compass,
-        }
+        },
+        {
+          id: 'posture' as const,
+          tabTitle: "Posture & Focus Reminders",
+          accent: "FOCUS & POSTURE",
+          title: "Children easily slouch or lose focus when studying alone",
+          description: "When self-studying, children may hunch too close to the desk, sit with poor posture, leave their seat repeatedly, or quickly become distracted. Without timely reminders, good study habits are very hard to maintain.",
+          solution: "ONBI monitors key signals throughout the session and delivers gentle reminders whenever the child slouches or loses focus. This helps them maintain a better study rhythm — giving parents peace of mind throughout the process.",
+          icon: MessageSquareX,
+        },
       ]
     },
     vi: {
@@ -75,32 +75,32 @@ export default function ParentProblems() {
       solutionLabel: "GIẢI PHÁP ONBI",
       problems: [
         {
-          id: 'practice' as const,
-          tabTitle: "Luyện nói tiếng Anh",
-          title: "Con thiếu môi trường luyện nói tiếng Anh",
-          accent: "Rào cản giao tiếp",
-          description: "Con học từ vựng trên app nhưng không có ai để trò chuyện. Không được luyện nói mỗi ngày, con biết tiếng Anh nhưng ngại mở miệng khi gặp người nước ngoài.",
-          solution: "ONBI tạo ra môi trường hội thoại hai chiều ngay tại bàn học. Con được nói, được nghe phản hồi, được sửa phát âm tự nhiên mỗi ngày.",
-          icon: MessageSquareX,
-        },
-        {
-          id: 'time' as const,
-          tabTitle: "Thời gian kèm học",
-          title: "Ba mẹ không có thời gian kèm con học",
-          accent: "Giám sát liên tục",
-          description: "Sửa phát âm, nhắc con ngồi đúng tư thế, theo dõi con có tập trung không — việc nào cũng cần nhưng ba mẹ đi làm cả ngày, không thể ngồi cạnh con từng phút.",
-          solution: "ONBI tự động bắt đầu buổi học khi con ngồi vào bàn, hướng dẫn từng bước bằng giọng nói nhẹ nhàng, và gửi báo cáo tiến độ về điện thoại ba mẹ.",
+          id: 'pomodoro' as const,
+          tabTitle: "Tự động Pomodoro",
+          accent: "NHỊP HỌC 25/5",
+          title: "Con khó bắt đầu và duy trì phiên học đều đặn",
+          description: "Nhiều trẻ ngồi vào bàn nhưng không biết bắt đầu từ đâu, dễ trì hoãn hoặc học ngắt quãng. Khi không có một nhịp học rõ ràng, việc tập trung lâu và xây dựng thói quen mỗi ngày trở nên rất khó.",
+          solution: "ONBI tự động kích hoạt chu trình 25 phút tập trung + 5 phút nghỉ khi con vào bàn học. Robot giúp con bắt đầu đúng lúc, học theo nhịp ổn định và từng bước hình thành thói quen tự học bền vững.",
           icon: Timer,
         },
         {
-          id: 'focus' as const,
-          tabTitle: "Phân tâm màn hình",
-          title: "Con không thể tập trung khi học một mình",
-          accent: "Bị màn hình phân tâm",
-          description: "Máy tính bảng đầy game và video. Để con tự học, chưa đầy 5 phút đã chuyển sang xem YouTube. Không ai nhắc, thói quen tập trung không bao giờ được hình thành.",
-          solution: "ONBI giữ nhịp học bằng chu kỳ 25 phút tập trung + 5 phút nghỉ. Camera theo dõi tư thế — con rời bàn hoặc ngồi sai, ONBI nhắc ngay. Không màn hình.",
+          id: 'tracking' as const,
+          tabTitle: "Theo dõi học tập realtime",
+          accent: "CẬP NHẬT THEO THỜI GIAN THỰC",
+          title: "Ba mẹ không thể luôn ở cạnh để biết con có thực sự học",
+          description: "Phụ huynh bận rộn không thể theo sát từng buổi học. Vì vậy, rất khó biết con đã bắt đầu học chưa, có rời bàn giữa chừng không, hay hôm nay đã hoàn thành được bao nhiêu thời gian tập trung.",
+          solution: "ONBI ghi nhận trạng thái học tập theo thời gian thực và gửi cập nhật rõ ràng về điện thoại phụ huynh. Ba mẹ có thể theo dõi thời gian học, tiến độ phiên tập trung và các mốc hoạt động quan trọng mà không cần ngồi kèm trực tiếp.",
           icon: Compass,
-        }
+        },
+        {
+          id: 'posture' as const,
+          tabTitle: "Nhắc tư thế & mất tập trung",
+          accent: "TẬP TRUNG & TƯ THẾ",
+          title: "Con dễ ngồi sai tư thế hoặc mất tập trung khi học một mình",
+          description: "Khi tự học, trẻ có thể cúi quá gần bàn, ngồi lệch tư thế, rời chỗ liên tục hoặc nhanh chóng bị xao nhãng. Nếu không được nhắc đúng lúc, thói quen học tốt rất khó được duy trì lâu dài.",
+          solution: "ONBI theo dõi các dấu hiệu cần lưu ý trong suốt phiên học và đưa ra nhắc nhở nhẹ nhàng khi con ngồi sai tư thế hoặc mất tập trung. Nhờ đó, con giữ được nhịp học tốt hơn và ba mẹ cũng yên tâm hơn trong quá trình đồng hành.",
+          icon: MessageSquareX,
+        },
       ]
     }
   }[language];
@@ -237,11 +237,11 @@ export default function ParentProblems() {
                 <video
                   key={id}
                   src={
-                    id === 'practice'
-                      ? '/English Speaking_video.mp4'
-                      : id === 'time'
-                      ? '/Coaching Time_video.mp4'
-                      : '/Screen Distraction_video.mp4'
+                    id === 'pomodoro'
+                      ? '/Pomodoro_video.mp4'
+                      : id === 'tracking'
+                      ? '/Tracking_video.mp4'
+                      : '/Posture_video.mp4'
                   }
                   autoPlay
                   loop

@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Menu, X, ArrowUpRight, Timer, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -11,11 +10,22 @@ interface HeaderProps {
   onTimerClick?: () => void;
 }
 
+// Map each nav key to the section ID it targets in page.tsx
+const NAV_SECTIONS = [
+  { key: 'home',     id: 'hero_section' },
+  { key: 'problem',  id: 'parent_problems_section' },
+  { key: 'features', id: 'features_grid_section' },
+  { key: 'pricing',  id: 'pricing_section' },
+  { key: 'team',     id: 'how_it_works_section' },
+] as const;
+
+type NavKey = (typeof NAV_SECTIONS)[number]['key'];
+
 export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
-  const router = useRouter();
+  const [activeSection, setActiveSection] = useState<NavKey>('home');
   const { language, setLanguage } = useLanguage();
 
   const t = {
@@ -51,31 +61,80 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
     }
   }[language];
 
+  // ─── Navbar background on scroll ────────────────────────────────────────────
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id: string) => {
+  // ─── Scroll-spy via IntersectionObserver ────────────────────────────────────
+  useEffect(() => {
+    // rootMargin: shrink the observable viewport so a section is only
+    // considered "active" when it occupies the top portion of the screen,
+    // compensating for the sticky 80px navbar.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Among all entries that are currently intersecting, pick the one
+        // whose top edge is closest to (but still below) the navbar.
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (visible.length > 0) {
+          const id = visible[0].target.id;
+          const match = NAV_SECTIONS.find((s) => s.id === id);
+          if (match) setActiveSection(match.key);
+        }
+      },
+      {
+        // Top: exclude the 80px navbar. Bottom: only consider the top 35% of
+        // the remaining viewport so the active item updates early enough.
+        rootMargin: '-80px 0px -65% 0px',
+        threshold: 0,
+      },
+    );
+
+    NAV_SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // ─── Click handler — scrolls and immediately marks section as active ────────
+  const scrollToSection = (key: NavKey) => {
     setIsOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    setActiveSection(key);                          // immediate feedback on click
+    const section = NAV_SECTIONS.find((s) => s.key === key);
+    if (!section) return;
+    const el = document.getElementById(section.id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // ─── Per-item class helper ───────────────────────────────────────────────────
+  const navClass = (key: NavKey) =>
+    activeSection === key
+      ? 'text-sm font-semibold text-[#006FE6] transition-colors cursor-pointer border-b-2 border-[#006FE6] pb-0.5'
+      : 'text-sm font-medium text-[#475569] hover:text-[#006FE6] transition-colors cursor-pointer';
+
+  const mobileNavClass = (key: NavKey) =>
+    activeSection === key
+      ? 'text-left py-2 text-sm font-semibold text-[#006FE6]'
+      : 'text-left py-2 text-sm font-medium text-slate-600';
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 safe-padding-top ${
-      scrolled 
-        ? 'bg-[#f7f6f2]/85 border-b border-[#ccc9bf]/30 shadow-sm backdrop-blur-md [backdrop-filter:blur(12px)] [-webkit-backdrop-filter:blur(12px)]' 
+      scrolled
+        ? 'bg-[#f7f6f2]/85 border-b border-[#ccc9bf]/30 shadow-sm backdrop-blur-md [backdrop-filter:blur(12px)] [-webkit-backdrop-filter:blur(12px)]'
         : 'bg-transparent'
     }`}>
-      <div className="max-w-7xl mx-auto px-6 px-[max(1.5rem,env(safe-area-inset-left,24px))] pr-[max(1.5rem,env(safe-area-inset-right,24px))] flex items-center justify-between">
-        
+      <div className="max-w-7xl mx-auto px-[max(1.5rem,env(safe-area-inset-left,24px))] pr-[max(1.5rem,env(safe-area-inset-right,24px))] flex items-center justify-between">
+
         {/* LOGO */}
-        <div 
-          onClick={() => scrollToSection('hero_section')}
+        <div
+          onClick={() => scrollToSection('home')}
           className="flex items-center cursor-pointer"
           id="nav_logo"
         >
@@ -84,40 +143,16 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
 
         {/* CENTER NAV LINKS */}
         <nav className="hidden md:flex items-center gap-8">
-          <button
-            onClick={() => scrollToSection('hero_section')}
-            className="text-sm font-semibold text-slate-900 hover:text-[#0066cc] transition-colors cursor-pointer border-b-2 border-[#0066cc] pb-0.5"
-          >
-            {t.home}
-          </button>
-          <button
-            onClick={() => scrollToSection('parent_problems_section')}
-            className="text-sm font-medium text-slate-600 hover:text-[#0066cc] transition-colors cursor-pointer"
-          >
-            {t.problem}
-          </button>
-          <button
-            onClick={() => scrollToSection('features_grid_section')}
-            className="text-sm font-medium text-slate-600 hover:text-[#0066cc] transition-colors cursor-pointer"
-          >
-            {t.features}
-          </button>
-          <button
-            onClick={() => scrollToSection('pricing_section')}
-            className="text-sm font-medium text-slate-600 hover:text-[#0066cc] transition-colors cursor-pointer"
-          >
-            {t.pricing}
-          </button>
-          <button
-            onClick={() => scrollToSection('how_it_works_section')}
-            className="text-sm font-medium text-slate-600 hover:text-[#0066cc] transition-colors cursor-pointer"
-          >
-            {t.team}
-          </button>
+          <button onClick={() => scrollToSection('home')}     className={navClass('home')}>{t.home}</button>
+          <button onClick={() => scrollToSection('problem')}  className={navClass('problem')}>{t.problem}</button>
+          <button onClick={() => scrollToSection('features')} className={navClass('features')}>{t.features}</button>
+          <button onClick={() => scrollToSection('pricing')}  className={navClass('pricing')}>{t.pricing}</button>
+          <button onClick={() => scrollToSection('team')}     className={navClass('team')}>{t.team}</button>
         </nav>
 
         {/* RIGHT CTA BUTTONS */}
         <div className="hidden md:flex items-center gap-3">
+
           {/* Language Switcher Dropdown */}
           <div className="relative">
             <button
@@ -126,21 +161,18 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
             >
               <Image src={t.flag} alt="" width={20} height={14} className="w-5 h-3.5 object-cover rounded-xs border border-slate-200 shadow-3xs" />
               <span className="font-semibold text-slate-700">{t.langName}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown
+                className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"
+                style={{ transform: isLangOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              />
             </button>
 
             {isLangOpen && (
               <>
-                {/* Overlay to catch clicks outside the dropdown */}
                 <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
-                
-                {/* Dropdown Box */}
                 <div className="absolute right-0 mt-2 w-40 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <button
-                    onClick={() => {
-                      setLanguage('en');
-                      setIsLangOpen(false);
-                    }}
+                    onClick={() => { setLanguage('en'); setIsLangOpen(false); }}
                     className={`w-full text-left px-4 py-2 text-xs font-semibold hover:bg-slate-100 flex items-center gap-2 transition-colors cursor-pointer ${
                       language === 'en' ? 'text-[#0066cc] bg-blue-50/40' : 'text-slate-700'
                     }`}
@@ -149,10 +181,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
                     <span>English (US)</span>
                   </button>
                   <button
-                    onClick={() => {
-                      setLanguage('vi');
-                      setIsLangOpen(false);
-                    }}
+                    onClick={() => { setLanguage('vi'); setIsLangOpen(false); }}
                     className={`w-full text-left px-4 py-2 text-xs font-semibold hover:bg-slate-100 flex items-center gap-2 transition-colors cursor-pointer ${
                       language === 'vi' ? 'text-[#0066cc] bg-blue-50/40' : 'text-slate-700'
                     }`}
@@ -172,12 +201,9 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
             <Timer className="w-4 h-4 text-[#0066cc]" />
             <span>{t.focusTimer}</span>
           </button>
-          <button
-            disabled
-            className="hidden"
-          >
-            {t.login}
-          </button>
+
+          <button disabled className="hidden">{t.login}</button>
+
           <button
             onClick={onJoinClick}
             className="text-sm font-semibold text-white px-5 py-2 rounded-full bg-[#0066cc] hover:bg-[#0071e3] transition-all duration-200 active:scale-95 cursor-pointer flex items-center gap-1.5"
@@ -189,7 +215,8 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
 
         {/* MOBILE ACTIONS */}
         <div className="flex md:hidden items-center gap-1.5">
-          {/* Mobile Language Switcher Dropdown */}
+
+          {/* Mobile Language Switcher */}
           <div className="relative">
             <button
               onClick={() => setIsLangOpen(!isLangOpen)}
@@ -199,7 +226,10 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
               <span className="uppercase text-[10px] tracking-wider text-slate-700 font-bold">
                 {language === 'en' ? 'EN' : 'VI'}
               </span>
-              <ChevronDown className="w-3 h-3 text-slate-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown
+                className="w-3 h-3 text-slate-400 transition-transform duration-200"
+                style={{ transform: isLangOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              />
             </button>
 
             {isLangOpen && (
@@ -207,10 +237,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
                 <div className="fixed inset-0 z-45" onClick={() => setIsLangOpen(false)} />
                 <div className="absolute right-0 mt-2 w-32 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
                   <button
-                    onClick={() => {
-                      setLanguage('en');
-                      setIsLangOpen(false);
-                    }}
+                    onClick={() => { setLanguage('en'); setIsLangOpen(false); }}
                     className={`w-full text-left px-3 py-1.5 text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5 transition-colors cursor-pointer ${
                       language === 'en' ? 'text-[#0066cc]' : 'text-slate-700'
                     }`}
@@ -219,10 +246,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
                     <span>English</span>
                   </button>
                   <button
-                    onClick={() => {
-                      setLanguage('vi');
-                      setIsLangOpen(false);
-                    }}
+                    onClick={() => { setLanguage('vi'); setIsLangOpen(false); }}
                     className={`w-full text-left px-3 py-1.5 text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5 transition-colors cursor-pointer ${
                       language === 'vi' ? 'text-[#0066cc]' : 'text-slate-700'
                     }`}
@@ -247,12 +271,12 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
       {/* MOBILE DRAWER */}
       {isOpen && (
         <nav className="md:hidden mt-3 border border-gray-200/60 bg-[#f7f6f2] mx-6 p-5 rounded-2xl flex flex-col gap-3 shadow-lg">
-          <button onClick={() => scrollToSection('hero_section')} className="text-left py-2 text-sm font-semibold text-slate-900">{t.home}</button>
-          <button onClick={() => scrollToSection('parent_problems_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.problem}</button>
-          <button onClick={() => scrollToSection('features_grid_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.features}</button>
-          <button onClick={() => scrollToSection('pricing_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.pricing}</button>
-          <button onClick={() => scrollToSection('how_it_works_section')} className="text-left py-2 text-sm font-medium text-slate-600">{t.team}</button>
-          
+          <button onClick={() => scrollToSection('home')}     className={mobileNavClass('home')}>{t.home}</button>
+          <button onClick={() => scrollToSection('problem')}  className={mobileNavClass('problem')}>{t.problem}</button>
+          <button onClick={() => scrollToSection('features')} className={mobileNavClass('features')}>{t.features}</button>
+          <button onClick={() => scrollToSection('pricing')}  className={mobileNavClass('pricing')}>{t.pricing}</button>
+          <button onClick={() => scrollToSection('team')}     className={mobileNavClass('team')}>{t.team}</button>
+
           <div className="h-px bg-gray-200 my-2" />
           <button
             onClick={() => { setIsOpen(false); if (onTimerClick) onTimerClick(); }}

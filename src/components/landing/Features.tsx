@@ -52,7 +52,7 @@ export default function Features() {
       core: "Tính năng cốt lõi.",
       headingLine1: "ONBI giúp con",
       headingLine2: "xây dựng thói quen học tập.",
-      description: "Được thiết kế bởi các chuyên gia tâm lý và vận hành bởi công nghệ AI an toàn, ONBI kiến tạo nhịp học tập không màn hình mà trẻ vô cùng hào hứng tham gia mỗi ngày.",
+      description: "ONBI tự động bắt đầu phiên Pomodoro khi con ngồi vào bàn, theo dõi thời gian học thật và gửi cập nhật rõ ràng cho phụ huynh. Con được nhắc nhẹ nhàng để duy trì tập trung, còn ba mẹ không cần liên tục ngồi kèm hay kiểm tra thủ công.",
       categories: {
         focus: "Thói quen học",
         health: "Sức khỏe & An toàn",
@@ -131,40 +131,14 @@ export default function Features() {
       ),
     },
     {
-      category: t.categories.buddy,
-      title: "Friendly Study Buddy",
-      src: "/Friendly Study Buddy.webp",
-      content: (
-        <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
-          <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
-            <span className="font-bold text-neutral-700">{t.cards.buddy.bold}</span>{" "}
-            {t.cards.buddy.rest}
-          </p>
-        </div>
-      ),
-    },
-    {
-      category: t.categories.english,
-      title: "Daily Speaking Practice",
-      src: "/Daily Speaking Practice.webp",
+      category: "Báo cáo phụ huynh",
+      title: "Study Timeline & Weekly Insights",
+      src: "/Study Timeline & Weekly Insights.webp",
       content: (
         <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
             <span className="font-bold text-neutral-700">{t.cards.english.bold}</span>{" "}
             {t.cards.english.rest}
-          </p>
-        </div>
-      ),
-    },
-    {
-      category: t.categories.updates,
-      title: "Lifetime Free Updates",
-      src: "/Lifetime Free Updates.webp",
-      content: (
-        <div className="bg-[#F5F5F7] p-8 md:p-14 rounded-3xl mb-4">
-          <p className="text-neutral-600 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">
-            <span className="font-bold text-neutral-700">{t.cards.updates.bold}</span>{" "}
-            {t.cards.updates.rest}
           </p>
         </div>
       ),
