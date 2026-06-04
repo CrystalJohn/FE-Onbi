@@ -29,6 +29,8 @@ declare global {
       targetId: string | Date,
       config?: Record<string, unknown>
     ) => void;
+    // Microsoft Clarity
+    clarity: (command: string, ...args: unknown[]) => void;
   }
 }
 

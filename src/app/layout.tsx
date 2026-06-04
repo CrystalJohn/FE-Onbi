@@ -5,6 +5,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import MicrosoftClarity from "@/components/MicrosoftClarity";
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -46,6 +47,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <GoogleAnalytics />
         </Suspense>
+        <MicrosoftClarity />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

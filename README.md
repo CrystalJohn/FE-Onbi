@@ -1,18 +1,10 @@
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/github_username/fe-onbi">
-    <img src="public/pomodoro-timer-vi.webp" alt="Logo" width="160" height="auto">
+    <img src="public/logo_onbi.jpg" alt="Logo" width="160" height="auto">
   </a>
 
 <h3 align="center">FE-Onbi</h3>
