@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeProvider";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -40,6 +42,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
+        {/* Google Analytics — Suspense required for useSearchParams in App Router */}
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
