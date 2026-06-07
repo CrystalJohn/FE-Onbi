@@ -12,6 +12,7 @@ import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 // Lazy load below-fold sections
 const MiniTimer = dynamic(() => import('@/components/landing/MiniTimer'));
 const Features = dynamic(() => import('@/components/landing/Features'));
+const BlogSection = dynamic(() => import('@/components/landing/BlogSection'));
 const MeetOurTeam = dynamic(() => import('@/components/landing/MeetOurTeam'));
 const Pricing = dynamic(() => import('@/components/landing/Pricing'));
 const Footer = dynamic(() => import('@/components/landing/Footer'));
@@ -316,7 +317,10 @@ function HomePageContent() {
             <Features />
           </section>
 
-
+          {/* SECTION 7: BLOG / INSIGHTS */}
+          <section id="blog_section" className="scroll-mt-24">
+            <BlogSection />
+          </section>
 
           {/* SECTION 8: PRICING & EARLY ACCESS */}
           <section id="pricing_section" className="scroll-mt-24">

@@ -16,6 +16,7 @@ const NAV_SECTIONS = [
   { key: 'home',     id: 'hero_section' },
   { key: 'problem',  id: 'parent_problems_section' },
   { key: 'features', id: 'features_grid_section' },
+  { key: 'blog',     id: 'blog_section' },
   { key: 'pricing',  id: 'pricing_section' },
   { key: 'team',     id: 'how_it_works_section' },
 ] as const;
@@ -34,6 +35,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
       home: 'Home',
       problem: 'Problem',
       features: 'Features',
+      blog: 'Blog',
       pricing: 'Pricing',
       team: 'Meet Our Team',
       focusTimer: 'Focus Timer',
@@ -49,6 +51,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
       home: 'Trang chủ',
       problem: 'Vấn đề',
       features: 'Tính năng',
+      blog: 'Blog',
       pricing: 'Bảng giá',
       team: 'Đội ngũ',
       focusTimer: 'Hẹn giờ tập trung',
@@ -147,6 +150,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
           <button onClick={() => scrollToSection('home')}     className={navClass('home')}>{t.home}</button>
           <button onClick={() => scrollToSection('problem')}  className={navClass('problem')}>{t.problem}</button>
           <button onClick={() => scrollToSection('features')} className={navClass('features')}>{t.features}</button>
+          <button onClick={() => scrollToSection('blog')}     className={navClass('blog')}>{t.blog}</button>
           <button onClick={() => scrollToSection('pricing')}  className={navClass('pricing')}>{t.pricing}</button>
           <button onClick={() => scrollToSection('team')}     className={navClass('team')}>{t.team}</button>
         </nav>
@@ -279,6 +283,7 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
           <button onClick={() => scrollToSection('home')}     className={mobileNavClass('home')}>{t.home}</button>
           <button onClick={() => scrollToSection('problem')}  className={mobileNavClass('problem')}>{t.problem}</button>
           <button onClick={() => scrollToSection('features')} className={mobileNavClass('features')}>{t.features}</button>
+          <button onClick={() => scrollToSection('blog')}     className={mobileNavClass('blog')}>{t.blog}</button>
           <button onClick={() => scrollToSection('pricing')}  className={mobileNavClass('pricing')}>{t.pricing}</button>
           <button onClick={() => scrollToSection('team')}     className={mobileNavClass('team')}>{t.team}</button>
 
