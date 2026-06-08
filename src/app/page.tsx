@@ -1,13 +1,16 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Header from '@/components/landing/Header';
 import IntroLoader from '@/components/landing/IntroLoader';
 import ParentProblems from '@/components/landing/ParentProblems';
+import HeroVideo from '@/components/landing/HeroVideo';
 import { motion, AnimatePresence } from 'motion/react';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 // Lazy load below-fold sections
 const MiniTimer = dynamic(() => import('@/components/landing/MiniTimer'));
@@ -19,6 +22,13 @@ const Footer = dynamic(() => import('@/components/landing/Footer'));
 
 function HomePageContent() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useIsomorphicLayoutEffect(() => {
+    if (sessionStorage.getItem('hasLoadedIntro') === 'true') {
+      setIsLoading(false);
+    }
+  }, []);
+  
   const [showTimerModal, setShowTimerModal] = useState<boolean>(false);
   const mainRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
@@ -65,6 +75,9 @@ function HomePageContent() {
 
   const handleLoaderComplete = useCallback(() => {
     setIsLoading(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('hasLoadedIntro', 'true');
+    }
   }, []);
 
   const scrollToId = (id: string) => {
@@ -119,37 +132,27 @@ function HomePageContent() {
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             >
               <div className="relative w-full min-h-[calc(100dvh-80px)] overflow-hidden bg-black md:min-h-0 md:aspect-video transform -translate-y-12 md:-translate-y-16 lg:-translate-y-20">
-                {/* Light Mode Video */}
-                <iframe
-                  src="https://player.mux.com/hBUxfG3M6oXAFc9r01HT02IiDj5UB3IXRvO1C3q02wCk0000?autoplay=muted&muted=true&loop=true"
-                  title="ONBI product video"
-                  className="pointer-events-none absolute inset-0 h-full w-full border-0 transition-opacity duration-1000 ease-in-out opacity-100 dark:opacity-0"
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                  allowFullScreen
-                  tabIndex={-1}
-                  aria-hidden="true"
+                {/* Light Mode Video — seamless crossfade loop */}
+                <HeroVideo
+                  playbackId="hBUxfG3M6oXAFc9r01HT02IiDj5UB3IXRvO1C3q02wCk0000"
+                  className="pointer-events-none transition-opacity duration-1000 ease-in-out opacity-100 dark:opacity-0"
                 />
-                {/* Dark Mode Video */}
-                <iframe
-                  src="https://player.mux.com/jsO5K1n4rUbiIWF1jL302sxUDH00SKe26Am00svJX6w7RM?autoplay=muted&muted=true&loop=true"
-                  title="ONBI product video dark"
-                  className="pointer-events-none absolute inset-0 h-full w-full border-0 transition-opacity duration-1000 ease-in-out opacity-0 dark:opacity-100"
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                  allowFullScreen
-                  tabIndex={-1}
-                  aria-hidden="true"
+                {/* Dark Mode Video — seamless crossfade loop */}
+                <HeroVideo
+                  playbackId="jsO5K1n4rUbiIWF1jL302sxUDH00SKe26Am00svJX6w7RM"
+                  className="pointer-events-none transition-opacity duration-1000 ease-in-out opacity-0 dark:opacity-100"
                 />
 
                 {/* Left-side navy gradient overlay — improves text contrast without darkening the full hero */}
                 <div
-                  className="absolute inset-0 pointer-events-none"
+                  className="absolute inset-0 pointer-events-none z-10"
                   style={{
                     background: 'linear-gradient(to right, rgba(6,27,58,0.52) 0%, rgba(10,42,94,0.28) 40%, rgba(10,42,94,0.05) 70%, transparent 75%)',
                   }}
                   aria-hidden="true"
                 />
 
-                <div className="absolute inset-0 flex items-start pt-24 md:pt-32 lg:pt-40 px-6 sm:px-10 md:px-16 lg:px-24 pointer-events-none">
+                <div className="absolute inset-0 flex items-start pt-24 md:pt-32 lg:pt-40 px-6 sm:px-10 md:px-16 lg:px-24 pointer-events-none z-20">
                   <div className="max-w-3xl space-y-5 sm:space-y-6 text-white">
                     <h1
                       className="font-display text-3xl sm:text-4xl md:text-[3.4rem] lg:text-[4.5rem] font-semibold tracking-tight leading-[1.03]"
@@ -299,7 +302,7 @@ function HomePageContent() {
       </AnimatePresence>
 
       {/* CORE BODY WRAPPER FOR IMMERSIVE PRESENTATION (Apple Pedestal Style) */}
-      <div className="max-w-[1600px] mx-auto px-6 relative pt-20 md:pt-24 z-10">
+      <div className="max-w-[1600px] mx-auto px-6 relative pt-6 md:pt-8 z-10">
         {/* SECTION 2: PARENT PROBLEMS */}
         <section id="parent_problems_section" className="scroll-mt-24">
           <ParentProblems />
@@ -307,10 +310,10 @@ function HomePageContent() {
       </div>
 
       {/* CORE BODY WRAPPER FOR STANDARD LAYOUTS */}
-      <div className="max-w-7xl mx-auto px-6 relative pt-20 md:pt-24 z-10">
+      <div className="max-w-7xl mx-auto px-6 relative pt-8 md:pt-12 z-10">
 
         {/* MAIN SECTIONS */}
-        <div className="space-y-24 md:space-y-36">
+        <div className="space-y-12 md:space-y-16">
 
           {/* SECTION 6: FEATURES GRID */}
           <section id="features_grid_section" className="scroll-mt-24">
@@ -328,7 +331,7 @@ function HomePageContent() {
           </section>
 
           {/* SECTION 5: MEET OUR TEAM */}
-          <section id="how_it_works_section" className="scroll-mt-24">
+          <section id="how_it_works_section" className="scroll-mt-16">
             <MeetOurTeam />
           </section>
 

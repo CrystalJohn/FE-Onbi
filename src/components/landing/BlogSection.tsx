@@ -115,24 +115,24 @@ export default function BlogSection() {
   }[language];
 
   return (
-    <div className="w-full space-y-12 md:space-y-16 py-16 relative overflow-hidden bg-gradient-to-b from-transparent via-indigo-50/10 to-transparent dark:via-zinc-950/15" id="onbi_insights_blog">
+    <div className="w-full space-y-6 md:space-y-8 py-4 md:py-6 relative overflow-hidden bg-gradient-to-b from-transparent via-indigo-50/10 to-transparent dark:via-zinc-950/15" id="onbi_insights_blog">
       
       {/* Decorative MacOS/iOS style ambient background glows - Z-index 0 to sit on top of background but behind content */}
       <div className="absolute top-1/4 left-1/4 w-[380px] h-[380px] bg-indigo-400/25 dark:bg-indigo-900/20 rounded-full blur-[100px] pointer-events-none z-0 select-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[420px] h-[420px] bg-sky-300/20 dark:bg-sky-950/15 rounded-full blur-[120px] pointer-events-none z-0 select-none" />
 
       {/* Header section */}
-      <div className="max-w-[1400px] mx-auto text-left space-y-4 px-6 relative z-10">
-        <span className="text-[20px] md:text-[22px] font-semibold text-indigo-600 dark:text-indigo-400 tracking-tight block">
+      <div className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10">
+        <span className="text-sm md:text-base font-semibold text-indigo-600 dark:text-indigo-400 tracking-tight block">
           {t.tag}
         </span>
         
-        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08] flex flex-col">
+        <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
           <span>{t.titleLine1}</span>
           <span>{t.titleLine2}</span>
         </h2>
         
-        <p className="text-[19px] md:text-[21px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+        <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
           {t.description}
         </p>
       </div>

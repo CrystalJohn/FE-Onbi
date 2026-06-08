@@ -108,25 +108,25 @@ export default function ParentProblems() {
   return (
     <div
       id="parent_problems_section"
-      className="space-y-10 md:space-y-14 w-full py-16 md:py-24"
+      className="space-y-6 md:space-y-8 w-full py-10 md:py-16"
       style={{ overflowAnchor: 'none' }}
     >
       {/* ── Section Header ── */}
       <motion.div
-        className="max-w-[1400px] mx-auto w-full text-left space-y-4 px-6 relative z-10"
+        className="max-w-[1400px] mx-auto w-full text-left space-y-2.5 px-6 relative z-10"
         initial="hidden"
         whileInView="visible"
         viewport={viewport}
         variants={fadeUp}
       >
-        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
+        <span className="text-sm md:text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
           {t.tag}
         </span>
-        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08] flex flex-col">
+        <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
           <span>{t.titleLine1}</span>
           <span>{t.titleLine2}</span>
         </h2>
-        <p className="text-[19px] md:text-[21px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+        <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
           {t.description}
         </p>
       </motion.div>

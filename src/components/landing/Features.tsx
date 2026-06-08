@@ -161,21 +161,21 @@ export default function Features() {
   ));
 
   return (
-    <div className="w-full space-y-10 md:space-y-14" id="onbi_mvp_features_grid">
-      <div className="max-w-[1400px] mx-auto text-left space-y-4 px-6">
+    <div className="w-full space-y-6 md:space-y-8" id="onbi_mvp_features_grid">
+      <div className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6">
         {/* Category Label */}
-        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
+        <span className="text-sm md:text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
           {t.core}
         </span>
         
         {/* Giant Two-Line Apple-style Typography */}
-        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08] flex flex-col">
+        <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
           <span>{t.headingLine1}</span>
           <span>{t.headingLine2}</span>
         </h2>
         
         {/* Apple Signature Spacious Copy */}
-        <p className="text-[19px] md:text-[21px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+        <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
           {t.description}
         </p>
       </div>

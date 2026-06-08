@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import { fadeUp, viewport } from '@/lib/animations';
@@ -13,15 +13,14 @@ interface TeamMember {
   color: string;
   avatar?: string;
   description?: string;
+  bgColor: string;
+  domeBg: string;
 }
 
 export default function HowItWorks() {
   const { language } = useLanguage();
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [progress, setProgress] = useState<number>(0);
-  const [cardWidth, setCardWidth] = useState<number>(340);
-  const [gap, setGap] = useState<number>(32);
+  // null = no card hovered → all cards equal capsules (balanced default)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const t = {
     en: {
@@ -35,48 +34,60 @@ export default function HowItWorks() {
           role: "Owner",
           initials: "NĐ",
           color: "from-orange-400 to-amber-500",
-          avatar: "/nguyen_tan_dat_avatar.webp",
-          description: "Founder & Product Visionary of ONBI Tech. Passionate about child-safe AI and screen-free learning solutions for children."
+          avatar: "/avatar/Dat.webp",
+          description: "Founder & Product Visionary of ONBI Tech. Passionate about child-safe AI and screen-free learning solutions for children.",
+          bgColor: "#FDF0CD",
+          domeBg: "#252542"
         },
         {
           name: "Nguyễn Phú Quí",
           role: "Co-founder",
           initials: "NQ",
           color: "from-emerald-400 to-green-500",
-          avatar: "/Quy.webp",
-          description: "Co-founder driving ONBI's growth strategy and connecting the brand with families across Vietnam and beyond."
+          avatar: "/avatar/Quy.webp",
+          description: "Co-founder driving ONBI's growth strategy and connecting the brand with families across Vietnam and beyond.",
+          bgColor: "#FAF1F0",
+          domeBg: "#3D3A39"
         },
         {
           name: "Trần Phan Thanh Phúc",
           role: "Technical Team",
           initials: "TP",
           color: "from-blue-400 to-indigo-500",
-          avatar: "/phuc.webp",
-          description: "Full-stack engineer developing the parent companion app and real-time monitoring dashboards."
+          avatar: "/avatar/Phuc.webp",
+          description: "Full-stack engineer developing the parent companion app and real-time monitoring dashboards.",
+          bgColor: "#E6ECF8",
+          domeBg: "#2E3138"
         },
         {
           name: "Lê Nguyễn Nguyên Khang",
           role: "Technical Team",
           initials: "NK",
           color: "from-pink-400 to-rose-500",
-          avatar: "/Khang.webp",
-          description: "Creative graphic designer crafting visual identities and child-friendly UI for the ONBI brand experience."
+          avatar: "/avatar/Khang.webp",
+          description: "Creative graphic designer crafting visual identities and child-friendly UI for the ONBI brand experience.",
+          bgColor: "#FCE2CD",
+          domeBg: "#EBD6C5"
         },
         {
           name: "Nguyễn Tuấn Kha",
           role: "Technical Team",
           initials: "TK",
           color: "from-indigo-400 to-violet-500",
-          avatar: "/kha.webp",
-          description: "Software engineer building scalable backend systems and seamless integrations for the ONBI platform."
+          avatar: "/avatar/Kha.webp",
+          description: "Software engineer building scalable backend systems and seamless integrations for the ONBI platform.",
+          bgColor: "#FDF0CD",
+          domeBg: "#1E2530"
         },
         {
           name: "Cao Bá Thiên",
           role: "Technical Team",
           initials: "CT",
           color: "from-cyan-400 to-teal-500",
-          avatar: "/thien.webp",
-          description: "IT specialist managing infrastructure and ensuring secure, reliable systems behind every ONBI device."
+          avatar: "/avatar/Thien.webp",
+          description: "IT specialist managing infrastructure and ensuring secure, reliable systems behind every ONBI device.",
+          bgColor: "#E6ECF8",
+          domeBg: "#2A2B35"
         }
       ]
     },
@@ -91,48 +102,60 @@ export default function HowItWorks() {
           role: "Nhà sáng lập / Owner",
           initials: "NĐ",
           color: "from-orange-400 to-amber-500",
-          avatar: "/nguyen_tan_dat_avatar.webp",
-          description: "Người sáng lập & Định hướng Sản phẩm của ONBI Tech. Đầy nhiệt huyết với AI an toàn cho trẻ em và các giải pháp học tập không màn hình."
+          avatar: "/avatar/Dat.webp",
+          description: "Người sáng lập & Định hướng Sản phẩm của ONBI Tech. Đầy nhiệt huyết với AI an toàn cho trẻ em và các giải pháp học tập không màn hình.",
+          bgColor: "#FDF0CD",
+          domeBg: "#252542"
         },
         {
           name: "Nguyễn Phú Quí",
           role: "Đồng sáng lập / Co-founder",
           initials: "NQ",
           color: "from-emerald-400 to-green-500",
-          avatar: "/Quy.webp",
-          description: "Đồng sáng lập thúc đẩy chiến lược phát triển của ONBI, kết nối thương hiệu với hàng triệu gia đình tại Việt Nam và quốc tế."
+          avatar: "/avatar/Quy.webp",
+          description: "Đồng sáng lập thúc đẩy chiến lược phát triển của ONBI, kết nối thương hiệu với hàng triệu gia đình tại Việt Nam và quốc tế.",
+          bgColor: "#FAF1F0",
+          domeBg: "#3D3A39"
         },
         {
           name: "Trần Phan Thanh Phúc",
           role: "Đội ngũ Kỹ thuật",
           initials: "TP",
           color: "from-blue-400 to-indigo-500",
-          avatar: "/phuc.webp",
-          description: "Kỹ sư Full-stack phát triển ứng dụng đồng hành cho ba mẹ và bảng điều khiển theo dõi thời gian thực."
+          avatar: "/avatar/Phuc.webp",
+          description: "Kỹ sư Full-stack phát triển ứng dụng đồng hành cho ba mẹ và bảng điều khiển theo dõi thời gian thực.",
+          bgColor: "#E6ECF8",
+          domeBg: "#2E3138"
         },
         {
           name: "Lê Nguyễn Nguyên Khang",
           role: "Đội ngũ Kỹ thuật",
           initials: "NK",
           color: "from-pink-400 to-rose-500",
-          avatar: "/Khang.webp",
-          description: "Nhà thiết kế đồ họa sáng tạo, người xây dựng bộ nhận diện thương hiệu và giao diện thân thiện với trẻ em cho trải nghiệm ONBI."
+          avatar: "/avatar/Khang.webp",
+          description: "Nhà thiết kế đồ họa sáng tạo, người xây dựng bộ nhận diện thương hiệu và giao diện thân thiện với trẻ em cho trải nghiệm ONBI.",
+          bgColor: "#FCE2CD",
+          domeBg: "#EBD6C5"
         },
         {
           name: "Nguyễn Tuấn Kha",
           role: "Đội ngũ Kỹ thuật",
           initials: "TK",
           color: "from-indigo-400 to-violet-500",
-          avatar: "/kha.webp",
-          description: "Kỹ sư phần mềm phát triển hệ thống backend mở rộng và tích hợp mượt mà cho nền tảng ONBI."
+          avatar: "/avatar/Kha.webp",
+          description: "Kỹ sư phần mềm phát triển hệ thống backend mở rộng và tích hợp mượt mà cho nền tảng ONBI.",
+          bgColor: "#FDF0CD",
+          domeBg: "#1E2530"
         },
         {
           name: "Cao Bá Thiên",
           role: "Đội ngũ Kỹ thuật",
           initials: "CT",
           color: "from-cyan-400 to-teal-500",
-          avatar: "/thien.webp",
-          description: "Chuyên gia CNTT quản lý hạ tầng đám mây và đảm bảo hệ thống bảo mật, ổn định cho mỗi thiết bị ONBI."
+          avatar: "/avatar/Thien.webp",
+          description: "Chuyên gia CNTT quản lý hạ tầng đám mây và đảm bảo hệ thống bảo mật, ổn định cho mỗi thiết bị ONBI.",
+          bgColor: "#E6ECF8",
+          domeBg: "#2A2B35"
         }
       ]
     }
@@ -140,212 +163,136 @@ export default function HowItWorks() {
 
   const team: TeamMember[] = t.team;
 
-  // Responsive sizes listener
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setCardWidth(280);
-        setGap(16);
-      } else {
-        setCardWidth(340);
-        setGap(32);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Autoplay Timer Logic
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) return 100;
-        return p + 1; // Increment by 1% every 50ms => 5000ms (5 seconds) per card
-      });
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, [isPlaying]);
-
-  // Handle slide transition when progress reaches 100%
-  useEffect(() => {
-    if (progress >= 100) {
-      setActiveIndex((idx) => (idx + 1) % team.length);
-      setProgress(0);
-    }
-  }, [progress, team.length]);
-
-  const goToSlide = (idx: number) => {
-    setActiveIndex(idx);
-    setProgress(0);
+  // Determine card flex values based on state
+  const getCardFlex = (idx: number): string => {
+    if (hoveredIndex === null) return '1 1 0%'; // All equal — balanced capsules
+    return hoveredIndex === idx ? '4 1 0%' : '0.6 1 0%'; // Expanded vs compressed
   };
 
-  const offset = -activeIndex * (cardWidth + gap);
+  const getCardRadius = (idx: number): string => {
+    if (hoveredIndex === null) return '999px'; // All capsules
+    return hoveredIndex === idx ? '28px' : '999px'; // Expanded = rounded rect, others = capsule
+  };
 
   return (
-    <div className="space-y-6 py-12 overflow-hidden w-full relative" id="meet_our_team_section">
-      {/* Apple-style Premium Section Header */}
+    <div className="space-y-4 pt-1 pb-8 w-full relative" id="meet_our_team_section">
+
+      {/* ── Apple-style Section Header ── */}
+
       <motion.div
-        className="max-w-[1400px] mx-auto text-left space-y-4 px-6 relative z-10"
+        className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10"
         initial="hidden"
         whileInView="visible"
         viewport={viewport}
         variants={fadeUp}
       >
-        {/* Category Label */}
-        <span className="text-[20px] md:text-[22px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
+        <span className="text-sm md:text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
           {t.tag}
         </span>
 
-        {/* Giant Two-Line Apple-style Typography */}
-        <h2 className="font-display text-4xl sm:text-5xl md:text-[76px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08] flex flex-col">
+        <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
           <span>{t.titleLine1}</span>
           <span>{t.titleLine2}</span>
         </h2>
 
-        {/* Apple Signature Spacious Copy */}
-        <p className="text-[19px] md:text-[21px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-2">
+        <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
           {t.subTitle}
         </p>
       </motion.div>
 
-      {/* Carousel Track Container */}
-      <div className="relative w-full overflow-hidden py-10 mt-6 flex flex-col items-start">
-        {/* The Track */}
+      {/* ── Team Cards – Expanding Cards / Flexbox Expand Effect ── */}
+      <motion.div
+        className="max-w-[1400px] mx-auto px-4 md:px-6 mt-6"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewport}
+        variants={fadeUp}
+      >
         <div
-          className="flex items-center shrink-0 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-          style={{
-            transform: `translateX(calc(50vw - ${cardWidth / 2}px + ${offset}px))`,
-            gap: `${gap}px`,
-            width: `${team.length * (cardWidth + gap) - gap}px`,
-          }}
+          className="flex items-stretch gap-3 md:gap-4"
+          style={{ height: 'clamp(300px, 32vw, 440px)' }}
+          onMouseLeave={() => setHoveredIndex(null)}
         >
           {team.map((member, idx) => {
-            const isActive = idx === activeIndex;
+            const isActive = hoveredIndex === idx;
+            const hasHover = hoveredIndex !== null;
+
             return (
               <div
                 key={idx}
-                onClick={() => goToSlide(idx)}
-                className="shrink-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] select-none origin-center"
+                className="relative overflow-hidden select-none cursor-pointer"
                 style={{
-                  opacity: isActive ? 1 : 0.35,
-                  transform: `scale(${isActive ? 1.05 : 0.9})`,
-                  filter: isActive ? 'grayscale(0) blur(0px)' : 'grayscale(0.6) blur(2px)',
-                  zIndex: isActive ? 30 : 10,
+                  flex: getCardFlex(idx),
+                  minWidth: '60px',
+                  borderRadius: getCardRadius(idx),
+                  transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
+                onMouseEnter={() => setHoveredIndex(idx)}
               >
-                {/* Main Card */}
+                {/* Pastel background */}
                 <div
-                  className="relative rounded-3xl overflow-hidden cursor-pointer select-none transition-all duration-500 bg-[#f5f5f7] dark:bg-zinc-900 border border-transparent dark:border-zinc-850"
+                  className="absolute inset-0 z-0"
+                  style={{ backgroundColor: member.bgColor }}
+                />
+
+                {/* Person photo — fixed size, card's overflow:hidden does the cropping */}
+                {member.avatar ? (
+                  <Image
+                    src={member.avatar}
+                    alt={member.name}
+                    width={450}
+                    height={600}
+                    unoptimized
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[92%] w-auto max-w-none z-10 object-contain object-bottom pointer-events-none transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 20vw"
+                  />
+                
+                ) : (
+                  <div className={`absolute inset-0 bg-gradient-to-br ${member.color} flex items-center justify-center z-10`}>
+                    <span className="text-white font-bold text-4xl drop-shadow">{member.initials}</span>
+                  </div>
+                )}
+
+                {/* Subtle darken on non-hovered cards when one is active */}
+                {hasHover && !isActive && (
+                  <div
+                    className="absolute inset-0 z-15 pointer-events-none"
+                    style={{
+                      backgroundColor: 'rgba(0,0,0,0.08)',
+                      transition: 'opacity 0.5s ease',
+                    }}
+                  />
+                )}
+
+                {/* Name + role overlay — fade-in only on the active/expanded card */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 z-20 px-5 pb-6 md:px-7 md:pb-8 text-center"
                   style={{
-                    width: `${cardWidth}px`,
-                    height: `${cardWidth * 1.15}px`,
-                    boxShadow: isActive
-                      ? '0 25px 50px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04)'
-                      : '0 5px 15px rgba(0,0,0,0.03)',
+                    opacity: isActive ? 1 : 0,
+                    transform: isActive ? 'translateY(0)' : 'translateY(20px)',
+                    transition: 'opacity 0.35s ease 0.15s, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.1s',
+                    pointerEvents: 'none',
                   }}
                 >
-                  {/* Member Avatar Photo */}
-                  <div className="absolute inset-x-0 bottom-0 top-0 flex items-end justify-center pointer-events-none z-10 overflow-hidden">
-                    {member.avatar ? (
-                      <motion.div
-                        className="relative h-[82%] md:h-[88%] w-full"
-                        animate={{
-                          scale: isActive ? 1.05 : 0.95,
-                          y: isActive ? 0 : 4
-                        }}
-                        transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-                      >
-                        <Image
-                          src={member.avatar}
-                          alt={member.name}
-                          fill
-                          className="object-contain object-bottom drop-shadow-md"
-                          sizes="(max-width: 768px) 160px, 200px"
-                        />
-                      </motion.div>
-                    ) : (
-                      <div className={`w-32 h-32 rounded-3xl bg-gradient-to-br ${member.color} flex items-center justify-center shadow-lg`}>
-                        <span className="text-white font-bold text-4xl drop-shadow">{member.initials}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Floating Nameplate at the bottom — premium glassmorphism rounded pill */}
+                  {/* Gradient scrim for text readability */}
                   <div
-                    className="absolute bottom-4 inset-x-4 bg-white/75 dark:bg-zinc-950/75 backdrop-blur-md px-4 py-3 z-30 border border-white/50 dark:border-zinc-800/50 rounded-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.04)] transition-all duration-300"
+                    className="absolute inset-0 -z-10"
                     style={{
-                      boxShadow: isActive 
-                        ? '0 8px 32px 0 rgba(31,38,135,0.08), inset 0 0 0 1px rgba(255,255,255,0.6)' 
-                        : '0 4px 16px 0 rgba(31,38,135,0.02), inset 0 0 0 1px rgba(255,255,255,0.4)'
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 70%, transparent 100%)',
                     }}
-                  >
-                    <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-                      {member.name}
-                    </h3>
-                    <p className={`text-[10px] font-semibold mt-0.5 ${isActive ? 'text-indigo-650 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                      {member.role}
-                    </p>
-                  </div>
+                  />
+                  <h3 className="font-display text-lg md:text-2xl font-bold text-white tracking-tight drop-shadow-lg whitespace-nowrap">
+                    {member.name}
+                  </h3>
+                  <p className="text-white/85 text-xs md:text-sm font-semibold mt-1 drop-shadow">
+                    {member.role}
+                  </p>
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
-
-      {/* Indicator Controls Pill */}
-      <div className="flex justify-center items-center mt-6 z-20 relative gap-3">
-        {/* Left Container: Dots Pill */}
-        <div className="bg-[#eef1f6] dark:bg-zinc-900 backdrop-blur-md rounded-full px-5 py-3.5 flex items-center shadow-xs border border-slate-200/30 dark:border-zinc-800">
-          <div className="flex items-center gap-2.5">
-            {team.map((_, idx) => {
-              const isActive = idx === activeIndex;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => goToSlide(idx)}
-                  className="relative cursor-pointer transition-all duration-300 focus:outline-none flex items-center justify-center"
-                  style={{
-                    width: isActive ? '44px' : '8px',
-                    height: '8px',
-                  }}
-                >
-                  {isActive ? (
-                    <div className="w-full h-1.5 bg-slate-300 dark:bg-zinc-800 rounded-full overflow-hidden relative">
-                      <div
-                        className="absolute inset-y-0 left-0 bg-slate-600 dark:bg-zinc-400 rounded-full transition-all duration-100 ease-linear"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-2 h-2 bg-slate-400 dark:bg-zinc-650 hover:bg-slate-500 dark:hover:bg-zinc-400 rounded-full transition-all duration-300" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Container: Separate Play/Pause Button */}
-        <button
-          onClick={() => setIsPlaying(!isPlaying)}
-          className="w-11 h-11 rounded-full bg-[#eef1f6] dark:bg-zinc-900 hover:bg-[#e2e8f0] dark:hover:bg-zinc-800 active:scale-95 text-slate-800 dark:text-zinc-200 flex items-center justify-center transition-all cursor-pointer border border-slate-200/30 dark:border-zinc-800 shadow-xs"
-        >
-          {isPlaying ? (
-            <svg className="w-3.5 h-3.5 fill-slate-800 dark:fill-zinc-200" viewBox="0 0 24 24">
-              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-            </svg>
-          ) : (
-            <svg className="w-3.5 h-3.5 fill-slate-800 dark:fill-zinc-200 translate-x-[1px]" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          )}
-        </button>
-      </div>
+      </motion.div>
     </div>
   );
 }

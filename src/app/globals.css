@@ -169,18 +169,18 @@ body {
   }
 }
 
-/* View Transition API styling for Circle Reveal theme switch */
-::view-transition-old(root),
-::view-transition-new(root) {
+/* Disable default view transition animations ONLY during theme switch */
+html.theme-transitioning::view-transition-old(root),
+html.theme-transitioning::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
 
-::view-transition-new(root) {
+html.theme-transitioning::view-transition-new(root) {
   z-index: 9999;
 }
 
-::view-transition-old(root) {
+html.theme-transitioning::view-transition-old(root) {
   z-index: 1;
 }
 
@@ -188,4 +188,33 @@ body {
 .theme-transitioning,
 .theme-transitioning * {
   transition: none !important;
+}
+
+/* Custom premium page routing transitions (when NOT toggling theme) */
+@keyframes page-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html:not(.theme-transitioning)::view-transition-old(root) {
+  animation: 250ms cubic-bezier(0.4, 0, 1, 1) both page-fade-out;
+}
+
+html:not(.theme-transitioning)::view-transition-new(root) {
+  animation: 350ms cubic-bezier(0, 0, 0.2, 1) both page-fade-in-up;
 }
