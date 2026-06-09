@@ -1,5 +1,3 @@
-export type RobotMood = 'happy' | 'focus' | 'rest' | 'listening' | 'sleep' | 'alert';
-
 export interface LEDStatus {
   focusMode: boolean;
   restMode: boolean;
