@@ -238,7 +238,7 @@ export default function ParentProblems() {
                     id === 'pomodoro'
                       ? '/Coaching Time_video.mp4'
                       : id === 'tracking'
-                      ? '/English Speaking_video.mp4'
+                      ? '/ONBI_robot_real-time.mp4'
                       : '/Screen Distraction_video.mp4'
                   }
                   autoPlay

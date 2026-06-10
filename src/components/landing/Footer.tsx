@@ -10,6 +10,12 @@ interface FooterProps {
 export default function Footer({ onTimerClick }: FooterProps) {
   const { language } = useLanguage();
 
+  const socialLinks = [
+    { label: 'TikTok', href: 'https://www.tiktok.com/@onbi20' },
+    { label: 'Facebook', href: 'https://www.facebook.com/people/OnBi/61590592400269/?mibextid=wwXIfr&rdid=F6PDS4vpYGSdaKnZ&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1B89WwR7B8%2F%3Fmibextid%3DwwXIfr' },
+    { label: 'YouTube', href: 'https://www.youtube.com/@MediaOnbi/shorts' },
+  ];
+
   const t = {
     en: {
       footnote1: '1. ONBI is a certified trademark of ONBI Tech. All rendered interactive prototypes, simulated hardware screens, and early membership passes are created for conceptual demonstration of the first physical MVP unit scheduled for production.',
@@ -153,6 +159,20 @@ export default function Footer({ onTimerClick }: FooterProps) {
             <span className="text-[#d2d2d7] dark:text-zinc-800">|</span>
             <a href="#" className="hover:underline hover:text-[#1d1d1f] dark:hover:text-white">{t.legal}</a>
           </div>
+        </div>
+
+        <div className="border-t border-[#d2d2d7]/50 dark:border-zinc-800 pt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-[#515154] dark:text-zinc-450 font-medium">
+          {socialLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline hover:text-[#1d1d1f] dark:hover:text-white transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
 
       </div>

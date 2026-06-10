@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Menu, X, ArrowUpRight, Timer, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import ThemeToggle from '../ThemeToggle';
@@ -209,7 +210,12 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
             <span>{t.focusTimer}</span>
           </button>
 
-          <button disabled className="hidden">{t.login}</button>
+          <Link
+            href="/login"
+            className="text-sm font-semibold text-slate-700 dark:text-slate-350 px-4 py-2 rounded-full hover:bg-[#ccc9bf]/20 dark:hover:bg-zinc-800/60 hover:text-[#0066cc] dark:hover:text-[#0071e3] transition-all duration-200 active:scale-95 cursor-pointer"
+          >
+            {t.login}
+          </Link>
 
           <button
             onClick={onJoinClick}
@@ -295,6 +301,13 @@ export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
             <Timer className="w-4 h-4 text-[#0066cc] dark:text-blue-400" />
             {t.testTimer}
           </button>
+          <Link
+            href="/login"
+            onClick={() => setIsOpen(false)}
+            className="w-full text-center text-sm font-semibold text-slate-700 dark:text-slate-300 py-3 rounded-full border border-slate-300 dark:border-zinc-700 hover:border-[#0066cc] dark:hover:border-[#0071e3] hover:text-[#0066cc] dark:hover:text-[#0071e3] transition-all"
+          >
+            {t.login}
+          </Link>
           <button
             onClick={() => { setIsOpen(false); if (onJoinClick) onJoinClick(); }}
             className="w-full text-center text-sm font-semibold text-white py-3 rounded-full bg-[#0066cc] hover:bg-[#0071e3] transition-all"

@@ -13,6 +13,7 @@ import {
   Bell 
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { BlurFade } from '@/components/ui/blur-fade';
 import { fadeUp, viewport } from '@/lib/animations';
 
 export default function BlogSection() {
@@ -123,18 +124,24 @@ export default function BlogSection() {
 
       {/* Header section */}
       <div className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10">
-        <span className="text-sm md:text-base font-semibold text-indigo-600 dark:text-indigo-400 tracking-tight block">
-          {t.tag}
-        </span>
+        <BlurFade delay={0.15} inView>
+          <span className="text-sm md:text-base font-semibold text-indigo-600 dark:text-indigo-400 tracking-tight block">
+            {t.tag}
+          </span>
+        </BlurFade>
         
-        <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
-          <span>{t.titleLine1}</span>
-          <span>{t.titleLine2}</span>
-        </h2>
+        <BlurFade delay={0.25} inView>
+          <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
+            <span>{t.titleLine1}</span>
+            <span>{t.titleLine2}</span>
+          </h2>
+        </BlurFade>
         
-        <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
-          {t.description}
-        </p>
+        <BlurFade delay={0.35} inView>
+          <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
+            {t.description}
+          </p>
+        </BlurFade>
       </div>
 
       {/* Main Blog grid wrapper */}

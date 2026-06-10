@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { fadeUp, viewport } from '@/lib/animations';
+import { BlurFade } from '@/components/ui/blur-fade';
 
 interface PricingTier {
   id: string;
@@ -171,6 +171,7 @@ export default function Pricing() {
     const isCyan = tier.colorTheme === 'cyan';
     const isBlue = tier.colorTheme === 'blue';
     const isAmber = tier.colorTheme === 'amber';
+    const isSubscriptionLocked = tier.id === 'monthly' || tier.id === 'annual';
 
     // Custom styles per tier
     let cardStyle = "";
@@ -303,11 +304,21 @@ export default function Pricing() {
 
           {/* CTA Button */}
           <button
-            onClick={() => router.push(`/pre-order?package=${tier.id}`)}
-            className={`w-full py-4.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 group border ${buttonStyle}`}
+            type="button"
+            disabled={isSubscriptionLocked}
+            aria-disabled={isSubscriptionLocked}
+            onClick={() => {
+              if (isSubscriptionLocked) return;
+              router.push(`/pre-order?package=${tier.id}`);
+            }}
+            className={`w-full py-4.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 flex items-center justify-center gap-2 group border ${
+              isSubscriptionLocked
+                ? 'cursor-not-allowed opacity-55 pointer-events-none bg-slate-100 text-slate-500 dark:bg-zinc-850 dark:text-zinc-500 border-transparent'
+                : `cursor-pointer ${buttonStyle}`
+            }`}
           >
             <span>{tier.cta}</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className={`w-4 h-4 transition-transform ${isSubscriptionLocked ? '' : 'group-hover:translate-x-1'}`} />
           </button>
         </div>
       </div>
@@ -326,25 +337,25 @@ export default function Pricing() {
       </div>
 
       {/* Apple-style Premium Section Header */}
-      <motion.div
-        className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10"
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewport}
-        variants={fadeUp}
-      >
-        <span className="text-sm md:text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
-          {t.tag}
-        </span>
+      <div className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10">
+        <BlurFade delay={0.15} inView>
+          <span className="text-sm md:text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
+            {t.tag}
+          </span>
+        </BlurFade>
 
-        <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
-          <span>{t.headingLine1}</span>
-          <span>{t.headingLine2}</span>
-        </h2>
+        <BlurFade delay={0.25} inView>
+          <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
+            <span>{t.headingLine1}</span>
+            <span>{t.headingLine2}</span>
+          </h2>
+        </BlurFade>
 
-        <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
-          {t.subheading}
-        </p>
+        <BlurFade delay={0.35} inView>
+          <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
+            {t.subheading}
+          </p>
+        </BlurFade>
 
         {/* Batch Release Info Badge */}
         <div className="pt-2">
@@ -352,7 +363,7 @@ export default function Pricing() {
             ✨ {t.batchInfo}
           </span>
         </div>
-      </motion.div>
+      </div>
 
       {/* D2C SEGMENTED TOGGLE (iOS Style) */}
       <div className="flex flex-col items-center justify-center relative z-20 px-6 gap-2">

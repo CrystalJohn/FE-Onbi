@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'motion/react';
 import { fadeUp, viewport } from '@/lib/animations';
 import { useLanguage } from '@/context/LanguageContext';
+import { BlurFade } from '@/components/ui/blur-fade';
 
 interface TeamMember {
   name: string;
@@ -179,26 +180,26 @@ export default function HowItWorks() {
 
       {/* ── Apple-style Section Header ── */}
 
-      <motion.div
-        className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10"
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewport}
-        variants={fadeUp}
-      >
-        <span className="text-sm md:text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
-          {t.tag}
-        </span>
+      <div className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10">
+        <BlurFade delay={0.15} inView>
+          <span className="text-sm md:text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight block">
+            {t.tag}
+          </span>
+        </BlurFade>
 
-        <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
-          <span>{t.titleLine1}</span>
-          <span>{t.titleLine2}</span>
-        </h2>
+        <BlurFade delay={0.25} inView>
+          <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
+            <span>{t.titleLine1}</span>
+            <span>{t.titleLine2}</span>
+          </h2>
+        </BlurFade>
 
-        <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
-          {t.subTitle}
-        </p>
-      </motion.div>
+        <BlurFade delay={0.35} inView>
+          <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
+            {t.subTitle}
+          </p>
+        </BlurFade>
+      </div>
 
       {/* ── Team Cards – Expanding Cards / Flexbox Expand Effect ── */}
       <motion.div

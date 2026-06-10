@@ -1,16 +1,15 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
+import { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Header from '@/components/landing/Header';
-import IntroLoader from '@/components/landing/IntroLoader';
 import ParentProblems from '@/components/landing/ParentProblems';
 import HeroVideo from '@/components/landing/HeroVideo';
+import { BlurFade } from '@/components/ui/blur-fade';
 import { motion, AnimatePresence } from 'motion/react';
-import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
-
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+import { useLanguage } from '@/context/LanguageContext';
+import { useTheme } from 'next-themes';
 
 // Lazy load below-fold sections
 const MiniTimer = dynamic(() => import('@/components/landing/MiniTimer'));
@@ -20,15 +19,25 @@ const MeetOurTeam = dynamic(() => import('@/components/landing/MeetOurTeam'));
 const Pricing = dynamic(() => import('@/components/landing/Pricing'));
 const Footer = dynamic(() => import('@/components/landing/Footer'));
 
-function HomePageContent() {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+const HERO_PLAYBACK_IDS = {
+  light: 'hBUxfG3M6oXAFc9r01HT02IiDj5UB3IXRvO1C3q02wCk0000',
+  dark: 'jsO5K1n4rUbiIWF1jL302sxUDH00SKe26Am00svJX6w7RM',
+} as const;
 
-  useIsomorphicLayoutEffect(() => {
-    if (sessionStorage.getItem('hasLoadedIntro') === 'true') {
-      setIsLoading(false);
-    }
-  }, []);
-  
+function HeroThemeVideo() {
+  const { resolvedTheme } = useTheme();
+  const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
+
+  return (
+    <HeroVideo
+      key={theme}
+      playbackId={HERO_PLAYBACK_IDS[theme]}
+      className="pointer-events-none"
+    />
+  );
+}
+
+function HomePageContent() {
   const [showTimerModal, setShowTimerModal] = useState<boolean>(false);
   const mainRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
@@ -73,13 +82,6 @@ function HomePageContent() {
     ? 'object-contain object-left-top'
     : 'object-cover object-left';
 
-  const handleLoaderComplete = useCallback(() => {
-    setIsLoading(false);
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('hasLoadedIntro', 'true');
-    }
-  }, []);
-
   const scrollToId = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -90,30 +92,8 @@ function HomePageContent() {
   return (
     <div ref={mainRef} className="min-h-screen bg-white dark:bg-black text-[#18181a] dark:text-[#f5f5f7] font-sans antialiased selection:bg-indigo-950 dark:selection:bg-blue-950 selection:text-white pb-16 relative overflow-hidden">
 
-      {/* Intro Loading Screen */}
-      <AnimatePresence mode="wait">
-        {isLoading && (
-          <motion.div
-            key="loader-component"
-            className="fixed inset-0 z-[100]"
-            initial={{ opacity: 1 }}
-            exit={{ 
-              opacity: 0,
-              scale: 1.15,
-              filter: "blur(15px)",
-              transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
-            }}
-          >
-            <IntroLoader onComplete={handleLoaderComplete} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* HERO ZONE: Navbar + Hero with solid Apple canvas background */}
       <div className="relative hero-height min-h-screen md:min-h-screen bg-white dark:bg-black">
-        {/* Apple style: Clean white pedestal background with smooth fade to page canvas at bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-32 md:h-48 bg-gradient-to-t from-[#f7f6f2] dark:from-black to-white dark:to-black pointer-events-none" />
-
         {/* NAVBAR */}
         <Header
           onJoinClick={() => scrollToId('pricing_section')}
@@ -132,16 +112,7 @@ function HomePageContent() {
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             >
               <div className="relative w-full min-h-[calc(100dvh-80px)] overflow-hidden bg-black md:min-h-0 md:aspect-video transform -translate-y-12 md:-translate-y-16 lg:-translate-y-20">
-                {/* Light Mode Video — seamless crossfade loop */}
-                <HeroVideo
-                  playbackId="hBUxfG3M6oXAFc9r01HT02IiDj5UB3IXRvO1C3q02wCk0000"
-                  className="pointer-events-none transition-opacity duration-1000 ease-in-out opacity-100 dark:opacity-0"
-                />
-                {/* Dark Mode Video — seamless crossfade loop */}
-                <HeroVideo
-                  playbackId="jsO5K1n4rUbiIWF1jL302sxUDH00SKe26Am00svJX6w7RM"
-                  className="pointer-events-none transition-opacity duration-1000 ease-in-out opacity-0 dark:opacity-100"
-                />
+                <HeroThemeVideo />
 
                 {/* Left-side navy gradient overlay — improves text contrast without darkening the full hero */}
                 <div
@@ -154,15 +125,19 @@ function HomePageContent() {
 
                 <div className="absolute inset-0 flex items-start pt-24 md:pt-32 lg:pt-40 px-6 sm:px-10 md:px-16 lg:px-24 pointer-events-none z-20">
                   <div className="max-w-3xl space-y-5 sm:space-y-6 text-white">
-                    <h1
-                      className="font-display text-3xl sm:text-4xl md:text-[3.4rem] lg:text-[4.5rem] font-semibold tracking-tight leading-[1.03]"
-                      style={{ textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
-                    >
-                      {t.heroTitle}
-                    </h1>
-                    <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed font-medium tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
-                      {t.heroDesc}
-                    </p>
+                    <BlurFade delay={0.2}>
+                      <h1
+                        className="font-display text-3xl sm:text-4xl md:text-[3.4rem] lg:text-[4.5rem] font-semibold tracking-tight leading-[1.03]"
+                        style={{ textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
+                      >
+                        {t.heroTitle}
+                      </h1>
+                    </BlurFade>
+                    <BlurFade delay={0.35}>
+                      <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed font-medium tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+                        {t.heroDesc}
+                      </p>
+                    </BlurFade>
                     <div className="flex flex-col sm:flex-row items-start gap-3 pt-1 pointer-events-auto">
                       {/* Primary CTA — solid, high contrast */}
                       <button
@@ -302,7 +277,7 @@ function HomePageContent() {
       </AnimatePresence>
 
       {/* CORE BODY WRAPPER FOR IMMERSIVE PRESENTATION (Apple Pedestal Style) */}
-      <div className="max-w-[1600px] mx-auto px-6 relative pt-6 md:pt-8 z-10">
+      <div className="max-w-[1600px] mx-auto px-6 relative pt-0 z-10">
         {/* SECTION 2: PARENT PROBLEMS */}
         <section id="parent_problems_section" className="scroll-mt-24">
           <ParentProblems />
@@ -347,9 +322,5 @@ function HomePageContent() {
 }
 
 export default function HomePage() {
-  return (
-    <LanguageProvider>
-      <HomePageContent />
-    </LanguageProvider>
-  );
+  return <HomePageContent />;
 }
