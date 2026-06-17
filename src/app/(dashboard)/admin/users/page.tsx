@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, X } from 'lucide-react';
+import Link from 'next/link';
+import { Trash2, Plus, X, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -165,11 +166,16 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="px-4 py-3 text-gray-500">{new Date(user.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
                 <td className="px-4 py-3">
-                  {user.role !== 'admin' && (
-                    <button onClick={() => setDeleteUser(user)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+                  <div className="flex items-center gap-1">
+                    <Link href={`/admin/users/${user.id}`} className="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50">
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                    {user.role !== 'admin' && (
+                      <button onClick={() => setDeleteUser(user)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

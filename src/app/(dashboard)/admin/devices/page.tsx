@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Plus, X, Wifi, WifiOff } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, X, Wifi, WifiOff, Eye } from 'lucide-react';
 
 interface Device {
   id: number;
@@ -256,7 +257,9 @@ export default function AdminDevicesPage() {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     {device.status === 'active' ? <Wifi className="w-4 h-4 text-green-500" /> : <WifiOff className="w-4 h-4 text-gray-400" />}
-                    <span className="font-mono font-medium text-slate-900">{device.activationCode}</span>
+                    <Link href={`/admin/devices/${device.id}`} className="font-mono font-medium text-slate-900 hover:text-cyan-600 hover:underline">
+                      {device.activationCode}
+                    </Link>
                   </div>
                 </td>
                 <td className="px-4 py-3">
