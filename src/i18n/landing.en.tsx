@@ -116,7 +116,7 @@ const en: LandingContent = {
       excerpt: 'Discover how OnBi combines physical Pomodoro automation, posture tracking AI, and parent updates to foster organic concentration and self-study habits in children.',
     },
     placeholders: [
-      { id: 2, category: 'Study Methods', title: 'The Pomodoro Technique: Secrets to Stress-Free Self-Study for Primary Children', excerpt: 'How to structure study and break intervals so younger students build endurance and focus naturally without mental fatigue.' },
+      { id: 2, category: 'Parenting Guide', title: 'What Should Parents Do When a Child Refuses to Study?', excerpt: 'Understand the six real reasons children avoid homework and build a calm system that helps them study without daily reminders.', href: '/blog/con-khong-chiu-hoc-phai-lam-sao', image: '/blog/blog-2/image-1.jpg', imageAlt: 'Primary school child avoiding the study desk while parents worry' },
       { id: 3, category: 'Digital Parenting', title: 'Digital Age Parenting: Academic Monitoring vs. Trust & Privacy', excerpt: 'Exploring the healthy boundary between automated insight tracking and micromanagement in modern education.' },
     ],
   },

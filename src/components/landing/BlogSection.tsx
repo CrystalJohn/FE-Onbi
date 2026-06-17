@@ -148,52 +148,73 @@ export default function BlogSection({ t: initialT }: BlogSectionProps) {
           </motion.div>
         </Link>
 
-        {/* 2. Two placeholder cards stacked vertically (right side of bento) */}
+        {/* 2. Secondary cards stacked vertically (right side of bento) */}
         <div className="flex flex-col gap-6 h-full">
-          {t.placeholders.map((card, idx) => (
-            <motion.div
-              key={card.id}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={viewport}
-              custom={idx}
-              onClick={() => triggerToast(language === 'en' ? t.toastMsgEn : t.toastMsg)}
-              className="group relative bg-[#f8f9fa]/25 dark:bg-white/4 border border-dashed border-[#d1d5db] dark:border-white/10 rounded-3xl p-5 cursor-pointer hover:bg-white/45 dark:hover:bg-white/8 hover:border-solid hover:border-slate-300 dark:hover:border-white/15 hover:shadow-[0_12px_30px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all duration-300 flex flex-col flex-1"
-            >
-              <div className="space-y-4">
-                
-                {/* Meta details & Status badge */}
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-zinc-450 bg-[#ffffff]/60 dark:bg-zinc-850 px-2.5 py-1 rounded-md border border-slate-200/40 dark:border-zinc-800">
-                    {card.category}
-                  </span>
-                  
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-500 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                    <Lock className="w-2.5 h-2.5" />
-                    {t.comingSoon}
-                  </span>
+          {t.placeholders.map((card, idx) => {
+            const cardContent = (
+              <motion.div
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={viewport}
+                custom={idx}
+                onClick={card.href ? undefined : () => triggerToast(language === 'en' ? t.toastMsgEn : t.toastMsg)}
+                className={`group relative bg-[#f8f9fa]/25 dark:bg-white/4 border rounded-3xl overflow-hidden hover:bg-white/45 dark:hover:bg-white/8 hover:border-solid hover:border-slate-300 dark:hover:border-white/15 hover:shadow-[0_12px_30px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all duration-300 flex flex-col flex-1 ${card.href ? 'border-[#e2e8f0]/80 dark:border-white/15 cursor-pointer' : 'border-dashed border-[#d1d5db] dark:border-white/10 cursor-pointer p-5'}`}
+              >
+                {card.image && (
+                  <div className="relative w-full aspect-[16/8] overflow-hidden shrink-0">
+                    <Image
+                      src={card.image}
+                      alt={card.imageAlt || card.title}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" />
+                  </div>
+                )}
+
+                <div className={card.href ? 'space-y-4 p-5 flex flex-col flex-1' : 'space-y-4'}>
+                  <div className="flex justify-between items-center w-full gap-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-zinc-450 bg-[#ffffff]/60 dark:bg-zinc-850 px-2.5 py-1 rounded-md border border-slate-200/40 dark:border-zinc-800">
+                      {card.category}
+                    </span>
+                    {card.href ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/25 border border-emerald-100/50 dark:border-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                        {t.readMore}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-500 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                        <Lock className="w-2.5 h-2.5" />
+                        {t.comingSoon}
+                      </span>
+                    )}
+                  </div>
+
+                  <h4 className="font-display text-lg sm:text-xl font-bold text-slate-750 dark:text-zinc-350 group-hover:text-slate-900 dark:group-hover:text-white transition-colors line-clamp-3 leading-snug">
+                    {card.title}
+                  </h4>
+
+                  <p className="text-slate-550 dark:text-zinc-450 text-xs sm:text-sm leading-relaxed line-clamp-3">
+                    {card.excerpt}
+                  </p>
                 </div>
 
-                {/* Post Title */}
-                <h4 className="font-display text-lg sm:text-xl font-bold text-slate-750 dark:text-zinc-350 group-hover:text-slate-900 dark:group-hover:text-white transition-colors line-clamp-3 leading-snug">
-                  {card.title}
-                </h4>
+                <div className={`flex items-center gap-1.5 text-xs font-semibold transition-colors ${card.href ? 'px-5 pb-5 text-indigo-600 dark:text-indigo-400 group-hover:gap-2' : 'pt-4 text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400'}`}>
+                  {card.href ? <ArrowRight className="w-3.5 h-3.5" /> : <Bell className="w-3.5 h-3.5" />}
+                  <span>{card.href ? t.readMore : t.comingSoon}</span>
+                </div>
+              </motion.div>
+            );
 
-                {/* Excerpt */}
-                <p className="text-slate-550 dark:text-zinc-450 text-xs sm:text-sm leading-relaxed line-clamp-3">
-                  {card.excerpt}
-                </p>
-
-              </div>
-
-              {/* Action indicator */}
-              <div className="pt-4 flex items-center gap-1.5 text-xs font-semibold text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-                <Bell className="w-3.5 h-3.5" />
-                <span>{t.comingSoon}</span>
-              </div>
-            </motion.div>
-          ))}
+            return card.href ? (
+              <Link key={card.id} href={card.href} className="block flex-1">
+                {cardContent}
+              </Link>
+            ) : (
+              <React.Fragment key={card.id}>{cardContent}</React.Fragment>
+            );
+          })}
         </div>
 
         </div>{/* end bento 1+2 grid */}

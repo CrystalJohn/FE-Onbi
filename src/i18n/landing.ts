@@ -67,6 +67,9 @@ export interface BlogArticle {
   category: string;
   title: string;
   excerpt: string;
+  href?: string;
+  image?: string;
+  imageAlt?: string;
 }
 
 export interface LandingContent {
