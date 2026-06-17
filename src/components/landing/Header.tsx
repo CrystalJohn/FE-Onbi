@@ -5,9 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X, ArrowUpRight, Timer, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useLanding } from '@/i18n/useLanding';
+import type { LandingContent } from '@/i18n/landing';
 import ThemeToggle from '../ThemeToggle';
 
 interface HeaderProps {
+  t: LandingContent;
   onJoinClick?: () => void;
   onTimerClick?: () => void;
 }
@@ -24,47 +27,14 @@ const NAV_SECTIONS = [
 
 type NavKey = (typeof NAV_SECTIONS)[number]['key'];
 
-export default function Header({ onJoinClick, onTimerClick }: HeaderProps) {
+export default function Header({ t: initialT, onJoinClick, onTimerClick }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<NavKey>('home');
   const { language, setLanguage } = useLanguage();
-
-  const t = {
-    en: {
-      home: 'Home',
-      problem: 'Problem',
-      features: 'Features',
-      blog: 'Blog',
-      pricing: 'Pricing',
-      team: 'Meet Our Team',
-      focusTimer: 'Focus Timer',
-      testTimer: 'Test Focus Timer',
-      login: 'Login',
-      orderNow: 'Order Now',
-      enrollNow: 'Enroll Now',
-      languageLabel: 'Language',
-      langName: 'English (US)',
-      flag: '/Flag_of_the_United_States.png',
-    },
-    vi: {
-      home: 'Trang chủ',
-      problem: 'Vấn đề',
-      features: 'Tính năng',
-      blog: 'Blog',
-      pricing: 'Bảng giá',
-      team: 'Đội ngũ',
-      focusTimer: 'Hẹn giờ tập trung',
-      testTimer: 'Thử hẹn giờ tập trung',
-      login: 'Đăng nhập',
-      orderNow: 'Đặt mua ngay',
-      enrollNow: 'Đăng ký ngay',
-      languageLabel: 'Ngôn ngữ',
-      langName: 'Tiếng Việt',
-      flag: '/Flag_of_Vietnam.png',
-    }
-  }[language];
+  const live = useLanding(initialT);
+  const t = live.header;
 
   // ─── Navbar background on scroll ────────────────────────────────────────────
   useEffect(() => {

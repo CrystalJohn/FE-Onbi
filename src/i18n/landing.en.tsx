@@ -1,0 +1,125 @@
+import type { LandingContent } from './landing';
+
+const en: LandingContent = {
+  hero: {
+    title: (<>Help your child focus better,<br className="hidden sm:inline" /> without daily reminders.</>),
+    description: 'ONBI starts Pomodoro sessions automatically, sends gentle reminders, and keeps parents updated in real time.',
+    cta: 'Learn about ONBI',
+    ctaSecondary: 'Try Focus Timer',
+  },
+  header: {
+    home: 'Home', problem: 'Problem', features: 'Features', blog: 'Blog', pricing: 'Pricing', team: 'Meet Our Team',
+    focusTimer: 'Focus Timer', testTimer: 'Test Focus Timer', login: 'Login', orderNow: 'Order Now', enrollNow: 'Enroll Now',
+    languageLabel: 'Language', langName: 'English (US)', flag: '/Flag_of_the_United_States.png',
+  },
+  parentProblems: {
+    tag: 'The parental hurdle.',
+    titleLine1: 'Solitary home study.',
+    titleLine2: 'Why it is exhausting.',
+    description: 'Modern learning relies heavily on addictive screens, leaving parents caught in the daily struggle between busy work schedules and endless coaching battles.',
+    solutionLabel: 'ONBI SOLUTION',
+    problems: [
+      { id: 'pomodoro', tabTitle: 'Auto Pomodoro', accent: '25/5 STUDY RHYTHM',
+        title: 'Children struggle to start and maintain consistent study sessions',
+        description: "Many children sit at their desk but don't know where to begin — prone to procrastination or fragmented study. Without a clear rhythm, building long focus and a daily habit becomes very difficult.",
+        solution: 'ONBI automatically activates a 25-minute focus + 5-minute break cycle when your child sits down to study. The robot helps them start at the right time, study at a stable pace, and gradually build a lasting self-study habit.' },
+      { id: 'tracking', tabTitle: 'Real-time Tracking', accent: 'LIVE UPDATES',
+        title: "Parents can't always be there to know if their child is really studying",
+        description: "Busy parents can't monitor every session. It's hard to know whether the child has started, left the desk mid-way, or how many focus minutes were completed today.",
+        solution: 'ONBI records the study state in real time and sends clear updates to the parent phone. Parents can track study time, focus session progress, and key activity milestones without sitting next to the child.' },
+      { id: 'posture', tabTitle: 'Posture & Distraction', accent: 'FOCUS & POSTURE',
+        title: 'Children slouch or lose focus easily when studying alone',
+        description: 'When studying alone, kids may hunch too close to the desk, sit in bad posture, leave the seat repeatedly, or get quickly distracted. Without timely nudges, healthy study habits are hard to keep.',
+        solution: 'ONBI watches for warning signs throughout the session and gives gentle reminders when posture slips or attention drifts. The child keeps a better study rhythm and parents can rest easier during the journey.' },
+    ],
+  },
+  features: {
+    core: 'Core features.',
+    headingLine1: 'How ONBI empowers',
+    headingLine2: 'daily study habits.',
+    description: 'Designed by child psychologists and powered by safe edge-AI, ONBI creates screen-free concentration routines that children look forward to every day.',
+    categories: { focus: 'Focus Habit', health: 'Health & Safety', parent: 'Parent Sync', buddy: 'Companion', updates: 'Updates' },
+    cards: {
+      focus: { bold: '25-minute focus + 5-minute rest', rest: 'intervals designed by child psychologists. Builds natural concentration without fatigue or screen dependency. ONBI uses gentle LED transitions and ambient audio to guide each cycle seamlessly.' },
+      health: { bold: 'Built-in AI camera tracks posture locally.', rest: 'Gentle voice reminders when your child slouches. No data leaves the device — 100% local processing ensures complete privacy while protecting spinal health.' },
+      buddy: { bold: 'ONBI responds with expressions, LED animations, and encouraging voice.', rest: 'Turns study time into an anticipated daily ritual. Zero screen time — all interaction happens through physical cues, voice, and ambient light.' },
+      parent: { bold: 'Automatic daily study reports sent to your phone.', rest: 'Track focus time, posture alerts, and key activity metrics without hovering over your child. Weekly habit charts and statistics included.' },
+      insights: { bold: 'Deep learning insights and habit analytics.', rest: 'View a chronological history of completed study sessions, focus quality scores, and posture improvement trends over time. Helps you praise effort and support growth constructively.' },
+      updates: { bold: 'Over-the-air firmware updates bring new features.', rest: 'AI voice refinements, expanded curriculums, and smart home integration — all included free for life. Your ONBI gets smarter over time.' },
+    },
+  },
+  pricing: {
+    tag: 'Membership pricing.',
+    headingLine1: 'Choose the perfect plan',
+    headingLine2: 'for your family.',
+    subheading: 'Purchase the ONBI robot or renew the app to continue tracking study habits, Pomodoro cycles, and progress reports.',
+    toggleNoDevice: 'New Purchase',
+    toggleHasDevice: 'Already have ONBI',
+    toggleHelperText: 'New purchase includes robot + app. Already have ONBI to renew Premium.',
+    batchInfo: 'Estimated shipping Q3/2026',
+    tiers: [
+      { id: 'monthly', name: 'Monthly Pass', badge: 'App Renewal', description: 'Maintain smart tracking, reporting, and alerting features every month.', price: '149,000đ', period: 'month', dividerLabel: 'MONTHLY ACCESS +', features: ['Automated 25/5 Pomodoro', 'Real-time app tracking', 'Posture & focus alerts', 'Detailed parent dashboard reports'], cta: 'Subscribe Monthly', colorTheme: 'cyan' },
+      { id: 'device', name: 'ONBI IoT Bundle', badge: 'Most Popular', description: 'ONBI robot + 3 months Premium', price: '4,599,000đ', period: 'one-time', dividerLabel: 'ONBI IoT BUNDLE +', features: ['ONBI robot at the study desk', 'Automated 25/5 Pomodoro', 'Real-time app tracking', '3 months Premium included'], cta: 'Pre-order ONBI', colorTheme: 'blue' },
+      { id: 'annual', name: 'Annual Pass', badge: 'Save 11%', description: 'Maintain smart tracking, reporting, and alerting features all year round.', price: '1,599,000đ', period: 'year', dividerLabel: 'ANNUAL ACCESS +', features: ['Automated 25/5 Pomodoro', 'Real-time app tracking', 'Posture & focus alerts', 'Detailed parent dashboard reports', 'Save 11% compared to monthly pass'], cta: 'Subscribe Annually', colorTheme: 'amber' },
+    ],
+  },
+  team: {
+    tag: 'The people behind ONBI.',
+    titleLine1: 'Meet the people',
+    titleLine2: 'behind ONBI.',
+    subTitle: 'A passionate team of designers, engineers, and educational visionaries building the future of screen-free childhood learning.',
+    team: [
+      { name: 'Nguyễn Tấn Đạt', role: 'Owner', initials: 'NĐ', color: 'from-orange-400 to-amber-500', avatar: '/avatar/Dat.webp', description: 'Founder & Product Visionary of ONBI Tech. Passionate about child-safe AI and screen-free learning solutions for children.', bgColor: '#FDF0CD', domeBg: '#252542' },
+      { name: 'Nguyễn Phú Quí', role: 'Co-founder', initials: 'NQ', color: 'from-emerald-400 to-green-500', avatar: '/avatar/Quy.webp', description: "Co-founder driving ONBI's growth strategy and connecting the brand with families across Vietnam and beyond.", bgColor: '#FAF1F0', domeBg: '#3D3A39' },
+      { name: 'Trần Phan Thanh Phúc', role: 'Technical Team', initials: 'TP', color: 'from-blue-400 to-indigo-500', avatar: '/avatar/Phuc.webp', description: 'Full-stack engineer developing the parent companion app and real-time monitoring dashboards.', bgColor: '#E6ECF8', domeBg: '#2E3138' },
+      { name: 'Lê Nguyễn Nguyên Khang', role: 'Technical Team', initials: 'NK', color: 'from-pink-400 to-rose-500', avatar: '/avatar/Khang.webp', description: 'Creative graphic designer crafting visual identities and child-friendly UI for the ONBI brand experience.', bgColor: '#FCE2CD', domeBg: '#EBD6C5' },
+      { name: 'Nguyễn Tuấn Kha', role: 'Technical Team', initials: 'NK', color: 'from-violet-400 to-purple-500', avatar: '/avatar/Kha.webp', description: 'Engineering lead architecting the firmware, computer-vision pipeline, and real-time focus detection system.', bgColor: '#FDF0CD', domeBg: '#1E2530' },
+      { name: 'Cao Bá Thiên', role: 'Technical Team', initials: 'CT', color: 'from-cyan-400 to-teal-500', avatar: '/avatar/Thien.webp', description: 'IT specialist managing infrastructure and ensuring secure, reliable systems behind every ONBI device.', bgColor: '#E6ECF8', domeBg: '#2A2B35' },
+    ],
+  },
+  footer: {
+    footnote1: '1. ONBI is a certified trademark of ONBI Tech. All rendered interactive prototypes, simulated hardware screens, and early membership passes are created for conceptual demonstration of the first physical MVP unit scheduled for production.',
+    footnote2: '2. Zero-screen interaction and postural monitoring require an active internet connection and subscription. Postural camera is privacy-first, performing inference locally with zero cloud data storage.',
+    coppa: 'EST. 2026 • COPPA Compliant',
+    copyright: 'Copyright © 2026 ONBI Tech. All rights reserved.',
+    privacy: 'Privacy Policy', terms: 'Terms of Use', sales: 'Sales Policy', legal: 'Legal',
+    cols: [
+      { title: 'Explore', links: [
+        { label: 'Introduction', action: 'scroll', target: 'hero_section' },
+        { label: 'Parent Problems', action: 'scroll', target: 'parent_problems_section' },
+        { label: 'Smart Features', action: 'scroll', target: 'features_grid_section' },
+        { label: 'Interactive Timer', action: 'timer' },
+      ]},
+      { title: 'Order & Pricing', links: [
+        { label: 'Early Access Tiers', action: 'scroll', target: 'pricing_section' },
+        { label: 'IoT Robot Bundle', action: 'scroll', target: 'pricing_section' },
+        { label: 'Membership Benefits', action: 'scroll', target: 'pricing_section' },
+      ]},
+      { title: 'About ONBI', links: [
+        { label: 'Meet the Founders', action: 'scroll', target: 'how_it_works_section' },
+        { label: 'COPPA Compliance', action: 'scroll', target: 'hero_section' },
+        { label: 'Our Vision', action: 'scroll', target: 'hero_section' },
+      ]},
+    ],
+  },
+  blog: {
+    tag: 'ONBI INSIGHTS',
+    titleLine1: 'Knowledge &',
+    titleLine2: 'Product Updates.',
+    description: 'Explore helpful resources on child psychology, Pomodoro concentration techniques, and smart technology in modern parenting.',
+    readMore: 'Read full article', comingSoon: 'Coming Soon', featuredBadge: 'Featured Article',
+    toastMsg: 'Content is currently being updated by ONBI',
+    toastMsgEn: 'Content is currently being updated by ONBI',
+    author: 'OnBi Team', date: '30/05/2026', category: 'EdTech / IoT Education',
+    blog: {
+      title: 'OnBi – Your Study Buddy: Smart Study Tracking Solution for Primary Schoolers',
+      excerpt: 'Discover how OnBi combines physical Pomodoro automation, posture tracking AI, and parent updates to foster organic concentration and self-study habits in children.',
+    },
+    placeholders: [
+      { id: 2, category: 'Study Methods', title: 'The Pomodoro Technique: Secrets to Stress-Free Self-Study for Primary Children', excerpt: 'How to structure study and break intervals so younger students build endurance and focus naturally without mental fatigue.' },
+      { id: 3, category: 'Digital Parenting', title: 'Digital Age Parenting: Academic Monitoring vs. Trust & Privacy', excerpt: 'Exploring the healthy boundary between automated insight tracking and micromanagement in modern education.' },
+    ],
+  },
+};
+
+export default en;

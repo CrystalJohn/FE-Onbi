@@ -13,10 +13,18 @@ import {
   Bell 
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useLanding } from '@/i18n/useLanding';
+import type { LandingContent } from '@/i18n/landing';
 import { BlurFade } from '@/components/ui/blur-fade';
 import { fadeUp, viewport } from '@/lib/animations';
 
-export default function BlogSection() {
+interface BlogSectionProps {
+  t: LandingContent;
+}
+
+export default function BlogSection({ t: initialT }: BlogSectionProps) {
+  const live = useLanding(initialT);
+  const t = live.blog;
   const { language } = useLanguage();
   const [showToast, setShowToast] = useState(false);
   const [toastText, setToastText] = useState('');
@@ -36,84 +44,6 @@ export default function BlogSection() {
     setShowToast(true);
   };
 
-  const t = {
-    en: {
-      tag: "ONBI INSIGHTS",
-      titleLine1: "Knowledge &",
-      titleLine2: "Product Updates.",
-      description: "Explore helpful resources on child psychology, Pomodoro concentration techniques, and smart technology in modern parenting.",
-      readMore: "Read full article",
-      comingSoon: "Coming Soon",
-      featuredBadge: "Featured Article",
-      toastMsg: "Nội dung đang được ONBI cập nhật", 
-      toastMsgEn: "Content is currently being updated by ONBI",
-      author: "OnBi Team",
-      date: "30/05/2026",
-      category: "EdTech / IoT Education",
-      blog: {
-        title: "OnBi – Your Study Buddy: Smart Study Tracking Solution for Primary Schoolers",
-        excerpt: "Discover how OnBi combines physical Pomodoro automation, posture tracking AI, and parent updates to foster organic concentration and self-study habits in children."
-      },
-      placeholders: [
-        {
-          id: 2,
-          category: "Study Methods",
-          title: "The Pomodoro Technique: Secrets to Stress-Free Self-Study for Primary Children",
-          excerpt: "How to structure study and break intervals so younger students build endurance and focus naturally without mental fatigue."
-        },
-        {
-          id: 3,
-          category: "Digital Parenting",
-          title: "Digital Age Parenting: Academic Monitoring vs. Trust & Privacy",
-          excerpt: "Exploring the healthy boundary between automated insight tracking and micromanagement in modern education."
-        },
-        {
-          id: 4,
-          category: "Health & Ergonomics",
-          title: "The Hazards of Slouching During Homework and How Edge-AI Protects Kids",
-          excerpt: "Clinical research on posture habits in children and how real-time physical feedback stops long-term spinal damage."
-        }
-      ]
-    },
-    vi: {
-      tag: "GÓC CHIA SẺ & CẬP NHẬT",
-      titleLine1: "Kiến thức &",
-      titleLine2: "Cập nhật sản phẩm.",
-      description: "Khám phá các tài liệu hữu ích về tâm lý học trẻ em, phương pháp tập trung Pomodoro và ứng dụng công nghệ thông minh trong nuôi dạy con.",
-      readMore: "Đọc bài viết",
-      comingSoon: "Đang cập nhật",
-      featuredBadge: "Bài viết nổi bật",
-      toastMsg: "Nội dung đang được ONBI cập nhật",
-      toastMsgEn: "Content is currently being updated by ONBI",
-      author: "Đội ngũ OnBi",
-      date: "30/05/2026",
-      category: "IoT Giáo dục / EdTech",
-      blog: {
-        title: "OnBi – Robot Bạn Học: Giải Pháp Theo Dõi Học Tập Thông Minh Cho Trẻ Tiểu Học",
-        excerpt: "Tìm hiểu hệ sinh thái kết hợp robot vật lý và ứng dụng thông minh giúp tự động theo dõi giờ học Pomodoro, nhận diện hành vi tập trung và tư thế ngồi của trẻ tiểu học."
-      },
-      placeholders: [
-        {
-          id: 2,
-          category: "Phương pháp học",
-          title: "Phương pháp Pomodoro: Bí quyết giúp trẻ tiểu học tự học không áp lực",
-          excerpt: "Làm thế nào để chia nhỏ thời gian học 25 phút hiệu quả nhất mà trẻ không bị mệt mỏi hay mất đi niềm vui học tập tự nhiên."
-        },
-        {
-          id: 3,
-          category: "Nuôi dạy con",
-          title: "Nuôi dạy con thời đại số: Giám sát hay đồng hành cùng con?",
-          excerpt: "Phân tích ranh giới giữa việc theo dõi học tập một cách khoa học, tự động và sự kiểm soát quá mức gây áp lực cho trẻ."
-        },
-        {
-          id: 4,
-          category: "Sức khỏe học đường",
-          title: "Tác hại của việc ngồi sai tư thế khi học và cách khắc phục bằng AI",
-          excerpt: "Tìm hiểu các bệnh lý học đường thường gặp ở trẻ tiểu học và cách các cảm biến thông minh giúp nhắc nhở bé sửa tư thế kịp thời."
-        }
-      ]
-    }
-  }[language];
 
   return (
     <div className="w-full space-y-6 md:space-y-8 py-4 md:py-6 relative overflow-hidden bg-gradient-to-b from-transparent via-indigo-50/10 to-transparent dark:via-zinc-950/15" id="onbi_insights_blog">
@@ -144,25 +74,28 @@ export default function BlogSection() {
         </BlurFade>
       </div>
 
-      {/* Main Blog grid wrapper */}
-      <div className="max-w-7xl mx-auto px-6 space-y-8 relative z-10">
-        
-        {/* 1. Featured card - Navigation Link */}
-        <Link href="/blog/robot-ban-hoc-onbi-giai-phap-theo-doi-hoc-tap-thong-minh" className="block w-full">
+      {/* Main Blog grid wrapper - Bento 1+2 layout */}
+      <div className="max-w-[1400px] mx-auto px-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* 1. Featured card - Navigation Link (left, vertical compact) */}
+        <Link href="/blog/robot-ban-hoc-onbi-giai-phap-theo-doi-hoc-tap-thong-minh" className="block w-full h-full">
           <motion.div
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={viewport}
-            className="group relative w-full bg-[#f8f9fa]/40 dark:bg-white/8 border border-[#e2e8f0]/80 dark:border-white/15 rounded-3xl overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl transition-all duration-500 flex flex-col md:flex-row md:items-stretch min-h-[420px]"
+            className="group relative w-full h-full bg-[#f8f9fa]/40 dark:bg-white/8 border border-[#e2e8f0]/80 dark:border-white/15 rounded-3xl overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl transition-all duration-500 flex flex-col"
           >
-            {/* Left/Top visual cover */}
-            <div className="relative w-full md:w-1/2 min-h-[260px] md:min-h-full overflow-hidden">
+            {/* Top visual cover (vertical card: image on top) */}
+            <div className="relative w-full aspect-[16/10] overflow-hidden shrink-0">
               <Image
                 src="/blog/blog-1/image-1.jpg"
                 alt={t.blog.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+                fetchPriority="high"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
               {/* Top-left category badge */}
@@ -174,8 +107,8 @@ export default function BlogSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent md:hidden" />
             </div>
 
-            {/* Right/Bottom info block */}
-            <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-between space-y-6">
+            {/* Bottom info block */}
+            <div className="w-full p-5 md:p-6 flex flex-col flex-1 space-y-3">
               <div className="space-y-4">
                 
                 {/* Meta details */}
@@ -194,12 +127,12 @@ export default function BlogSection() {
                 </div>
 
                 {/* Title */}
-                <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
+                <h3 className="font-display text-xl md:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight line-clamp-2">
                   {t.blog.title}
                 </h3>
 
                 {/* Excerpt */}
-                <p className="text-slate-650 dark:text-zinc-400 text-sm sm:text-base leading-relaxed line-clamp-3 md:line-clamp-4">
+                <p className="text-slate-650 dark:text-zinc-400 text-sm leading-relaxed line-clamp-3">
                   {t.blog.excerpt}
                 </p>
 
@@ -215,8 +148,8 @@ export default function BlogSection() {
           </motion.div>
         </Link>
 
-        {/* 2. Three smaller placeholder cards below */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 2. Two placeholder cards stacked vertically (right side of bento) */}
+        <div className="flex flex-col gap-6 h-full">
           {t.placeholders.map((card, idx) => (
             <motion.div
               key={card.id}
@@ -226,7 +159,7 @@ export default function BlogSection() {
               viewport={viewport}
               custom={idx}
               onClick={() => triggerToast(language === 'en' ? t.toastMsgEn : t.toastMsg)}
-              className="group relative bg-[#f8f9fa]/25 dark:bg-white/4 border border-dashed border-[#d1d5db] dark:border-white/10 rounded-3xl p-6 cursor-pointer hover:bg-white/45 dark:hover:bg-white/8 hover:border-solid hover:border-slate-300 dark:hover:border-white/15 hover:shadow-[0_12px_30px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all duration-300 flex flex-col justify-between min-h-[280px]"
+              className="group relative bg-[#f8f9fa]/25 dark:bg-white/4 border border-dashed border-[#d1d5db] dark:border-white/10 rounded-3xl p-5 cursor-pointer hover:bg-white/45 dark:hover:bg-white/8 hover:border-solid hover:border-slate-300 dark:hover:border-white/15 hover:shadow-[0_12px_30px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all duration-300 flex flex-col flex-1"
             >
               <div className="space-y-4">
                 
@@ -262,6 +195,8 @@ export default function BlogSection() {
             </motion.div>
           ))}
         </div>
+
+        </div>{/* end bento 1+2 grid */}
 
       </div>
 

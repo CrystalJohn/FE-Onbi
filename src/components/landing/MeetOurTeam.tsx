@@ -4,165 +4,22 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'motion/react';
 import { fadeUp, viewport } from '@/lib/animations';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanding } from '@/i18n/useLanding';
+import type { LandingContent, TeamMemberData } from '@/i18n/landing';
 import { BlurFade } from '@/components/ui/blur-fade';
 
-interface TeamMember {
-  name: string;
-  role: string;
-  initials: string;
-  color: string;
-  avatar?: string;
-  description?: string;
-  bgColor: string;
-  domeBg: string;
+
+interface MeetOurTeamProps {
+  t: LandingContent;
 }
 
-export default function HowItWorks() {
-  const { language } = useLanguage();
-  // null = no card hovered → all cards equal capsules (balanced default)
+export default function MeetOurTeam({ t: initialT }: MeetOurTeamProps) {
+  const live = useLanding(initialT);
+  const t = live.team;
+  // null = no card hovered + all cards equal capsules (balanced default)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const t = {
-    en: {
-      tag: "The people behind ONBI.",
-      titleLine1: "Meet the people",
-      titleLine2: "behind ONBI.",
-      subTitle: "A passionate team of designers, engineers, and educational visionaries building the future of screen-free childhood learning.",
-      team: [
-        {
-          name: "Nguyễn Tấn Đạt",
-          role: "Owner",
-          initials: "NĐ",
-          color: "from-orange-400 to-amber-500",
-          avatar: "/avatar/Dat.webp",
-          description: "Founder & Product Visionary of ONBI Tech. Passionate about child-safe AI and screen-free learning solutions for children.",
-          bgColor: "#FDF0CD",
-          domeBg: "#252542"
-        },
-        {
-          name: "Nguyễn Phú Quí",
-          role: "Co-founder",
-          initials: "NQ",
-          color: "from-emerald-400 to-green-500",
-          avatar: "/avatar/Quy.webp",
-          description: "Co-founder driving ONBI's growth strategy and connecting the brand with families across Vietnam and beyond.",
-          bgColor: "#FAF1F0",
-          domeBg: "#3D3A39"
-        },
-        {
-          name: "Trần Phan Thanh Phúc",
-          role: "Technical Team",
-          initials: "TP",
-          color: "from-blue-400 to-indigo-500",
-          avatar: "/avatar/Phuc.webp",
-          description: "Full-stack engineer developing the parent companion app and real-time monitoring dashboards.",
-          bgColor: "#E6ECF8",
-          domeBg: "#2E3138"
-        },
-        {
-          name: "Lê Nguyễn Nguyên Khang",
-          role: "Technical Team",
-          initials: "NK",
-          color: "from-pink-400 to-rose-500",
-          avatar: "/avatar/Khang.webp",
-          description: "Creative graphic designer crafting visual identities and child-friendly UI for the ONBI brand experience.",
-          bgColor: "#FCE2CD",
-          domeBg: "#EBD6C5"
-        },
-        {
-          name: "Nguyễn Tuấn Kha",
-          role: "Technical Team",
-          initials: "TK",
-          color: "from-indigo-400 to-violet-500",
-          avatar: "/avatar/Kha.webp",
-          description: "Software engineer building scalable backend systems and seamless integrations for the ONBI platform.",
-          bgColor: "#FDF0CD",
-          domeBg: "#1E2530"
-        },
-        {
-          name: "Cao Bá Thiên",
-          role: "Technical Team",
-          initials: "CT",
-          color: "from-cyan-400 to-teal-500",
-          avatar: "/avatar/Thien.webp",
-          description: "IT specialist managing infrastructure and ensuring secure, reliable systems behind every ONBI device.",
-          bgColor: "#E6ECF8",
-          domeBg: "#2A2B35"
-        }
-      ]
-    },
-    vi: {
-      tag: "Đội ngũ đằng sau ONBI.",
-      titleLine1: "Cùng xây dựng một người bạn học tập",
-      titleLine2: "đáng tin cậy cho trẻ.",
-      subTitle: "Chúng tôi phát triển ONBI với mục tiêu giúp trẻ hình thành thói quen học đều đặn hơn, đồng thời giúp phụ huynh theo dõi quá trình học của con một cách nhẹ nhàng, rõ ràng và an toàn.",
-      team: [
-        {
-          name: "Nguyễn Tấn Đạt",
-          role: "Nhà sáng lập / Owner",
-          initials: "NĐ",
-          color: "from-orange-400 to-amber-500",
-          avatar: "/avatar/Dat.webp",
-          description: "Người sáng lập & Định hướng Sản phẩm của ONBI Tech. Đầy nhiệt huyết với AI an toàn cho trẻ em và các giải pháp học tập không màn hình.",
-          bgColor: "#FDF0CD",
-          domeBg: "#252542"
-        },
-        {
-          name: "Nguyễn Phú Quí",
-          role: "Đồng sáng lập / Co-founder",
-          initials: "NQ",
-          color: "from-emerald-400 to-green-500",
-          avatar: "/avatar/Quy.webp",
-          description: "Đồng sáng lập thúc đẩy chiến lược phát triển của ONBI, kết nối thương hiệu với hàng triệu gia đình tại Việt Nam và quốc tế.",
-          bgColor: "#FAF1F0",
-          domeBg: "#3D3A39"
-        },
-        {
-          name: "Trần Phan Thanh Phúc",
-          role: "Đội ngũ Kỹ thuật",
-          initials: "TP",
-          color: "from-blue-400 to-indigo-500",
-          avatar: "/avatar/Phuc.webp",
-          description: "Kỹ sư Full-stack phát triển ứng dụng đồng hành cho ba mẹ và bảng điều khiển theo dõi thời gian thực.",
-          bgColor: "#E6ECF8",
-          domeBg: "#2E3138"
-        },
-        {
-          name: "Lê Nguyễn Nguyên Khang",
-          role: "Đội ngũ Kỹ thuật",
-          initials: "NK",
-          color: "from-pink-400 to-rose-500",
-          avatar: "/avatar/Khang.webp",
-          description: "Nhà thiết kế đồ họa sáng tạo, người xây dựng bộ nhận diện thương hiệu và giao diện thân thiện với trẻ em cho trải nghiệm ONBI.",
-          bgColor: "#FCE2CD",
-          domeBg: "#EBD6C5"
-        },
-        {
-          name: "Nguyễn Tuấn Kha",
-          role: "Đội ngũ Kỹ thuật",
-          initials: "TK",
-          color: "from-indigo-400 to-violet-500",
-          avatar: "/avatar/Kha.webp",
-          description: "Kỹ sư phần mềm phát triển hệ thống backend mở rộng và tích hợp mượt mà cho nền tảng ONBI.",
-          bgColor: "#FDF0CD",
-          domeBg: "#1E2530"
-        },
-        {
-          name: "Cao Bá Thiên",
-          role: "Đội ngũ Kỹ thuật",
-          initials: "CT",
-          color: "from-cyan-400 to-teal-500",
-          avatar: "/avatar/Thien.webp",
-          description: "Chuyên gia CNTT quản lý hạ tầng đám mây và đảm bảo hệ thống bảo mật, ổn định cho mỗi thiết bị ONBI.",
-          bgColor: "#E6ECF8",
-          domeBg: "#2A2B35"
-        }
-      ]
-    }
-  }[language];
-
-  const team: TeamMember[] = t.team;
+  const team: TeamMemberData[] = t.team;
 
   // Determine card flex values based on state
   const getCardFlex = (idx: number): string => {

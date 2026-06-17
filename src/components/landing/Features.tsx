@@ -3,91 +3,16 @@
 import React from 'react';
 import { Carousel, Card } from '@/components/ui/apple-cards-carousel';
 import { BlurFade } from '@/components/ui/blur-fade';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanding } from '@/i18n/useLanding';
+import type { LandingContent } from '@/i18n/landing';
 
-export default function Features() {
-  const { language } = useLanguage();
+interface FeaturesProps {
+  t: LandingContent;
+}
 
-  const t = {
-    en: {
-      core: "Core features.",
-      headingLine1: "How ONBI empowers",
-      headingLine2: "daily study habits.",
-      description: "Designed by child psychologists and powered by safe edge-AI, ONBI creates screen-free concentration routines that children look forward to every day.",
-      categories: {
-        focus: "Focus Habit",
-        health: "Health & Safety",
-        parent: "Parent Sync",
-        buddy: "Companion",
-        updates: "Updates"
-      },
-      cards: {
-        focus: {
-          bold: "25-minute focus + 5-minute rest",
-          rest: "intervals designed by child psychologists. Builds natural concentration without fatigue or screen dependency. ONBI uses gentle LED transitions and ambient audio to guide each cycle seamlessly."
-        },
-        health: {
-          bold: "Built-in AI camera tracks posture locally.",
-          rest: "Gentle voice reminders when your child slouches. No data leaves the device — 100% local processing ensures complete privacy while protecting spinal health."
-        },
-        buddy: {
-          bold: "ONBI responds with expressions, LED animations, and encouraging voice.",
-          rest: "Turns study time into an anticipated daily ritual. Zero screen time — all interaction happens through physical cues, voice, and ambient light."
-        },
-        parent: {
-          bold: "Automatic daily study reports sent to your phone.",
-          rest: "Track focus time, posture alerts, and key activity metrics without hovering over your child. Weekly habit charts and statistics included."
-        },
-        insights: {
-          bold: "Deep learning insights and habit analytics.",
-          rest: "View a chronological history of completed study sessions, focus quality scores, and posture improvement trends over time. Helps you praise effort and support growth constructively."
-        },
-        updates: {
-          bold: "Over-the-air firmware updates bring new features.",
-          rest: "AI voice refinements, expanded curriculums, and smart home integration — all included free for life. Your ONBI gets smarter over time."
-        }
-      }
-    },
-    vi: {
-      core: "Tính năng cốt lõi.",
-      headingLine1: "ONBI giúp con",
-      headingLine2: "xây dựng thói quen học tập.",
-      description: "ONBI tự động bắt đầu phiên Pomodoro khi con ngồi vào bàn, theo dõi thời gian học thật và gửi cập nhật rõ ràng cho phụ huynh. Con được nhắc nhẹ nhàng để duy trì tập trung, còn ba mẹ không cần liên tục ngồi kèm hay kiểm tra thủ công.",
-      categories: {
-        focus: "Thói quen học",
-        health: "Sức khỏe & An toàn",
-        parent: "Kết nối ba mẹ",
-        buddy: "Bạn đồng hành",
-        updates: "Cập nhật"
-      },
-      cards: {
-        focus: {
-          bold: "Chu kỳ 25 phút tập trung + 5 phút nghỉ,",
-          rest: "được thiết kế bởi chuyên gia tâm lý trẻ em. Giúp con tập trung tự nhiên mà không mệt mỏi hay phụ thuộc màn hình. ONBI sử dụng chuyển đổi LED nhẹ nhàng và âm thanh dịu để dẫn dắt từng chu kỳ một cách mượt mà."
-        },
-        health: {
-          bold: "Camera AI tích hợp theo dõi tư thế ngay trên thiết bị.",
-          rest: "Nhắc nhở nhẹ nhàng khi con ngồi sai. Không dữ liệu nào rời khỏi thiết bị — xử lý 100% cục bộ, bảo vệ riêng tư hoàn toàn."
-        },
-        buddy: {
-          bold: "ONBI phản hồi bằng biểu cảm, đèn LED sinh động và giọng nói khích lệ.",
-          rest: "Biến giờ học thành thói quen con mong chờ mỗi ngày. Không màn hình — chỉ tương tác qua giọng nói và ánh sáng."
-        },
-        parent: {
-          bold: "Báo cáo học tập tự động gửi về điện thoại ba mẹ mỗi ngày.",
-          rest: "Theo dõi thời gian tập trung, cảnh báo tư thế, tiến độ phiên học mà không cần ngồi cạnh con. Biểu đồ thói quen hàng tuần và các chỉ số hoạt động được bao gồm."
-        },
-        insights: {
-          bold: "Phân tích chuyên sâu và báo cáo xu hướng thói quen.",
-          rest: "Xem lại lịch sử chi tiết các phiên học, điểm chất lượng tập trung và xu hướng cải thiện tư thế theo thời gian. Giúp ba mẹ dễ dàng khích lệ nỗ lực tự học và đồng hành cùng sự tiến bộ của con."
-        },
-        updates: {
-          bold: "Cập nhật phần mềm tự động mang đến tính năng mới.",
-          rest: "Cải thiện giọng nói AI, chương trình tương tác mở rộng, tích hợp nhà thông minh — tất cả miễn phí trọn đời. ONBI của con sẽ thông minh hơn theo thời gian."
-        }
-      }
-    }
-  }[language];
+export default function Features({ t: initialT }: FeaturesProps) {
+  const live = useLanding(initialT);
+  const t = live.features;
 
   const data = [
     {

@@ -15,21 +15,30 @@ const LanguageContext = createContext<LanguageContextProps | undefined>(undefine
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('vi');
 
-  // Load language from localStorage if available
+  // Load language from localStorage or cookie on mount, sync state with cookie
   useEffect(() => {
-    const savedLang = localStorage.getItem('onbi_lang') as Language;
+    const cookieMatch = typeof document !== 'undefined'
+      ? document.cookie.split('; ').find((c) => c.startsWith('onbi_lang='))
+      : undefined;
+    const fromCookie = cookieMatch ? cookieMatch.split('=')[1] : undefined;
+    const savedLang = (fromCookie || localStorage.getItem('onbi_lang')) as Language;
     if (savedLang === 'en' || savedLang === 'vi') {
       setLanguageState(savedLang);
+      if (!fromCookie) {
+        document.cookie = `onbi_lang=${savedLang}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+      }
     } else {
-      // Default to Vietnamese
       setLanguageState('vi');
       localStorage.setItem('onbi_lang', 'vi');
+      document.cookie = `onbi_lang=vi; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('onbi_lang', lang);
+    // Mirror to non-httpOnly cookie so server-rendered landing pages read the same lang
+    document.cookie = `onbi_lang=${lang}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
   };
 
   const toggleLanguage = () => {

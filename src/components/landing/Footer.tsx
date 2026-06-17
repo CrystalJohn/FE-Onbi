@@ -1,97 +1,23 @@
 'use client'
 
 import React from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanding } from '@/i18n/useLanding';
+import type { LandingContent } from '@/i18n/landing';
 
 interface FooterProps {
+  t: LandingContent;
   onTimerClick?: () => void;
 }
 
-export default function Footer({ onTimerClick }: FooterProps) {
-  const { language } = useLanguage();
+export default function Footer({ t: initialT, onTimerClick }: FooterProps) {
+  const live = useLanding(initialT);
+  const t = live.footer;
 
   const socialLinks = [
     { label: 'TikTok', href: 'https://www.tiktok.com/@onbi20' },
-    { label: 'Facebook', href: 'https://www.facebook.com/people/OnBi/61590592400269/?mibextid=wwXIfr&rdid=F6PDS4vpYGSdaKnZ&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1B89WwR7B8%2F%3Fmibextid%3DwwXIfr' },
+    { label: 'Facebook', href: 'https://www.facebook.com/people/OnBi/61590592400269/' },
     { label: 'YouTube', href: 'https://www.youtube.com/@MediaOnbi/shorts' },
   ];
-
-  const t = {
-    en: {
-      footnote1: '1. ONBI is a certified trademark of ONBI Tech. All rendered interactive prototypes, simulated hardware screens, and early membership passes are created for conceptual demonstration of the first physical MVP unit scheduled for production.',
-      footnote2: '2. Zero-screen interaction and postural monitoring require an active internet connection and subscription. Postural camera is privacy-first, performing inference locally with zero cloud data storage.',
-      coppa: 'EST. 2026 • COPPA Compliant',
-      copyright: 'Copyright © 2026 ONBI Tech. All rights reserved.',
-      privacy: 'Privacy Policy',
-      terms: 'Terms of Use',
-      sales: 'Sales Policy',
-      legal: 'Legal',
-      cols: [
-        {
-          title: 'Explore',
-          links: [
-            { label: 'Introduction', action: 'scroll', target: 'hero_section' },
-            { label: 'Parent Problems', action: 'scroll', target: 'parent_problems_section' },
-            { label: 'Smart Features', action: 'scroll', target: 'features_grid_section' },
-            { label: 'Interactive Timer', action: 'timer' },
-          ]
-        },
-        {
-          title: 'Order & Pricing',
-          links: [
-            { label: 'Early Access Tiers', action: 'scroll', target: 'pricing_section' },
-            { label: 'IoT Robot Bundle', action: 'scroll', target: 'pricing_section' },
-            { label: 'Membership Benefits', action: 'scroll', target: 'pricing_section' },
-          ]
-        },
-        {
-          title: 'About ONBI',
-          links: [
-            { label: 'Meet the Founders', action: 'scroll', target: 'how_it_works_section' },
-            { label: 'COPPA Compliance', action: 'scroll', target: 'hero_section' },
-            { label: 'Our Vision', action: 'scroll', target: 'hero_section' },
-          ]
-        }
-      ]
-    },
-    vi: {
-      footnote1: '1. ONBI là thương hiệu đã đăng ký của ONBI Tech. Tất cả mô hình tương tác, mô phỏng phần cứng và thẻ thành viên sớm được tạo ra cho mục đích minh họa dòng sản phẩm vật lý MVP đầu tiên trước sản xuất.',
-      footnote2: '2. Tính năng tương tác không màn hình và giám sát tư thế yêu cầu kết nối mạng và gói đăng ký hoạt động. Camera giám sát tư thế tuân thủ bảo mật tuyệt đối, suy luận trực tiếp tại thiết bị và không lưu trữ trên đám mây.',
-      coppa: 'Thành lập 2026 • Tuân thủ COPPA',
-      copyright: 'Bản quyền © 2026 ONBI Tech. Bảo lưu mọi quyền.',
-      privacy: 'Chính sách bảo mật',
-      terms: 'Điều khoản sử dụng',
-      sales: 'Chính sách bán hàng',
-      legal: 'Pháp lý',
-      cols: [
-        {
-          title: 'Khám phá',
-          links: [
-            { label: 'Giới thiệu chung', action: 'scroll', target: 'hero_section' },
-            { label: 'Vấn đề của ba mẹ', action: 'scroll', target: 'parent_problems_section' },
-            { label: 'Tính năng thông minh', action: 'scroll', target: 'features_grid_section' },
-            { label: 'Trình hẹn giờ thử', action: 'timer' },
-          ]
-        },
-        {
-          title: 'Đặt mua & Gói học',
-          links: [
-            { label: 'Đăng ký sớm', action: 'scroll', target: 'pricing_section' },
-            { label: 'Bộ thiết bị IoT Robot', action: 'scroll', target: 'pricing_section' },
-            { label: 'Đặc quyền thành viên', action: 'scroll', target: 'pricing_section' },
-          ]
-        },
-        {
-          title: 'Về dự án',
-          links: [
-            { label: 'Đội ngũ sáng lập', action: 'scroll', target: 'how_it_works_section' },
-            { label: 'Chuẩn bảo mật COPPA', action: 'scroll', target: 'hero_section' },
-            { label: 'Tầm nhìn phát triển', action: 'scroll', target: 'hero_section' },
-          ]
-        }
-      ]
-    }
-  }[language];
 
   const handleLinkClick = (link: { action: string; target?: string }) => {
     if (link.action === 'scroll' && link.target) {

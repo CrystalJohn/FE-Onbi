@@ -5,166 +5,20 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, ArrowRight } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanding } from '@/i18n/useLanding';
+import type { LandingContent, PricingTier } from '@/i18n/landing';
 import { BlurFade } from '@/components/ui/blur-fade';
 
-interface PricingTier {
-  id: string;
-  name: string;
-  badge?: string;
-  description: string;
-  price: string;
-  period: string;
-  dividerLabel: string;
-  features: string[];
-  cta: string;
-  colorTheme: 'cyan' | 'purple' | 'amber' | 'blue';
+interface PricingProps {
+  t: LandingContent;
 }
 
-const getTiers = (language: 'en' | 'vi'): PricingTier[] => {
-  if (language === 'vi') {
-    return [
-      {
-        id: 'monthly',
-        name: 'Thành viên Tháng',
-        badge: 'Gia hạn app',
-        description: 'Duy trì các tính năng theo dõi và nhắc nhở thông minh mỗi tháng.',
-        price: '149.000đ',
-        period: 'tháng',
-        dividerLabel: 'QUYỀN TRUY CẬP THÁNG +',
-        features: [
-          'Tự động Pomodoro 25/5',
-          'Theo dõi realtime trên app',
-          'Cảnh báo tư thế & tập trung',
-          'Báo cáo tiến độ chi tiết cho ba mẹ'
-        ],
-        cta: 'Đăng ký theo Tháng',
-        colorTheme: 'cyan',
-      },
-      {
-        id: 'device',
-        name: 'Trọn gói ONBI IoT',
-        badge: 'Phổ biến nhất',
-        description: 'Robot ONBI + 3 tháng Premium',
-        price: '4.599.000đ',
-        period: 'một lần',
-        dividerLabel: 'TRỌN GÓI ONBI IoT +',
-        features: [
-          'Robot ONBI đặt tại bàn học',
-          'Tự động Pomodoro 25/5',
-          'Theo dõi realtime trên app',
-          'Tặng 3 tháng Premium'
-        ],
-        cta: 'Đặt trước ONBI',
-        colorTheme: 'blue',
-      },
-      {
-        id: 'annual',
-        name: 'Thành viên Năm',
-        badge: 'Tiết kiệm 11%',
-        description: 'Duy trì các tính năng theo dõi và nhắc nhở thông minh trọn năm.',
-        price: '1.599.000đ',
-        period: 'năm',
-        dividerLabel: 'QUYỀN TRUY CẬP NĂM +',
-        features: [
-          'Tự động Pomodoro 25/5',
-          'Theo dõi realtime trên app',
-          'Cảnh báo tư thế & tập trung',
-          'Báo cáo tiến độ chi tiết cho ba mẹ',
-          'Tiết kiệm 11% so với trả tháng'
-        ],
-        cta: 'Đăng ký theo Năm',
-        colorTheme: 'amber',
-      },
-    ];
-  }
-
-  return [
-    {
-      id: 'monthly',
-      name: 'Monthly Pass',
-      badge: 'App Renewal',
-      description: 'Maintain smart tracking, reporting, and alerting features every month.',
-      price: '149,000đ',
-      period: 'month',
-      dividerLabel: 'MONTHLY ACCESS +',
-      features: [
-        'Automated 25/5 Pomodoro',
-        'Real-time app tracking',
-        'Posture & focus alerts',
-        'Detailed parent dashboard reports'
-      ],
-      cta: 'Subscribe Monthly',
-      colorTheme: 'cyan',
-    },
-    {
-      id: 'device',
-      name: 'ONBI IoT Bundle',
-      badge: 'Most Popular',
-      description: 'ONBI Robot + 3 months Premium',
-      price: '4,599,000đ',
-      period: 'one-time',
-      dividerLabel: 'ONBI IoT BUNDLE +',
-      features: [
-        'ONBI Robot at study desk',
-        'Automated 25/5 Pomodoro',
-        'Real-time app tracking',
-        'Free 3 months Premium'
-      ],
-      cta: 'Pre-order ONBI',
-      colorTheme: 'blue',
-    },
-    {
-      id: 'annual',
-      name: 'Annual Pass',
-      badge: 'Save 11%',
-      description: 'Maintain smart tracking, reporting, and alerting features all year round.',
-      price: '1,599,000đ',
-      period: 'year',
-      dividerLabel: 'ANNUAL ACCESS +',
-      features: [
-        'Automated 25/5 Pomodoro',
-        'Real-time app tracking',
-        'Posture & focus alerts',
-        'Detailed parent dashboard reports',
-        'Save 11% compared to monthly pass'
-      ],
-      cta: 'Subscribe Annually',
-      colorTheme: 'amber',
-    },
-  ];
-};
-
-export default function Pricing() {
-  const { language } = useLanguage();
+export default function Pricing({ t: initialT }: PricingProps) {
+  const live = useLanding(initialT);
+  const t = live.pricing;
   const router = useRouter();
-  const activeTiers = getTiers(language);
-
-  // Segmented control: false -> Sở hữu Robot ONBI, true -> Gia hạn Ứng dụng
+  const activeTiers = t.tiers;
   const [hasDevice, setHasDevice] = useState<boolean>(false);
-
-  const t = {
-    en: {
-      tag: "Membership pricing.",
-      headingLine1: "Choose the perfect plan",
-      headingLine2: "for your family.",
-      subheading: "Purchase the ONBI robot or renew the app to continue tracking study habits, Pomodoro cycles, and progress reports.",
-      toggleNoDevice: "New Purchase",
-      toggleHasDevice: "Already have ONBI",
-      toggleHelperText: "New purchase includes robot + app. Already have ONBI to renew Premium.",
-      batchInfo: "Estimated shipping Q3/2026",
-    },
-    vi: {
-      tag: "Bảng giá thành viên.",
-      headingLine1: "Chọn gói phù hợp",
-      headingLine2: "cho gia đình bạn.",
-      subheading: "Đăng ký nhận thông tin sớm để sở hữu robot ONBI và trải nghiệm ứng dụng theo dõi học tập tự động.",
-      toggleNoDevice: "Sở hữu Robot ONBI",
-      toggleHasDevice: "Gia hạn Ứng dụng",
-      toggleHelperText: "Đăng ký nhận thông tin mua mới Robot + App, hoặc gia hạn riêng gói phần mềm nếu đã có thiết bị.",
-      batchInfo: "Dự kiến ra mắt Q3/2026",
-    }
-  }[language];
 
   // Helper component to render a single pricing card
   const renderCard = (tier: PricingTier) => {

@@ -1,0 +1,125 @@
+import type { LandingContent } from './landing';
+
+const vi: LandingContent = {
+  hero: {
+    title: (<>Giúp con <span className="text-white">tập trung học tốt hơn</span>,<br className="hidden sm:inline" /> ba mẹ <span className="text-white">bớt phải nhắc mỗi ngày</span>.</>),
+    description: 'Robot bạn học ONBI tự động theo dõi phiên học Pomodoro, nhắc nhở nhẹ nhàng và cập nhật tiến độ học tập về điện thoại phụ huynh.',
+    cta: 'Tìm hiểu ONBI',
+    ctaSecondary: 'Trải nghiệm hẹn giờ',
+  },
+  header: {
+    home: 'Trang chủ', problem: 'Vấn đề', features: 'Tính năng', blog: 'Blog', pricing: 'Bảng giá', team: 'Đội ngũ',
+    focusTimer: 'Hẹn giờ tập trung', testTimer: 'Thử hẹn giờ tập trung', login: 'Đăng nhập', orderNow: 'Đặt mua ngay', enrollNow: 'Đăng ký ngay',
+    languageLabel: 'Ngôn ngữ', langName: 'Tiếng Việt', flag: '/Flag_of_Vietnam.png',
+  },
+  parentProblems: {
+    tag: 'Nỗi khó của phụ huynh.',
+    titleLine1: 'Học một mình tại nhà.',
+    titleLine2: 'Vì sao luôn mệt mỏi.',
+    description: 'Việc học hiện đại phụ thuộc nhiều vào màn hình gây nghiện, khiến ba mẹ giằng co giữa lịch làm việc bận rộn và những trận "nhắc - đốc - kèm" kéo dài mỗi ngày.',
+    solutionLabel: 'GIẢI PHÁP ONBI',
+    problems: [
+      { id: 'pomodoro', tabTitle: 'Tự động Pomodoro', accent: 'NHỊP HỌC 25/5',
+        title: 'Con khó bắt đầu và duy trì phiên học đều đặn',
+        description: 'Nhiều trẻ ngồi vào bàn nhưng không biết bắt đầu từ đâu, dễ trì hoãn hoặc học ngắt quãng. Khi không có một nhịp học rõ ràng, việc tập trung lâu và xây dựng thói quen mỗi ngày trở nên rất khó.',
+        solution: 'ONBI tự động kích hoạt chu trình 25 phút tập trung + 5 phút nghỉ khi con vào bàn học. Robot giúp con bắt đầu đúng lúc, học theo nhịp ổn định và từng bước hình thành thói quen tự học bền vững.' },
+      { id: 'tracking', tabTitle: 'Theo dõi học tập realtime', accent: 'CẬP NHẬT THEO THỜI GIAN THỰC',
+        title: 'Ba mẹ không thể luôn ở cạnh để biết con có thực sự học',
+        description: 'Phụ huynh bận rộn không thể theo sát từng buổi học. Vì vậy, rất khó biết con đã bắt đầu học chưa, có rời bàn giữa chừng không, hay hôm nay đã hoàn thành được bao nhiêu thời gian tập trung.',
+        solution: 'ONBI ghi nhận trạng thái học tập theo thời gian thực và gửi cập nhật rõ ràng về điện thoại phụ huynh. Ba mẹ có thể theo dõi thời gian học, tiến độ phiên tập trung và các mốc hoạt động quan trọng mà không cần ngồi kèm trực tiếp.' },
+      { id: 'posture', tabTitle: 'Nhắc tư thế & mất tập trung', accent: 'TẬP TRUNG & TƯ THẾ',
+        title: 'Con dễ ngồi sai tư thế hoặc mất tập trung khi học một mình',
+        description: 'Khi tự học, trẻ có thể cúi quá gần bàn, ngồi lệch tư thế, rời chỗ liên tục hoặc nhanh chóng bị xao nhãng. Nếu không được nhắc đúng lúc, thói quen học tốt rất khó được duy trì lâu dài.',
+        solution: 'ONBI theo dõi các dấu hiệu cần lưu ý trong suốt phiên học và đưa ra nhắc nhở nhẹ nhàng khi con ngồi sai tư thế hoặc mất tập trung. Nhờ đó, con giữ được nhịp học tốt hơn và ba mẹ cũng yên tâm hơn trong quá trình đồng hành.' },
+    ],
+  },
+  features: {
+    core: 'Tính năng cốt lõi.',
+    headingLine1: 'ONBI giúp con',
+    headingLine2: 'xây dựng thói quen học tập.',
+    description: 'ONBI tự động bắt đầu phiên Pomodoro khi con ngồi vào bàn, theo dõi thời gian tập trung, cảnh báo tư thế nhẹ nhàng và gửi báo cáo tiến độ chi tiết cho phụ huynh mỗi ngày — không cần màn hình.',
+    categories: { focus: 'Thói quen tập trung', health: 'Sức khỏe & An toàn', parent: 'Đồng hành phụ huynh', buddy: 'Người bạn học', updates: 'Cập nhật' },
+    cards: {
+      focus: { bold: '25 phút tập trung + 5 phút nghỉ', rest: 'theo khuyến nghị của chuyên gia tâm lý trẻ em. ONBI sử dụng đèn LED chuyển sắc dịu nhẹ và âm thanh nền để dẫn dắt từng chu trình một cách tự nhiên, không gây mệt mỏi hay phụ thuộc màn hình.' },
+      health: { bold: 'Camera AI tích hợp theo dõi tư thế ngay trên thiết bị.', rest: 'Nhắc nhở bằng giọng nói nhẹ nhàng khi con ngồi sai tư thế. Toàn bộ xử lý cục bộ — 0% dữ liệu rời khỏi thiết bị, bảo vệ quyền riêng tư và sức khỏe cột sống của con.' },
+      buddy: { bold: 'ONBI phản hồi bằng biểu cảm, đèn LED và giọng nói khích lệ.', rest: 'Biến giờ học thành một nghi thức mà con mong đợi mỗi ngày. 0% màn hình — mọi tương tác đều thông qua cử chỉ thực, giọng nói và ánh sáng.' },
+      parent: { bold: 'Tự động gửi báo cáo học tập hằng ngày về điện thoại phụ huynh.', rest: 'Theo dõi thời gian tập trung, cảnh báo tư thế và các chỉ số hoạt động chính mà không cần ngồi kèm sát con. Kèm biểu đồ thói quen và thống kê theo tuần.' },
+      insights: { bold: 'Phân tích chuyên sâu và báo cáo xu hướng thói quen.', rest: 'Xem lại lịch sử chi tiết các phiên học, điểm chất lượng tập trung và xu hướng cải thiện tư thế theo thời gian. Giúp ba mẹ dễ dàng khích lệ nỗ lực tự học và đồng hành cùng sự tiến bộ của con.' },
+      updates: { bold: 'Cập nhật phần mềm tự động mang đến tính năng mới.', rest: 'Cải thiện giọng nói AI, chương trình tương tác mở rộng, tích hợp nhà thông minh — tất cả miễn phí trọn đời. ONBI của con sẽ thông minh hơn theo thời gian.' },
+    },
+  },
+  pricing: {
+    tag: 'Bảng giá thành viên.',
+    headingLine1: 'Chọn gói phù hợp',
+    headingLine2: 'cho gia đình bạn.',
+    subheading: 'Đăng ký nhận thông tin sớm để sở hữu robot ONBI và trải nghiệm ứng dụng theo dõi học tập tự động.',
+    toggleNoDevice: 'Sở hữu Robot ONBI',
+    toggleHasDevice: 'Gia hạn Ứng dụng',
+    toggleHelperText: 'Đăng ký nhận thông tin mua mới Robot + App, hoặc gia hạn riêng gói phần mềm nếu đã có thiết bị.',
+    batchInfo: 'Dự kiến ra mắt Q3/2026',
+    tiers: [
+      { id: 'monthly', name: 'Thành viên Tháng', badge: 'Gia hạn app', description: 'Duy trì các tính năng theo dõi và nhắc nhở thông minh mỗi tháng.', price: '149.000đ', period: 'tháng', dividerLabel: 'QUYỀN TRUY CẬP THÁNG +', features: ['Tự động Pomodoro 25/5', 'Theo dõi realtime trên app', 'Cảnh báo tư thế & tập trung', 'Báo cáo tiến độ chi tiết cho ba mẹ'], cta: 'Đăng ký theo Tháng', colorTheme: 'cyan' },
+      { id: 'device', name: 'Trọn gói ONBI IoT', badge: 'Phổ biến nhất', description: 'Robot ONBI + 3 tháng Premium', price: '4.599.000đ', period: 'một lần', dividerLabel: 'TRỌN GÓI ONBI IoT +', features: ['Robot ONBI đặt tại bàn học', 'Tự động Pomodoro 25/5', 'Theo dõi realtime trên app', 'Tặng 3 tháng Premium'], cta: 'Đặt trước ONBI', colorTheme: 'blue' },
+      { id: 'annual', name: 'Thành viên Năm', badge: 'Tiết kiệm 11%', description: 'Duy trì các tính năng theo dõi và nhắc nhở thông minh trọn năm.', price: '1.599.000đ', period: 'năm', dividerLabel: 'QUYỀN TRUY CẬP NĂM +', features: ['Tự động Pomodoro 25/5', 'Theo dõi realtime trên app', 'Cảnh báo tư thế & tập trung', 'Báo cáo tiến độ chi tiết cho ba mẹ', 'Tiết kiệm 11% so với trả tháng'], cta: 'Đăng ký theo Năm', colorTheme: 'amber' },
+    ],
+  },
+  team: {
+    tag: 'Đội ngũ đằng sau ONBI.',
+    titleLine1: 'Cùng xây dựng một người bạn học tập',
+    titleLine2: 'đáng tin cậy cho trẻ.',
+    subTitle: 'Chúng tôi phát triển ONBI với mục tiêu giúp trẻ hình thành thói quen học đều đặn hơn, đồng thời giúp phụ huynh theo dõi quá trình học của con một cách nhẹ nhàng, rõ ràng và an toàn.',
+    team: [
+      { name: 'Nguyễn Tấn Đạt', role: 'Nhà sáng lập / Owner', initials: 'NĐ', color: 'from-orange-400 to-amber-500', avatar: '/avatar/Dat.webp', description: 'Người sáng lập & Định hướng Sản phẩm của ONBI Tech. Đầy nhiệt huyết với AI an toàn cho trẻ em và các giải pháp học tập không màn hình.', bgColor: '#FDF0CD', domeBg: '#252542' },
+      { name: 'Nguyễn Phú Quí', role: 'Đồng sáng lập / Co-founder', initials: 'NQ', color: 'from-emerald-400 to-green-500', avatar: '/avatar/Quy.webp', description: 'Đồng sáng lập thúc đẩy chiến lược phát triển của ONBI, kết nối thương hiệu với hàng triệu gia đình tại Việt Nam và quốc tế.', bgColor: '#FAF1F0', domeBg: '#3D3A39' },
+      { name: 'Trần Phan Thanh Phúc', role: 'Đội ngũ Kỹ thuật', initials: 'TP', color: 'from-blue-400 to-indigo-500', avatar: '/avatar/Phuc.webp', description: 'Kỹ sư Full-stack phát triển ứng dụng đồng hành cho ba mẹ và bảng điều khiển theo dõi thời gian thực.', bgColor: '#E6ECF8', domeBg: '#2E3138' },
+      { name: 'Lê Nguyễn Nguyên Khang', role: 'Đội ngũ Kỹ thuật', initials: 'NK', color: 'from-pink-400 to-rose-500', avatar: '/avatar/Khang.webp', description: 'Nhà thiết kế đồ họa sáng tạo, người xây dựng bộ nhận diện thương hiệu và giao diện thân thiện với trẻ em cho trải nghiệm ONBI.', bgColor: '#FCE2CD', domeBg: '#EBD6C5' },
+      { name: 'Nguyễn Tuấn Kha', role: 'Đội ngũ Kỹ thuật', initials: 'NK', color: 'from-violet-400 to-purple-500', avatar: '/avatar/Kha.webp', description: 'Trưởng nhóm kỹ thuật phụ trách firmware, pipeline computer-vision và hệ thống phát hiện tập trung theo thời gian thực.', bgColor: '#FDF0CD', domeBg: '#1E2530' },
+      { name: 'Cao Bá Thiên', role: 'Đội ngũ Kỹ thuật', initials: 'CT', color: 'from-cyan-400 to-teal-500', avatar: '/avatar/Thien.webp', description: 'Chuyên viên IT quản lý hạ tầng và đảm bảo hệ thống an toàn, ổn định đằng sau mỗi thiết bị ONBI.', bgColor: '#E6ECF8', domeBg: '#2A2B35' },
+    ],
+  },
+  footer: {
+    footnote1: '1. ONBI là thương hiệu đã đăng ký của ONBI Tech. Mọi hình ảnh, video, nguyên mẫu thiết bị và mức giá thành viên trong bản demo này chỉ mang tính chất minh họa cho đợt sản xuất MVP vật lý đầu tiên.',
+    footnote2: '2. Tương tác không màn hình và theo dõi tư thế yêu cầu kết nối internet và gói thành viên đang hoạt động. Camera tư thế xử lý hoàn toàn cục bộ, không lưu trữ dữ liệu trên đám mây — đảm bảo quyền riêng tư.',
+    coppa: 'THÀNH LẬP 2026 • Tuân thủ COPPA',
+    copyright: 'Bản quyền © 2026 ONBI Tech. Đã đăng ký bản hộ.',
+    privacy: 'Chính sách bảo mật', terms: 'Điều khoản sử dụng', sales: 'Chính sách bán hàng', legal: 'Pháp lý',
+    cols: [
+      { title: 'Khám phá', links: [
+        { label: 'Giới thiệu', action: 'scroll', target: 'hero_section' },
+        { label: 'Nỗi khó phụ huynh', action: 'scroll', target: 'parent_problems_section' },
+        { label: 'Tính năng thông minh', action: 'scroll', target: 'features_grid_section' },
+        { label: 'Hẹn giờ tương tác', action: 'timer' },
+      ]},
+      { title: 'Đặt mua & Giá', links: [
+        { label: 'Gói thành viên sớm', action: 'scroll', target: 'pricing_section' },
+        { label: 'Trọn gói Robot IoT', action: 'scroll', target: 'pricing_section' },
+        { label: 'Quyền lợi thành viên', action: 'scroll', target: 'pricing_section' },
+      ]},
+      { title: 'Về ONBI', links: [
+        { label: 'Gặp gỡ đội ngũ', action: 'scroll', target: 'how_it_works_section' },
+        { label: 'Tuân thủ COPPA', action: 'scroll', target: 'hero_section' },
+        { label: 'Tầm nhìn', action: 'scroll', target: 'hero_section' },
+      ]},
+    ],
+  },
+  blog: {
+    tag: 'ONBI INSIGHTS',
+    titleLine1: 'Kiến thức &',
+    titleLine2: 'Cập nhật sản phẩm.',
+    description: 'Khám phá các tài liệu hữu ích về tâm lý trẻ em, kỹ thuật tập trung Pomodoro và công nghệ thông minh trong nuôi dạy con hiện đại.',
+    readMore: 'Đọc toàn bộ bài viết', comingSoon: 'Sắp ra mắt', featuredBadge: 'Bài viết nổi bật',
+    toastMsg: 'Nội dung đang được cập nhật bởi ONBI',
+    toastMsgEn: 'Content is currently being updated by ONBI',
+    author: 'Đội ngũ OnBi', date: '30/05/2026', category: 'EdTech / IoT Giáo dục',
+    blog: {
+      title: 'OnBi – Người bạn học tập: Giải pháp theo dõi học tập thông minh cho học sinh Tiểu học',
+      excerpt: 'Khám phá cách OnBi kết hợp tự động hóa Pomodoro vật lý, AI theo dõi tư thế và cập nhật cho phụ huynh để nuôi dưỡng sự tập trung tự nhiên và thói quen tự học cho trẻ.',
+    },
+    placeholders: [
+      { id: 2, category: 'Phương pháp học', title: 'Kỹ thuật Pomodoro: Bí quyết tự học không áp lực cho trẻ Tiểu học', excerpt: 'Cách chia nhịp học - nghỉ để trẻ nhỏ xây dựng sức bền tập trung một cách tự nhiên mà không bị mệt mỏi tinh thần.' },
+      { id: 3, category: 'Làm cha mẹ thời số', title: 'Làm cha mẹ thời số: Theo dõi học tập vs. Tin tưởng & Riêng tư', excerpt: 'Khám phá ranh giới lành mạnh giữa theo dõi tự động và việc kiểm soát quá mức trong giáo dục hiện đại.' },
+    ],
+  },
+};
+
+export default vi;

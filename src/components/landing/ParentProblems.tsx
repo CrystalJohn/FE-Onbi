@@ -4,106 +4,31 @@ import React, { useState } from 'react';
 import { MessageSquareX, Timer, Compass, Sparkles, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { fadeUp, viewport } from '@/lib/animations';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanding } from '@/i18n/useLanding';
+import type { LandingContent, ProblemId } from '@/i18n/landing';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ARCHITECTURE: Pure Premium Click Accordion
-//
-// Following the user's explicit request, we have completely removed scroll-driven
-// tab expansion (scrollytelling) to eliminate "pin traps" and layout jumps.
-//
-// The active tab is managed purely by React onClick state, supporting an
-// Apple-style vertical inline accordion on the left, and a seamless video cross-fade
-// showcase on the right.
-// ─────────────────────────────────────────────────────────────────────────────
+const ICON_MAP: Record<ProblemId, React.ComponentType<{ className?: string }>> = {
+  pomodoro: Timer,
+  tracking: Compass,
+  posture: MessageSquareX,
+};
 
-type TabId = 'pomodoro' | 'tracking' | 'posture';
+const TAB_IDS: ProblemId[] = ['pomodoro', 'tracking', 'posture'];
 
-const TAB_IDS: TabId[] = ['pomodoro', 'tracking', 'posture'];
+interface ParentProblemsProps {
+  t: LandingContent;
+}
 
-export default function ParentProblems() {
-  const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<TabId>('pomodoro');
+export default function ParentProblems({ t: initialT }: ParentProblemsProps) {
+  const [activeTab, setActiveTab] = useState<ProblemId>('pomodoro');
+  const live = useLanding(initialT);
+  const t = live.parentProblems;
 
-  const handleTabClick = (tabId: TabId) => {
+  const handleTabClick = (tabId: ProblemId) => {
     setActiveTab(tabId);
   };
 
-  // ── Translations ──
-  const t = {
-    en: {
-      tag: "The parental hurdle.",
-      titleLine1: "Solitary home study.",
-      titleLine2: "Why it is exhausting.",
-      description: "Modern learning relies heavily on addictive screens, leaving parents caught in the daily struggle between busy work schedules and endless coaching battles.",
-      solutionLabel: "ONBI SOLUTION",
-      problems: [
-        {
-          id: 'pomodoro' as const,
-          tabTitle: "Auto Pomodoro",
-          accent: "25/5 STUDY RHYTHM",
-          title: "Children struggle to start and maintain consistent study sessions",
-          description: "Many children sit at their desk but don't know where to begin — prone to procrastination or fragmented study. Without a clear rhythm, building long focus and a daily habit becomes very difficult.",
-          solution: "ONBI automatically activates a 25-minute focus + 5-minute break cycle when your child sits down to study. The robot helps them start at the right time, study at a stable pace, and gradually build a lasting self-study habit.",
-          icon: Timer,
-        },
-        {
-          id: 'tracking' as const,
-          tabTitle: "Real-time Tracking",
-          accent: "LIVE UPDATES",
-          title: "Parents can't always be there to know if their child is really studying",
-          description: "Busy parents can't monitor every session. It's hard to know whether the child has started, left the desk mid-way, or how many focus minutes were actually completed today.",
-          solution: "ONBI records study status in real time and sends clear updates to parents' phones. You can track study time, session progress, and key activity milestones — without needing to sit beside your child.",
-          icon: Compass,
-        },
-        {
-          id: 'posture' as const,
-          tabTitle: "Posture & Focus Reminders",
-          accent: "FOCUS & POSTURE",
-          title: "Children easily slouch or lose focus when studying alone",
-          description: "When self-studying, children may hunch too close to the desk, sit with poor posture, leave their seat repeatedly, or quickly become distracted. Without timely reminders, good study habits are very hard to maintain.",
-          solution: "ONBI monitors key signals throughout the session and delivers gentle reminders whenever the child slouches or loses focus. This helps them maintain a better study rhythm — giving parents peace of mind throughout the process.",
-          icon: MessageSquareX,
-        },
-      ]
-    },
-    vi: {
-      tag: "Nỗi lo của ba mẹ.",
-      titleLine1: "Tự học tại nhà.",
-      titleLine2: "Vì sao lại khó khăn?",
-      description: "Việc học hiện đại phụ thuộc quá nhiều vào màn hình gây nghiện, khiến ba mẹ mệt mỏi và kiệt sức giữa công việc bận rộn cả ngày và kèm con học mỗi tối.",
-      solutionLabel: "GIẢI PHÁP ONBI",
-      problems: [
-        {
-          id: 'pomodoro' as const,
-          tabTitle: "Tự động Pomodoro",
-          accent: "NHỊP HỌC 25/5",
-          title: "Con khó bắt đầu và duy trì phiên học đều đặn",
-          description: "Nhiều trẻ ngồi vào bàn nhưng không biết bắt đầu từ đâu, dễ trì hoãn hoặc học ngắt quãng. Khi không có một nhịp học rõ ràng, việc tập trung lâu và xây dựng thói quen mỗi ngày trở nên rất khó.",
-          solution: "ONBI tự động kích hoạt chu trình 25 phút tập trung + 5 phút nghỉ khi con vào bàn học. Robot giúp con bắt đầu đúng lúc, học theo nhịp ổn định và từng bước hình thành thói quen tự học bền vững.",
-          icon: Timer,
-        },
-        {
-          id: 'tracking' as const,
-          tabTitle: "Theo dõi học tập realtime",
-          accent: "CẬP NHẬT THEO THỜI GIAN THỰC",
-          title: "Ba mẹ không thể luôn ở cạnh để biết con có thực sự học",
-          description: "Phụ huynh bận rộn không thể theo sát từng buổi học. Vì vậy, rất khó biết con đã bắt đầu học chưa, có rời bàn giữa chừng không, hay hôm nay đã hoàn thành được bao nhiêu thời gian tập trung.",
-          solution: "ONBI ghi nhận trạng thái học tập theo thời gian thực và gửi cập nhật rõ ràng về điện thoại phụ huynh. Ba mẹ có thể theo dõi thời gian học, tiến độ phiên tập trung và các mốc hoạt động quan trọng mà không cần ngồi kèm trực tiếp.",
-          icon: Compass,
-        },
-        {
-          id: 'posture' as const,
-          tabTitle: "Nhắc tư thế & mất tập trung",
-          accent: "TẬP TRUNG & TƯ THẾ",
-          title: "Con dễ ngồi sai tư thế hoặc mất tập trung khi học một mình",
-          description: "Khi tự học, trẻ có thể cúi quá gần bàn, ngồi lệch tư thế, rời chỗ liên tục hoặc nhanh chóng bị xao nhãng. Nếu không được nhắc đúng lúc, thói quen học tốt rất khó được duy trì lâu dài.",
-          solution: "ONBI theo dõi các dấu hiệu cần lưu ý trong suốt phiên học và đưa ra nhắc nhở nhẹ nhàng khi con ngồi sai tư thế hoặc mất tập trung. Nhờ đó, con giữ được nhịp học tốt hơn và ba mẹ cũng yên tâm hơn trong quá trình đồng hành.",
-          icon: MessageSquareX,
-        },
-      ]
-    }
-  }[language];
+  const problemsWithIcon = t.problems.map((p) => ({ ...p, icon: ICON_MAP[p.id] }));
 
   return (
     <div
@@ -139,7 +64,7 @@ export default function ParentProblems() {
 
           {/* ── LEFT COLUMN: Apple-style Vertical Inline Accordion ── */}
           <div className="w-full lg:w-[45%] flex flex-col justify-start space-y-4 lg:space-y-5">
-            {t.problems.map((prob) => {
+            {problemsWithIcon.map((prob) => {
               const TabIcon = prob.icon;
               const isSelected = activeTab === prob.id;
 
