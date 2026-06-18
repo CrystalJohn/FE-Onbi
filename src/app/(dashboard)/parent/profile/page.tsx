@@ -34,6 +34,10 @@ export default function ParentProfilePage() {
 
   const getToken = () => localStorage.getItem('token') || '';
 
+  // Selected avatar state to hold file before saving
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+
   // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
@@ -55,6 +59,16 @@ export default function ParentProfilePage() {
     fetchProfile();
   }, []);
 
+  // Handle avatar file selection
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setSelectedAvatarFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setAvatarPreviewUrl(objectUrl);
+  };
+
   // Update profile
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +77,8 @@ export default function ParentProfilePage() {
     setError('');
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parents/profile`, {
+      // 1. Update text info first
+      const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parents/profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -72,51 +87,44 @@ export default function ParentProfilePage() {
         body: JSON.stringify({ fullName, phone }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || 'Cập nhật thất bại');
+      if (!profileRes.ok) {
+        const data = await profileRes.json();
+        setError(data.message || 'Cập nhật thông tin thất bại');
+        setSaving(false);
         return;
       }
+      
+      let updatedProfile = await profileRes.json();
 
-      const updated = await res.json();
-      setProfile(updated);
-      setMessage('Cập nhật thành công!');
+      // 2. Upload avatar if selected
+      if (selectedAvatarFile) {
+        const formData = new FormData();
+        formData.append('file', selectedAvatarFile);
+
+        const avatarRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parents/avatar`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${getToken()}` },
+          body: formData,
+        });
+
+        if (!avatarRes.ok) {
+          const data = await avatarRes.json();
+          setError(data.message || 'Cập nhật thông tin thành công nhưng upload avatar thất bại');
+          setSaving(false);
+          return;
+        }
+        
+        updatedProfile = await avatarRes.json();
+        setSelectedAvatarFile(null);
+        setAvatarPreviewUrl(null);
+      }
+
+      setProfile(updatedProfile);
+      setMessage('Lưu thay đổi thành công!');
     } catch {
       setError('Không thể kết nối server');
     } finally {
       setSaving(false);
-    }
-  };
-
-  // Upload avatar
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setMessage('');
-    setError('');
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parents/avatar`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${getToken()}` },
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || 'Upload avatar thất bại');
-        return;
-      }
-
-      const updated = await res.json();
-      setProfile(updated);
-      setMessage('Avatar đã cập nhật!');
-    } catch {
-      setError('Upload avatar thất bại - không thể kết nối server');
     }
   };
 
@@ -165,13 +173,18 @@ export default function ParentProfilePage() {
       <div className="flex items-center gap-6">
         <div className="relative">
           <img
-            src={profile?.avatarUrl ? `${process.env.NEXT_PUBLIC_API_URL}${profile.avatarUrl}` : 'https://ui-avatars.com/api/?name=User&background=random&color=fff&size=128'}
+            src={avatarPreviewUrl || (profile?.avatarUrl ? (profile.avatarUrl.startsWith('http') ? profile.avatarUrl : `${process.env.NEXT_PUBLIC_API_URL}${profile.avatarUrl}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.fullName || 'User')}&background=0ea5e9&color=fff&size=128`)}
             alt="Avatar"
             className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+            onError={(e) => {
+              if (!avatarPreviewUrl) {
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.fullName || 'User')}&background=0ea5e9&color=fff&size=128`;
+              }
+            }}
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 w-7 h-7 bg-cyan-500 text-white rounded-full flex items-center justify-center shadow-md hover:bg-cyan-600 transition-colors"
+            className="absolute bottom-0 right-0 w-7 h-7 bg-[#000080] text-white rounded-full flex items-center justify-center shadow-md hover:bg-[#000066] transition-colors"
           >
             <Camera className="w-3.5 h-3.5" />
           </button>
@@ -179,7 +192,7 @@ export default function ParentProfilePage() {
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/gif,image/webp"
-            onChange={handleAvatarUpload}
+            onChange={handleAvatarSelect}
             className="hidden"
           />
         </div>

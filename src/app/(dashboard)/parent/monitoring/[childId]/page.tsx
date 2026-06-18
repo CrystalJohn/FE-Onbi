@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Play, Square, Clock, Camera, Activity } from 'lucide-react';
+import { ArrowLeft, Play, Square, Clock, Camera, Activity, AlertCircle } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
 
 interface Session {
@@ -35,18 +35,22 @@ export default function MonitoringDashboardPage({
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [assignedDeviceId, setAssignedDeviceId] = useState<number | null>(null);
 
   const getToken = () => localStorage.getItem('token') || '';
 
-  // Fetch sessions history
+  // Fetch sessions history & get device ID workaround
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [historyRes, currentRes] = await Promise.all([
+        const [historyRes, currentRes, childrenRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/children/${childId}/monitoring/history`, {
             headers: { Authorization: `Bearer ${getToken()}` },
           }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/children/${childId}/monitoring/current`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
             headers: { Authorization: `Bearer ${getToken()}` },
           }),
         ]);
@@ -59,6 +63,19 @@ export default function MonitoringDashboardPage({
         if (currentRes.ok) {
           const data = await currentRes.json();
           if (data && data.id) setCurrentSession(data);
+        }
+
+        // WORKAROUND: Trích xuất deviceId được gán cho bé từ danh sách children
+        if (childrenRes.ok) {
+          const childrenData = await childrenRes.json();
+          const currentChild = childrenData.find((c: any) => c.id.toString() === childId);
+          if (currentChild) {
+            if (currentChild.assignments && currentChild.assignments.length > 0 && currentChild.assignments[0].device) {
+              setAssignedDeviceId(currentChild.assignments[0].device.id);
+            } else if (currentChild.devices && currentChild.devices.length > 0) {
+              setAssignedDeviceId(currentChild.devices[0].id);
+            }
+          }
         }
       } catch {
         setError('Không thể tải dữ liệu');
@@ -100,12 +117,21 @@ export default function MonitoringDashboardPage({
   }, [childId]);
 
   const handleStart = async () => {
+    if (!assignedDeviceId) {
+      setError('Không tìm thấy robot nào được gán cho bé này. Vui lòng gán thiết bị trước.');
+      return;
+    }
+
     setActionLoading(true);
     setError('');
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/children/${childId}/monitoring/start`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getToken()}` 
+        },
+        body: JSON.stringify({ deviceId: assignedDeviceId.toString() }),
       });
       if (!res.ok) {
         const data = await res.json();

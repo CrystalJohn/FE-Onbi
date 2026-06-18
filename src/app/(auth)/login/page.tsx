@@ -43,7 +43,8 @@ function LoginForm() {
       if (payload.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
-        router.push('/parent/children');
+        // Redirect parent to setup first to check if they need to complete onboarding
+        router.push('/setup');
       }
     } catch {
       setError('Không thể kết nối server');

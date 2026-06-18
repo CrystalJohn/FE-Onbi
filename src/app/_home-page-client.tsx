@@ -70,14 +70,14 @@ export default function HomePageClient({ lang, t }: Props) {
         />
 
         <div className="w-full relative pt-16 md:pt-20 z-10">
-          <section id="hero_section" className="scroll-mt-24 relative min-h-[calc(100dvh-80px)] md:min-h-[calc(100vh-80px)] flex flex-col justify-start py-0">
+          <section id="hero_section" className="scroll-mt-24 relative flex flex-col justify-start py-0 max-w-[1920px] mx-auto">
             <motion.div
               className="relative z-10 flex flex-1 items-start justify-center w-full pt-0"
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             >
-              <div className="relative w-full min-h-[calc(100dvh-80px)] overflow-hidden bg-black md:min-h-0 md:aspect-video transform -translate-y-12 md:-translate-y-16 lg:-translate-y-20">
+              <div className="relative w-full aspect-video overflow-hidden bg-black transform -translate-y-12 md:-translate-y-16 lg:-translate-y-20">
                 <HeroThemeVideo />
                 <div
                   className="absolute inset-0 pointer-events-none z-10"
@@ -86,11 +86,11 @@ export default function HomePageClient({ lang, t }: Props) {
                   }}
                   aria-hidden="true"
                 />
-                <div className="absolute inset-0 flex items-start pt-24 md:pt-32 lg:pt-40 px-6 sm:px-10 md:px-16 lg:px-24 pointer-events-none z-20">
-                  <div className="max-w-3xl space-y-5 sm:space-y-6 text-white">
+                <div className="absolute inset-0 flex items-start pt-[12%] px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 pointer-events-none z-20">
+                  <div className="max-w-3xl space-y-5 sm:space-y-6 text-white w-full">
                     <BlurFade delay={0.2}>
                       <h1
-                        className="font-display text-3xl sm:text-4xl md:text-[3.4rem] lg:text-[4.5rem] font-semibold tracking-tight leading-[1.03]"
+                        className="font-display text-3xl sm:text-4xl md:text-[3rem] lg:text-[4vw] xl:text-[4.5rem] font-semibold tracking-tight leading-[1.03]"
                         style={{ textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
                       >
                         {live.hero.title}
@@ -101,7 +101,7 @@ export default function HomePageClient({ lang, t }: Props) {
                         {live.hero.description}
                       </p>
                     </BlurFade>
-                    <div className="flex flex-col sm:flex-row items-start gap-3 pt-1 pointer-events-auto">
+                    <div className="flex flex-col sm:flex-row items-start gap-3 md:pt-4 pointer-events-auto">
                       <button
                         id="hero_primary_cta"
                         onClick={() => scrollToId('pricing_section')}

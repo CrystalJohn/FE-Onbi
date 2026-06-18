@@ -1,14 +1,31 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import Link from 'next/link';
+import { Clock, Camera, BookOpen, Monitor, ExternalLink, Activity } from 'lucide-react';
+
+interface DeviceInfo {
+  id: number;
+  serialNumber: string;
+  model?: string;
+}
+
+interface TrackingData {
+  snapshotCount: number;
+  studySessions: number;
+  totalStudySeconds: number;
+  completedCycles: number;
+}
 
 interface Session {
   id: number;
+  childId: string;
   startTime: string;
   endTime?: string;
   status: string;
   child?: { id: number; name: string };
+  device?: DeviceInfo | null;
+  tracking?: TrackingData;
 }
 
 export default function AdminMonitoringSessionsPage() {
@@ -44,6 +61,13 @@ export default function AdminMonitoringSessionsPage() {
     return `${Math.floor(mins / 60)}h ${mins % 60}m`;
   };
 
+  const formatStudyTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    return `${mins} phút`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -60,42 +84,130 @@ export default function AdminMonitoringSessionsPage() {
       </div>
 
       {loading ? (
-        <div className="text-sm text-gray-500">Đang tải...</div>
+        <div className="text-sm text-gray-500">Dang tai...</div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+          <table className="w-full min-w-[900px] text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">ID</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Trẻ</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Bắt đầu</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Thời lượng</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Tre</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Thiet bi</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Bat dau</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Thoi luong</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">Anh</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">Hoc tap</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Trang thai</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">Theo doi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {sessions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">Không có session nào</td>
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">Khong co session nao</td>
                 </tr>
               ) : (
                 sessions.map((session) => (
-                  <tr key={session.id} className="hover:bg-gray-50">
+                  <tr key={session.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-4 py-3 font-mono text-gray-600">#{session.id}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900">{session.child?.name || '—'}</td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {new Date(session.startTime).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5" />
-                      {getDuration(session.startTime, session.endTime)}
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-slate-900">{session.child?.name || '---'}</div>
+                      {session.child?.id && (
+                        <div className="text-xs text-gray-400">ID: {session.child.id}</div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                        session.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                      {session.device ? (
+                        <div>
+                          <div className="flex items-center gap-1.5 text-slate-900">
+                            <Monitor className="w-3.5 h-3.5 text-gray-400" />
+                            <span>{session.device.serialNumber}</span>
+                          </div>
+                          {session.device.model && (
+                            <div className="text-xs text-gray-400 ml-5">{session.device.model}</div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">---</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                      {new Date(session.startTime).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Clock className="w-3.5 h-3.5" />
+                        {getDuration(session.startTime, session.endTime)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {session.tracking ? (
+                        <div className="flex flex-col items-center gap-0.5">
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <Camera className="w-3.5 h-3.5" />
+                            <span className="font-semibold">{session.tracking.snapshotCount}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">---</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {session.tracking && session.tracking.studySessions > 0 ? (
+                        <div className="flex flex-col items-center gap-0.5">
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <BookOpen className="w-3.5 h-3.5" />
+                            <span className="font-semibold">{session.tracking.completedCycles}</span>
+                            <span className="text-xs text-gray-400">/{session.tracking.studySessions} buoi</span>
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            {formatStudyTime(session.tracking.totalStudySeconds)}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">---</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                        session.status === 'active'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-500'
                       }`}>
-                        {session.status === 'active' ? 'Đang chạy' : 'Kết thúc'}
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          session.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                        }`} />
+                        {session.status === 'active' ? 'Dang chay' : 'Ket thuc'}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {session.child ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <Link
+                            href={`/parent/monitoring/${session.child.id}`}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors"
+                            title="Xem giam sat"
+                          >
+                            <Activity className="w-4 h-4" />
+                          </Link>
+                          <Link
+                            href={`/parent/monitoring/${session.child.id}/snapshots`}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors"
+                            title="Xem anh"
+                          >
+                            <Camera className="w-4 h-4" />
+                          </Link>
+                          <Link
+                            href={`/parent/monitoring/${session.child.id}/pomodoro`}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors"
+                            title="Xem Pomodoro"
+                          >
+                            <Clock className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">---</span>
+                      )}
                     </td>
                   </tr>
                 ))

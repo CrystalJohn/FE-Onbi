@@ -53,13 +53,26 @@ export default function DevicesPage() {
         // Extract devices from children data if available
         const allDevices: Device[] = [];
         for (const child of childData) {
-          if (child.devices) {
+          // Check for assignments field (based on Backend response structure)
+          if (child.assignments && child.assignments.length > 0) {
+            for (const assignment of child.assignments) {
+              if (assignment.device) {
+                allDevices.push({ 
+                  ...assignment.device, 
+                  child: { id: child.id, name: child.name } 
+                });
+              }
+            }
+          } else if (child.devices && child.devices.length > 0) { // Fallback if it's named 'devices'
             for (const device of child.devices) {
               allDevices.push({ ...device, child: { id: child.id, name: child.name } });
             }
           }
         }
-        setDevices(allDevices);
+        
+        // Remove duplicates if any (just in case)
+        const uniqueDevices = Array.from(new Map(allDevices.map(item => [item.id, item])).values());
+        setDevices(uniqueDevices);
       }
     } catch {
       setError('Không thể tải dữ liệu');
@@ -116,7 +129,7 @@ export default function DevicesPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getToken()}`,
         },
-        body: JSON.stringify({ deviceId: assignDeviceId, childId: assignChildId }),
+        body: JSON.stringify({ deviceId: assignDeviceId.toString(), childId: assignChildId.toString() }),
       });
 
       const data = await res.json();
@@ -149,7 +162,7 @@ export default function DevicesPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getToken()}`,
         },
-        body: JSON.stringify({ deviceId, childId }),
+        body: JSON.stringify({ deviceId: deviceId.toString(), childId: childId.toString() }),
       });
 
       if (!res.ok) {
