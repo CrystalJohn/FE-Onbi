@@ -61,6 +61,61 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Light form controls across Auth, Setup and Dashboard pages. */
+:where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,
+  select
+) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0891b2;
+}
+
+:where(input, textarea)::placeholder {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+:where(input, textarea):-webkit-autofill,
+:where(input, textarea):-webkit-autofill:hover,
+:where(input, textarea):-webkit-autofill:focus,
+:where(input, textarea):-webkit-autofill:active {
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0891b2;
+}
+
+/* Auth forms always use a light surface. Keep entered and autofilled text readable. */
+.auth-surface input {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background-color: #ffffff !important;
+  caret-color: #0891b2;
+  opacity: 1 !important;
+}
+
+.auth-surface input::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+.auth-surface input:-webkit-autofill,
+.auth-surface input:-webkit-autofill:hover,
+.auth-surface input:-webkit-autofill:focus,
+.auth-surface input:-webkit-autofill:active {
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0891b2;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s;
+}
+
 /* iOS Safe Area & Dynamic Viewport Heights */
 @supports (min-height: 100dvh) {
   .hero-height {

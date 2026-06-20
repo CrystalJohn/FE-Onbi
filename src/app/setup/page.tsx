@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Check } from 'lucide-react';
 
 export default function SetupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [children, setChildren] = useState<any[]>([]);
+  const [devices, setDevices] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchChildren = async () => {
@@ -18,12 +20,20 @@ export default function SetupPage() {
         return;
       }
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setChildren(data);
+        const headers = { Authorization: `Bearer ${token}` };
+        const [childrenRes, devicesRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/devices`, { headers }),
+        ]);
+        const childData = childrenRes.ok ? await childrenRes.json() : [];
+        const deviceData = devicesRes.ok ? await devicesRes.json() : [];
+        setChildren(childData);
+        setDevices(deviceData);
+
+        const hasAssignedDevice = deviceData.some((device: any) => device.assigned || device.assignedChildId);
+        if (childData.length > 0 && hasAssignedDevice) {
+          router.replace('/parent/dashboard');
+          return;
         }
       } catch (err) {
         console.error(err);
@@ -35,7 +45,7 @@ export default function SetupPage() {
   }, [router]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Đang tải...</div>;
+    return <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-50 via-white to-cyan-50 text-sm font-medium text-slate-500">Đang tải...</div>;
   }
 
   // Determine current step based on data
@@ -45,7 +55,7 @@ export default function SetupPage() {
   if (children.length > 0) {
     // Nếu bé đã có thiết bị -> thực ra không cần Setup nữa, có thể vào thẳng Dashboard,
     // nhưng trong luồng Setup ta có thể coi là đã xong.
-    const hasDeviceAssigned = children.some(c => c.devices && c.devices.length > 0);
+    const hasDeviceAssigned = devices.some(device => device.assigned || device.assignedChildId);
     
     if (localStorage.getItem('activatedDeviceId') || hasDeviceAssigned) {
       step = 3;
@@ -55,90 +65,98 @@ export default function SetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Illustration (Placeholder using simple CSS for now) */}
-        <div className="w-48 h-48 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-8 border border-slate-100 shadow-inner">
-          <div className="text-center">
-            <div className="text-4xl mb-2">🤖👦</div>
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-cyan-50 p-4 sm:p-6">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-indigo-200/20 blur-3xl" />
+
+      <section className="relative w-full max-w-[640px] overflow-hidden rounded-[32px] border border-white/80 bg-white/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:p-8 lg:p-10">
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/2 h-48 w-80 -translate-x-1/2 rounded-full bg-cyan-300/20 blur-3xl" />
+        <div className="relative z-10">
+          <div className="relative mx-auto h-[88px] w-[88px] overflow-hidden rounded-full border border-white bg-white/90 p-1 shadow-[0_12px_30px_rgba(15,23,42,0.12)] sm:h-28 sm:w-28">
+            <Image
+              src="/logo_onbi.jpg"
+              alt="Logo ONBI"
+              fill
+              priority
+              sizes="(max-width: 640px) 88px, 112px"
+              className="object-cover"
+            />
           </div>
-        </div>
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-[#000080] mb-2">Thiết lập ONBI</h1>
-          <p className="text-sm text-slate-500 px-4">
-            Hoàn thành 3 bước đơn giản dưới đây để bắt đầu trải nghiệm Guided Care.
-          </p>
-        </div>
+          {/* Header */}
+          <div className="mt-5 text-center sm:mt-6">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Bước {step} / 3</p>
+            <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[#0B008B] sm:text-3xl">Thiết lập ONBI</h1>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
+              Hoàn thành 3 bước đơn giản dưới đây để bắt đầu trải nghiệm Guided Care.
+            </p>
+          </div>
 
-        {/* Steps List */}
-        <div className="space-y-3 mb-8">
+          {/* Steps List */}
+          <div className="mt-6 space-y-3 sm:mt-7">
           {/* Step 1 */}
-          <div className={`p-4 rounded-xl border ${step === 1 ? 'border-blue-500 bg-blue-50/50 shadow-sm relative overflow-hidden' : 'border-slate-100 bg-white'}`}>
-            {step === 1 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />}
-            <div className="flex gap-4">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${step === 1 ? 'bg-blue-600 text-white' : step > 1 ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                {step > 1 ? <Check className="w-4 h-4" /> : '1'}
+          <div className={`relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-colors sm:p-5 ${step === 1 ? 'border-cyan-200/80 bg-gradient-to-r from-indigo-50/90 to-cyan-50/80 shadow-[0_10px_30px_rgba(11,0,139,0.07)]' : 'border-white/80 bg-white/70'}`}>
+            <div className="flex items-start gap-4">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-sm ${step === 1 ? 'bg-[#0B008B] text-white' : step > 1 ? 'bg-emerald-500 text-white' : 'bg-cyan-50 text-slate-500'}`}>
+                {step > 1 ? <Check className="h-4 w-4" aria-hidden="true" /> : '1'}
               </div>
-              <div>
-                <h3 className={`font-bold ${step === 1 ? 'text-slate-900' : 'text-slate-700'}`}>Tạo hồ sơ cho bé</h3>
-                <p className="text-sm text-slate-500 mt-0.5">Thêm tên, ngày sinh và giới tính của bé.</p>
+              <div className="min-w-0 pt-0.5">
+                <h3 className="font-bold text-slate-900">Tạo hồ sơ cho bé</h3>
+                <p className="mt-1 text-sm leading-5 text-slate-600">Thêm tên, ngày sinh và giới tính của bé.</p>
               </div>
             </div>
           </div>
 
           {/* Step 2 */}
-          <div className={`p-4 rounded-xl border ${step === 2 ? 'border-blue-500 bg-blue-50/50 shadow-sm relative overflow-hidden' : 'border-slate-100 bg-white'}`}>
-            {step === 2 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />}
-            <div className="flex gap-4">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${step === 2 ? 'bg-blue-600 text-white' : step > 2 ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                {step > 2 ? <Check className="w-4 h-4" /> : '2'}
+          <div className={`relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-colors sm:p-5 ${step === 2 ? 'border-cyan-200/80 bg-gradient-to-r from-indigo-50/90 to-cyan-50/80 shadow-[0_10px_30px_rgba(11,0,139,0.07)]' : 'border-white/80 bg-white/70'}`}>
+            <div className="flex items-start gap-4">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-sm ${step === 2 ? 'bg-[#0B008B] text-white' : step > 2 ? 'bg-emerald-500 text-white' : 'bg-cyan-50 text-slate-500'}`}>
+                {step > 2 ? <Check className="h-4 w-4" aria-hidden="true" /> : '2'}
               </div>
-              <div>
-                <h3 className={`font-bold ${step === 2 ? 'text-slate-900' : 'text-slate-700'}`}>Kích hoạt robot</h3>
-                <p className="text-sm text-slate-500 mt-0.5">Nhập mã kích hoạt đi kèm thiết bị ONBI.</p>
+              <div className="min-w-0 pt-0.5">
+                <h3 className="font-bold text-slate-900">Kích hoạt robot</h3>
+                <p className="mt-1 text-sm leading-5 text-slate-600">Nhập mã kích hoạt đi kèm thiết bị ONBI.</p>
               </div>
             </div>
           </div>
 
           {/* Step 3 */}
-          <div className={`p-4 rounded-xl border ${step === 3 ? 'border-blue-500 bg-blue-50/50 shadow-sm relative overflow-hidden' : 'border-slate-100 bg-white'}`}>
-            {step === 3 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />}
-            <div className="flex gap-4">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${step === 3 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+          <div className={`relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-colors sm:p-5 ${step === 3 ? 'border-cyan-200/80 bg-gradient-to-r from-indigo-50/90 to-cyan-50/80 shadow-[0_10px_30px_rgba(11,0,139,0.07)]' : 'border-white/80 bg-white/70'}`}>
+            <div className="flex items-start gap-4">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-sm ${step === 3 ? 'bg-[#0B008B] text-white' : 'bg-cyan-50 text-slate-500'}`}>
                 3
               </div>
-              <div>
-                <h3 className={`font-bold ${step === 3 ? 'text-slate-900' : 'text-slate-700'}`}>Gán robot cho bé</h3>
-                <p className="text-sm text-slate-500 mt-0.5">Liên kết robot với hồ sơ của bé để bắt đầu giám sát.</p>
+              <div className="min-w-0 pt-0.5">
+                <h3 className="font-bold text-slate-900">Gán robot cho bé</h3>
+                <p className="mt-1 text-sm leading-5 text-slate-600">Liên kết robot với hồ sơ của bé để bắt đầu giám sát.</p>
               </div>
             </div>
           </div>
-        </div>
+          </div>
 
-        {/* Action Button */}
-        <button
-          onClick={() => {
-            if (step === 1) router.push('/setup/step1');
-            if (step === 2) router.push('/setup/step2');
-            if (step === 3) router.push('/setup/step3');
-          }}
-          className="w-full py-3.5 rounded-full bg-[#000080] hover:bg-[#000066] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-md"
-        >
-          {step === 1 ? 'Tạo hồ sơ cho bé' : step === 2 ? 'Kích hoạt robot' : 'Gán robot cho bé'}
-          <ArrowRight className="w-4 h-4" />
-        </button>
-        
-        {step > 1 && (
+          {/* Action Button */}
           <button
-            onClick={() => router.push('/parent/children')}
-            className="w-full mt-4 py-2 text-sm text-slate-500 hover:text-slate-700"
+            onClick={() => {
+              if (step === 1) router.push('/setup/step1');
+              if (step === 2) router.push('/setup/step2');
+              if (step === 3) router.push('/setup/step3');
+            }}
+            className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#0B008B] px-6 text-sm font-bold text-white shadow-[0_12px_28px_rgba(11,0,139,0.24)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2"
           >
-            Bỏ qua thiết lập, vào trang quản lý
+            {step === 1 ? 'Tạo hồ sơ cho bé' : step === 2 ? 'Kích hoạt robot' : 'Gán robot cho bé'}
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
-        )}
-      </div>
-    </div>
+
+          {step > 1 && (
+            <button
+              onClick={() => router.push('/parent/dashboard')}
+              className="mt-3 min-h-11 w-full rounded-full px-4 text-sm font-medium text-slate-500 transition-colors hover:bg-white/70 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+            >
+              Bỏ qua thiết lập, vào trang quản lý
+            </button>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }

@@ -1,18 +1,16 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, X, User, Calendar, Pencil, Trash2, GraduationCap } from 'lucide-react';
+import { Bot, CalendarDays, History, Images, Pencil, Radio, Settings2, Timer, Trash2 } from 'lucide-react';
+import { api } from '@/lib/api';
+import type { Child, MonitoringSession } from '@/types';
 
-interface Child {
-  id: number;
-  name: string;
-  dateOfBirth: string;
-  gender: string;
-}
+interface ChildDevice { deviceId: string; serialNumber: string; model?: string; status: string; }
+interface ChildHub extends Child { device: ChildDevice | null; session: MonitoringSession | null; }
 
 export default function ChildrenListPage() {
-  const [children, setChildren] = useState<Child[]>([]);
+  const [children, setChildren] = useState<ChildHub[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
@@ -21,224 +19,113 @@ export default function ChildrenListPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const getToken = () => localStorage.getItem('token') || '';
-
-  const fetchChildren = async () => {
+  const loadChildren = useCallback(async () => {
+    setLoading(true); setError('');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      setChildren(data);
-    } catch {
-      setError('Không thể tải danh sách');
-    } finally {
-      setLoading(false);
-    }
-  };
+      const { data: childData } = await api.get<Child[]>('/children');
+      const details = await Promise.all(childData.map(async (child) => {
+        const [deviceResponse, sessionResponse] = await Promise.all([
+          api.get<ChildDevice[]>(`/children/${child.id}/devices`),
+          api.get<MonitoringSession | { message: string }>(`/children/${child.id}/monitoring/current`),
+        ]);
+        return { ...child, device: deviceResponse.data[0] ?? null, session: 'id' in sessionResponse.data ? sessionResponse.data : null };
+      }));
+      setChildren(details);
+    } catch { setError('Không thể tải hồ sơ trẻ. Vui lòng thử lại.'); }
+    finally { setLoading(false); }
+  }, []);
 
-  useEffect(() => { fetchChildren(); }, []);
+  useEffect(() => { void loadChildren(); }, [loadChildren]);
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormLoading(true);
-    setError('');
-
+  const addChild = async (event: React.FormEvent) => {
+    event.preventDefault(); setFormLoading(true); setError('');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getToken()}`,
-        },
-        body: JSON.stringify({ name, dateOfBirth, gender }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || 'Thêm thất bại');
-        return;
-      }
-
-      setName('');
-      setDateOfBirth('');
-      setGender('male');
-      setShowForm(false);
-      fetchChildren();
-    } catch {
-      setError('Không thể kết nối server');
-    } finally {
-      setFormLoading(false);
-    }
+      await api.post('/children', { name, dateOfBirth, gender });
+      setName(''); setDateOfBirth(''); setGender('male'); setShowForm(false);
+      await loadChildren();
+    } catch (reason: any) { setError(reason?.response?.data?.message ?? 'Không thể thêm hồ sơ trẻ.'); }
+    finally { setFormLoading(false); }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Bạn có chắc muốn xóa hồ sơ này?')) return;
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/children/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      if (!res.ok) throw new Error();
-      fetchChildren();
-    } catch {
-      setError('Xóa thất bại');
-    }
+  const deleteChild = async (child: ChildHub) => {
+    if (!window.confirm(`Xóa hồ sơ của ${child.name}? Thao tác này không thể hoàn tác.`)) return;
+    try { await api.delete(`/children/${child.id}`); await loadChildren(); }
+    catch { setError('Không thể xóa hồ sơ trẻ.'); }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('vi-VN');
-  };
+  if (loading) return <div className="mx-auto max-w-6xl animate-pulse space-y-5"><div className="h-14 w-72 rounded-xl bg-slate-200" /><div className="grid gap-5 lg:grid-cols-2"><div className="h-96 rounded-3xl bg-slate-200" /><div className="h-96 rounded-3xl bg-slate-200" /></div></div>;
 
-  const getAge = (dateStr: string) => {
-    const birth = new Date(dateStr);
-    const now = new Date();
-    return now.getFullYear() - birth.getFullYear();
-  };
+  return <div className="mx-auto max-w-6xl space-y-5">
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Gia đình của bạn</p><h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Hồ sơ trẻ</h1><p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-600">Quản lý hồ sơ, thiết bị và hoạt động giám sát theo từng bé.</p></div><button onClick={() => setShowForm((value) => !value)} className="min-h-11 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">{showForm ? 'Đóng biểu mẫu' : 'Thêm học sinh'}</button></header>
 
-  if (loading) return <div className="text-sm text-slate-500">Đang tải...</div>;
+    {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
 
-  return (
-    <div className="max-w-4xl space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#000080]">Hồ sơ học sinh</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#000080] hover:bg-[#000066] text-white text-sm font-semibold transition-all"
-        >
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? 'Đóng' : 'Thêm học sinh'}
-        </button>
+    {showForm && <form onSubmit={addChild} className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3 sm:p-6"><label className="text-sm font-semibold text-slate-700">Tên của bé<input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Bé An" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" /></label><label className="text-sm font-semibold text-slate-700">Ngày sinh<input required type="date" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" /></label><label className="text-sm font-semibold text-slate-700">Giới tính<select value={gender} onChange={(event) => setGender(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"><option value="male">Nam</option><option value="female">Nữ</option></select></label><button disabled={formLoading} className="min-h-12 rounded-xl bg-cyan-500 px-5 font-semibold text-[#000033] hover:bg-cyan-400 disabled:opacity-50 sm:col-span-3">{formLoading ? 'Đang thêm…' : 'Lưu hồ sơ học sinh'}</button></form>}
+
+    {children.length === 0 ? <section className="rounded-[32px] border border-white/80 bg-white/70 px-6 py-16 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl"><h2 className="text-lg font-bold text-slate-900">Chưa có hồ sơ trẻ</h2><p className="mt-2 text-sm text-slate-500">Thêm hồ sơ đầu tiên để bắt đầu kết nối thiết bị ONBI.</p></section> : <section aria-label="Danh sách hồ sơ trẻ" className="grid items-start gap-6 xl:grid-cols-2">{children.map((child) => <StudentCard key={child.id} child={child} onDelete={() => void deleteChild(child)} />)}</section>}
+  </div>;
+}
+
+function StudentCard({ child, onDelete }: { child: ChildHub; onDelete: () => void }) {
+  const monitoring = child.session?.status === 'active';
+  return <article className="group relative w-full max-w-[560px] overflow-hidden rounded-[28px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 shadow-[0_20px_60px_rgba(15,23,42,0.09)]">
+    <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/2 h-48 w-80 -translate-x-1/2 rounded-full bg-cyan-300/25 blur-3xl" />
+    <div className="relative z-10 p-5">
+      <div className="flex items-start gap-4">
+        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[19px] bg-gradient-to-br from-[#0B008B] to-indigo-500 text-xl font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)]">
+          {child.name.charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1 pt-1">
+          <h2 className="truncate text-xl font-bold tracking-tight text-slate-950">{child.name}</h2>
+          <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-600">
+            <CalendarDays aria-hidden="true" className="h-4 w-4 text-cyan-700" />
+            <span>{formatDate(child.dateOfBirth)} · {age(child.dateOfBirth)} tuổi · {child.gender === 'male' ? 'Nam' : 'Nữ'}</span>
+          </p>
+        </div>
+        <Link href={`/parent/children/${child.id}`} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-4 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur transition-colors duration-200 hover:border-cyan-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2">
+          <Pencil aria-hidden="true" className="h-4 w-4" />
+          <span className="hidden sm:inline">Chỉnh sửa</span>
+        </Link>
       </div>
 
-      {error && (
-        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{error}</div>
-      )}
-
-      {/* Add Form */}
-      {showForm && (
-        <form onSubmit={handleAdd} className="rounded-2xl border border-slate-200/60 bg-white/70 p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-[#000080]">Thêm học sinh mới</h2>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Họ tên</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Bé An"
-              required
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all"
-            />
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-cyan-50 text-cyan-800"><Bot aria-hidden="true" className="h-[18px] w-[18px]" /></span>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Thiết bị</p>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Ngày sinh</label>
-            <input
-              type="date"
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
-              required
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all"
-            />
+          {child.device ? <><p className="mt-3 font-bold text-slate-950">{child.device.serialNumber}</p><p className="mt-1 text-sm leading-5 text-slate-600">{child.device.model || 'Robot ONBI'} · {deviceStatus(child.device.status)}</p></> : <><p className="mt-3 font-bold text-slate-950">Chưa kết nối robot</p><p className="mt-1 text-sm leading-5 text-slate-600">Kích hoạt và gán một thiết bị cho bé.</p></>}
+        </section>
+        <section className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className={`grid h-9 w-9 place-items-center rounded-full ${monitoring ? 'bg-emerald-50 text-emerald-700' : 'bg-indigo-50 text-indigo-700'}`}><Radio aria-hidden="true" className="h-[18px] w-[18px]" /></span>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Giám sát</p>
           </div>
+          <p className="mt-3 font-bold text-slate-950">{monitoring ? 'Đang hoạt động' : 'Chưa có phiên đang chạy'}</p>
+          <p className="mt-1 text-sm leading-5 text-slate-600">{monitoring && child.session ? `Bắt đầu ${formatTime(child.session.startedAt)}` : 'Sẵn sàng khi bạn cần theo dõi.'}</p>
+        </section>
+      </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Giới tính</label>
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all"
-            >
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={formLoading}
-            className="px-6 py-2.5 rounded-xl bg-[#000080] hover:bg-[#000066] text-white font-semibold text-sm transition-all disabled:opacity-50"
-          >
-            {formLoading ? 'Đang thêm...' : 'Thêm hồ sơ'}
-          </button>
-        </form>
-      )}
-
-      {/* Children Cards */}
-      {children.length === 0 ? (
-        <div className="text-center py-16 rounded-2xl border border-slate-200/60 bg-white/70 shadow-sm">
-          <GraduationCap className="w-14 h-14 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm text-slate-500">Chưa có hồ sơ học sinh nào</p>
-          <p className="text-xs text-slate-400 mt-1">Nhấn &quot;Thêm học sinh&quot; để bắt đầu</p>
+      <div className="mt-4 space-y-2.5">
+        <Link href={child.device ? `/parent/monitoring/${child.id}` : '/parent/devices'} className="flex min-h-12 w-full items-center justify-center rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">
+          {monitoring ? 'Mở giám sát' : child.device ? 'Bắt đầu giám sát' : 'Kết nối thiết bị'}
+        </Link>
+        <div className="grid grid-cols-2 gap-3">
+          <Link href={`/parent/monitoring/${child.id}/history`} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-4 text-sm font-semibold text-slate-700 shadow-sm transition-colors duration-200 hover:border-cyan-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"><History aria-hidden="true" className="h-4 w-4" />Lịch sử</Link>
+          <Link href={`/parent/monitoring/${child.id}/pomodoro`} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-4 text-sm font-semibold text-slate-700 shadow-sm transition-colors duration-200 hover:border-cyan-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"><Timer aria-hidden="true" className="h-4 w-4" />Pomodoro</Link>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {children.map((child) => (
-            <div
-              key={child.id}
-              className="relative rounded-2xl border border-slate-200/60 bg-white/70 p-5 shadow-sm hover:shadow-md transition-all group"
-            >
-              {/* Student card header stripe */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl bg-[#000080]" />
+      </div>
 
-              <div className="flex items-start gap-4 pt-2">
-                {/* Avatar */}
-                <div className="w-14 h-14 rounded-xl bg-[#000080] flex items-center justify-center text-white font-bold text-xl shadow-sm">
-                  {child.name.charAt(0)}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-[#000080] text-base truncate">{child.name}</h3>
-                  <div className="mt-2 space-y-1.5">
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{formatDate(child.dateOfBirth)}</span>
-                      <span className="text-slate-300">•</span>
-                      <span className="font-medium text-slate-700">{getAge(child.dateOfBirth)} tuổi</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${
-                        child.gender === 'male' 
-                          ? 'bg-slate-100 text-slate-700' 
-                          : 'bg-slate-100 text-slate-700'
-                      }`}>
-                        {child.gender === 'male' ? 'Nam' : 'Nữ'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100">
-                <Link
-                  href={`/parent/children/${child.id}`}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                  Chỉnh sửa
-                </Link>
-                <Link
-                  href={`/parent/monitoring/${child.id}`}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium text-white bg-[#000080] hover:bg-[#000066] transition-colors"
-                >
-                  Giám sát
-                </Link>
-                <button
-                  onClick={() => handleDelete(child.id)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="mt-3 flex flex-wrap items-center gap-x-1 gap-y-1 border-t border-slate-200/70 pt-2.5">
+        <Link href="/parent/devices" className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-cyan-800 transition-colors duration-200 hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"><Settings2 aria-hidden="true" className="h-4 w-4" />Quản lý thiết bị</Link>
+        <Link href={`/parent/monitoring/${child.id}/snapshots`} className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-cyan-800 transition-colors duration-200 hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"><Images aria-hidden="true" className="h-4 w-4" />Ảnh cảnh báo</Link>
+        <button onClick={onDelete} className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-50/80 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 sm:ml-auto"><Trash2 aria-hidden="true" className="h-4 w-4" />Xóa hồ sơ</button>
+      </div>
     </div>
-  );
+  </article>;
 }
+
+function formatDate(value: string) { return new Intl.DateTimeFormat('vi-VN').format(new Date(value)); }
+function formatTime(value: string) { return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(new Date(value)); }
+function age(value: string) { const birth = new Date(value); const now = new Date(); let result = now.getFullYear() - birth.getFullYear(); if (now < new Date(now.getFullYear(), birth.getMonth(), birth.getDate())) result -= 1; return result; }
+function deviceStatus(value: string) { return value === 'active' ? 'Đã kích hoạt' : value === 'deactivated' ? 'Đã vô hiệu hóa' : value; }

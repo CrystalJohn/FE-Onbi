@@ -54,10 +54,12 @@ export interface MonitoringSession {
 // Snapshot
 export interface Snapshot {
   id: string;
+  childId: string;
+  monitoringSessionId: string;
   type: SnapshotType;
   imageUrl: string;
   description?: string;
-  timestamp: string;
+  capturedAt: string;
 }
 
 // Pomodoro Config
@@ -71,10 +73,16 @@ export interface PomodoroConfig {
 // Study Session
 export interface StudySession {
   id: string;
+  childId: string;
+  monitoringSessionId: string;
   status: StudySessionStatus;
+  studyDuration: number;
+  breakDuration: number;
   cycleNumber: number;
   startedAt: string;
   endedAt?: string;
+  actualStudySeconds: number;
+  actualBreakSeconds: number;
 }
 
 // Auth responses

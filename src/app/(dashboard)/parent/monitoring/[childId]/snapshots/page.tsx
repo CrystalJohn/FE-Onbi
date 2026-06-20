@@ -9,8 +9,8 @@ interface Snapshot {
   type: string;
   imageUrl?: string;
   description?: string;
-  createdAt: string;
-  sessionId?: number;
+  capturedAt: string;
+  monitoringSessionId: string;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -185,7 +185,7 @@ export default function SnapshotsPage({
                     {TYPE_LABELS[snapshot.type] || snapshot.type}
                   </span>
                   <p className="text-xs text-gray-400">
-                    {new Date(snapshot.createdAt).toLocaleString('vi-VN', {
+                    {new Date(snapshot.capturedAt).toLocaleString('vi-VN', {
                       timeZone: 'Asia/Ho_Chi_Minh',
                     })}
                   </p>

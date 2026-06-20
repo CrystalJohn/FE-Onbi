@@ -4,15 +4,20 @@ import { useState, useEffect } from 'react';
 import { Plus, X, Wifi, WifiOff, Link2, Unlink } from 'lucide-react';
 
 interface Child {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface Device {
-  id: number;
-  activationCode: string;
+  deviceId: string;
+  serialNumber: string;
+  model?: string;
+  firmwareVersion?: string;
   status: string;
-  child?: Child | null;
+  assigned: boolean;
+  assignedChildId?: string | null;
+  assignedChildName?: string | null;
+  assignedAt?: string | null;
 }
 
 export default function DevicesPage() {
@@ -29,8 +34,8 @@ export default function DevicesPage() {
 
   // Assign form
   const [showAssign, setShowAssign] = useState(false);
-  const [assignDeviceId, setAssignDeviceId] = useState<number | ''>('');
-  const [assignChildId, setAssignChildId] = useState<number | ''>('');
+  const [assignDeviceId, setAssignDeviceId] = useState('');
+  const [assignChildId, setAssignChildId] = useState('');
   const [assigning, setAssigning] = useState(false);
 
   const getToken = () => localStorage.getItem('token') || '';
@@ -38,7 +43,7 @@ export default function DevicesPage() {
   const fetchData = async () => {
     try {
       const [devRes, childRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/devices`, {
           headers: { Authorization: `Bearer ${getToken()}` },
         }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
@@ -46,34 +51,16 @@ export default function DevicesPage() {
         }),
       ]);
 
-      if (childRes.ok) {
-        const childData = await childRes.json();
-        setChildren(childData);
-
-        // Extract devices from children data if available
-        const allDevices: Device[] = [];
-        for (const child of childData) {
-          // Check for assignments field (based on Backend response structure)
-          if (child.assignments && child.assignments.length > 0) {
-            for (const assignment of child.assignments) {
-              if (assignment.device) {
-                allDevices.push({ 
-                  ...assignment.device, 
-                  child: { id: child.id, name: child.name } 
-                });
-              }
-            }
-          } else if (child.devices && child.devices.length > 0) { // Fallback if it's named 'devices'
-            for (const device of child.devices) {
-              allDevices.push({ ...device, child: { id: child.id, name: child.name } });
-            }
-          }
-        }
-        
-        // Remove duplicates if any (just in case)
-        const uniqueDevices = Array.from(new Map(allDevices.map(item => [item.id, item])).values());
-        setDevices(uniqueDevices);
+      if (!devRes.ok || !childRes.ok) {
+        throw new Error('Failed to load devices');
       }
+
+      const [deviceData, childData] = await Promise.all([
+        devRes.json() as Promise<Device[]>,
+        childRes.json() as Promise<Child[]>,
+      ]);
+      setDevices(deviceData);
+      setChildren(childData);
     } catch {
       setError('Không thể tải dữ liệu');
     } finally {
@@ -129,7 +116,7 @@ export default function DevicesPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getToken()}`,
         },
-        body: JSON.stringify({ deviceId: assignDeviceId.toString(), childId: assignChildId.toString() }),
+        body: JSON.stringify({ deviceId: assignDeviceId, childId: assignChildId }),
       });
 
       const data = await res.json();
@@ -150,7 +137,7 @@ export default function DevicesPage() {
     }
   };
 
-  const handleUnassign = async (deviceId: number, childId: number) => {
+  const handleUnassign = async (deviceId: string, childId: string) => {
     if (!confirm('Gỡ thiết bị khỏi trẻ?')) return;
     setError('');
     setMessage('');
@@ -162,7 +149,7 @@ export default function DevicesPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${getToken()}`,
         },
-        body: JSON.stringify({ deviceId: deviceId.toString(), childId: childId.toString() }),
+        body: JSON.stringify({ deviceId, childId }),
       });
 
       if (!res.ok) {
@@ -246,13 +233,13 @@ export default function DevicesPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Thiết bị</label>
             <select
               value={assignDeviceId}
-              onChange={(e) => setAssignDeviceId(Number(e.target.value))}
+              onChange={(e) => setAssignDeviceId(e.target.value)}
               required
               className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
             >
               <option value="">Chọn thiết bị</option>
-              {devices.filter(d => !d.child).map((d) => (
-                <option key={d.id} value={d.id}>{d.activationCode} (ID: {d.id})</option>
+              {devices.filter((d) => !d.assigned).map((d) => (
+                <option key={d.deviceId} value={d.deviceId}>{d.serialNumber} (ID: {d.deviceId})</option>
               ))}
             </select>
           </div>
@@ -261,7 +248,7 @@ export default function DevicesPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Trẻ</label>
             <select
               value={assignChildId}
-              onChange={(e) => setAssignChildId(Number(e.target.value))}
+              onChange={(e) => setAssignChildId(e.target.value)}
               required
               className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
             >
@@ -293,7 +280,7 @@ export default function DevicesPage() {
         <div className="space-y-3">
           {devices.map((device) => (
             <div
-              key={device.id}
+              key={device.deviceId}
               className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4 hover:border-cyan-300 transition-colors"
             >
               <div className="flex items-center gap-4">
@@ -301,21 +288,21 @@ export default function DevicesPage() {
                   <Wifi className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-900 font-mono text-sm">{device.activationCode}</p>
+                  <p className="font-semibold text-slate-900 font-mono text-sm">{device.serialNumber}</p>
                   <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${device.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                       {device.status}
                     </span>
-                    {device.child && (
-                      <span>Gán cho: <span className="font-medium text-slate-700">{device.child.name}</span></span>
+                    {device.assigned && device.assignedChildName && (
+                      <span>Gán cho: <span className="font-medium text-slate-700">{device.assignedChildName}</span></span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {device.child && (
+              {device.assigned && device.assignedChildId && (
                 <button
-                  onClick={() => handleUnassign(device.id, device.child!.id)}
+                  onClick={() => handleUnassign(device.deviceId, device.assignedChildId!)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                 >
                   <Unlink className="w-3.5 h-3.5" />

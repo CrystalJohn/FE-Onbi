@@ -1,280 +1,52 @@
-'use client'
+'use client';
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Clock, Timer, RefreshCw } from 'lucide-react';
+import { use, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { ArrowLeft, CheckCircle2, Clock3, Save, TimerReset } from 'lucide-react';
+import { api } from '@/lib/api';
+import type { PomodoroConfig, StudySession } from '@/types';
 
-interface PomodoroConfig {
-  studyDuration: number;
-  shortBreakDuration: number;
-  longBreakDuration: number;
-  cyclesBeforeLongBreak: number;
-}
+const defaults: PomodoroConfig = { studyDuration: 25, shortBreakDuration: 5, longBreakDuration: 15, cyclesBeforeLongBreak: 4 };
 
-interface StudySession {
-  id: number;
-  startTime: string;
-  endTime?: string;
-  duration?: number;
-  subject?: string;
-}
-
-export default function PomodoroPage({
-  params,
-}: {
-  params: Promise<{ childId: string }>;
-}) {
+export default function PomodoroPage({ params }: { params: Promise<{ childId: string }> }) {
   const { childId } = use(params);
-  const router = useRouter();
-
-  const [config, setConfig] = useState<PomodoroConfig>({
-    studyDuration: 25,
-    shortBreakDuration: 5,
-    longBreakDuration: 15,
-    cyclesBeforeLongBreak: 4,
-  });
-  const [studySessions, setStudySessions] = useState<StudySession[]>([]);
-  const [loadingConfig, setLoadingConfig] = useState(true);
-  const [loadingSessions, setLoadingSessions] = useState(true);
+  const [config, setConfig] = useState(defaults);
+  const [sessions, setSessions] = useState<StudySession[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
 
-  const getToken = () => localStorage.getItem('token') || '';
-
   useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/children/${childId}/monitoring/pomodoro-config`,
-          { headers: { Authorization: `Bearer ${getToken()}` } }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setConfig({
-            studyDuration: data.studyDuration ?? 25,
-            shortBreakDuration: data.shortBreakDuration ?? 5,
-            longBreakDuration: data.longBreakDuration ?? 15,
-            cyclesBeforeLongBreak: data.cyclesBeforeLongBreak ?? 4,
-          });
-        }
-      } catch {
-        // Use defaults
-      } finally {
-        setLoadingConfig(false);
-      }
-    };
-
-    const fetchSessions = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/children/${childId}/monitoring/study-sessions`,
-          { headers: { Authorization: `Bearer ${getToken()}` } }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setStudySessions(Array.isArray(data) ? data : []);
-        }
-      } catch {
-        // No sessions
-      } finally {
-        setLoadingSessions(false);
-      }
-    };
-
-    fetchConfig();
-    fetchSessions();
+    Promise.all([
+      api.get<PomodoroConfig>(`/children/${childId}/monitoring/pomodoro-config`),
+      api.get<StudySession[]>(`/children/${childId}/monitoring/study-sessions?limit=50`),
+    ]).then(([configRes, sessionsRes]) => {
+      setConfig({ ...defaults, ...configRes.data }); setSessions(sessionsRes.data);
+    }).catch(() => setError('Không thể tải cấu hình Pomodoro.')).finally(() => setLoading(false));
   }, [childId]);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setMessage('');
-    setError('');
-
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/children/${childId}/monitoring/pomodoro-config`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify(config),
-        }
-      );
-
-      if (!res.ok) {
-         const data = await res.json();
-         setError(data.message || 'Lưu cấu hình thất bại');
-         return;
-       }
-
-       setMessage('Cấu hình đã được lưu!');
-    } catch {
-       setError('Không thể kết nối server');
-    } finally {
-      setSaving(false);
-    }
+  const save = async (event: React.FormEvent) => {
+    event.preventDefault(); setSaving(true); setError(''); setNotice('');
+    try { await api.patch(`/children/${childId}/monitoring/pomodoro-config`, config); setNotice('Đã lưu cấu hình Pomodoro.'); }
+    catch (reason: any) { setError(reason?.response?.data?.message ?? 'Không thể lưu cấu hình.'); }
+    finally { setSaving(false); }
   };
 
-   const formatDuration = (mins?: number) => {
-     if (!mins) return '--';
-     if (mins < 60) return `${mins} phút`;
-     return `${Math.floor(mins / 60)}h ${mins % 60}m`;
-  };
+  if (loading) return <div className="mx-auto max-w-5xl animate-pulse space-y-4"><div className="h-14 w-64 rounded-xl bg-slate-200" /><div className="grid gap-5 lg:grid-cols-2"><div className="h-96 rounded-3xl bg-slate-200" /><div className="h-96 rounded-3xl bg-slate-200" /></div></div>;
 
-   if (loadingConfig || loadingSessions) {
-     return <div className="text-sm text-gray-500">Đang tải...</div>;
-   }
-
-  return (
-    <div className="max-w-4xl space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.push(`/parent/monitoring/${childId}`)}
-          className="p-2 rounded-lg hover:bg-gray-100"
-        >
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
-        </button>
-        <Clock className="w-6 h-6 text-cyan-500" />
-        <h1 className="text-2xl font-bold text-slate-900">Pomodoro</h1>
-      </div>
-
-      {message && (
-        <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700">
-          {message}
-        </div>
-      )}
-      {error && (
-        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
-          {error}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Config Form */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
-          <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-            <Timer className="w-5 h-5 text-gray-500" />
-            Cấu hình thời gian
-          </h2>
-
-          <form onSubmit={handleSave} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Thời gian học (phút)
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={120}
-                value={config.studyDuration}
-                onChange={(e) =>
-                  setConfig({ ...config, studyDuration: Number(e.target.value) })
-                }
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Nghỉ ngắn (phút)
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={30}
-                value={config.shortBreakDuration}
-                onChange={(e) =>
-                  setConfig({ ...config, shortBreakDuration: Number(e.target.value) })
-                }
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Nghỉ dài (phút)
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={60}
-                value={config.longBreakDuration}
-                onChange={(e) =>
-                  setConfig({ ...config, longBreakDuration: Number(e.target.value) })
-                }
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Số chu kỳ trước khi nghỉ dài
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={10}
-                value={config.cyclesBeforeLongBreak}
-                onChange={(e) =>
-                  setConfig({ ...config, cyclesBeforeLongBreak: Number(e.target.value) })
-                }
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-cyan-500 text-white rounded-xl text-sm font-medium hover:bg-cyan-600 disabled:opacity-50 transition-colors"
-            >
-              <Save className="w-4 h-4" />
-              {saving ? 'Đang lưu...' : 'Lưu cấu hình'}
-            </button>
-          </form>
-        </div>
-
-        {/* Study History */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-gray-500" />
-            Lịch sử học tập
-          </h2>
-
-           {studySessions.length === 0 ? (
-             <p className="text-sm text-gray-400 italic">
-               Chưa có phiên học nào.
-             </p>
-           ) : (
-            <div className="space-y-3 max-h-[500px] overflow-y-auto">
-              {studySessions.map((session) => (
-                <div
-                  key={session.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100"
-                >
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-slate-700">
-                       {session.subject || 'Học tập'}
-                     </p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(session.startTime).toLocaleString('vi-VN', {
-                        timeZone: 'Asia/Ho_Chi_Minh',
-                      })}
-                    </p>
-                  </div>
-                  <span className="text-sm font-medium text-cyan-600">
-                    {formatDuration(session.duration)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+  return <div className="mx-auto max-w-5xl space-y-5">
+    <header className="flex items-center gap-3"><Link href={`/parent/monitoring/${childId}`} aria-label="Quay lại giám sát" className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 bg-white hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"><ArrowLeft className="h-5 w-5" /></Link><div><p className="text-sm font-medium text-cyan-700">Nhịp học tập</p><h1 className="text-2xl font-bold text-slate-950">Pomodoro</h1></div></header>
+    {notice && <div role="status" className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"><CheckCircle2 className="h-5 w-5" />{notice}</div>}
+    {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+    <div className="grid gap-5 lg:grid-cols-2">
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-7"><div className="mb-6 flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-cyan-100 text-cyan-700"><TimerReset className="h-5 w-5" /></span><div><h2 className="font-bold text-slate-900">Cấu hình thời gian</h2><p className="text-sm text-slate-500">Điều chỉnh theo sức tập trung của bé.</p></div></div><form onSubmit={save} className="grid gap-4 sm:grid-cols-2"><NumberField label="Thời gian học" suffix="phút" min={5} max={60} value={config.studyDuration} onChange={(studyDuration) => setConfig({ ...config, studyDuration })} /><NumberField label="Nghỉ ngắn" suffix="phút" min={1} max={30} value={config.shortBreakDuration} onChange={(shortBreakDuration) => setConfig({ ...config, shortBreakDuration })} /><NumberField label="Nghỉ dài" suffix="phút" min={5} max={60} value={config.longBreakDuration} onChange={(longBreakDuration) => setConfig({ ...config, longBreakDuration })} /><NumberField label="Chu kỳ trước nghỉ dài" suffix="vòng" min={2} max={10} value={config.cyclesBeforeLongBreak} onChange={(cyclesBeforeLongBreak) => setConfig({ ...config, cyclesBeforeLongBreak })} /><button disabled={saving} className="mt-2 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#000080] px-5 font-semibold text-white hover:bg-[#000066] disabled:opacity-50 sm:col-span-2"><Save className="h-4 w-4" />{saving ? 'Đang lưu…' : 'Lưu cấu hình'}</button></form></section>
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-7"><div className="mb-5 flex items-center gap-3"><Clock3 className="h-5 w-5 text-cyan-600" /><h2 className="font-bold text-slate-900">Phiên học gần đây</h2></div>{sessions.length === 0 ? <div className="grid min-h-64 place-items-center rounded-2xl bg-slate-50 p-5 text-center text-sm text-slate-500">Chưa có phiên học nào được robot ghi nhận.</div> : <div className="max-h-[430px] space-y-3 overflow-y-auto pr-1">{sessions.map((session) => <article key={session.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold text-slate-800">Chu kỳ {session.cycleNumber}</p><p className="mt-1 text-xs text-slate-500">{formatDate(session.startedAt)}</p></div><span className="rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-700">{statusLabel(session.status)}</span></div><div className="mt-3 flex gap-5 text-sm text-slate-600"><span>Học: <b>{formatSeconds(session.actualStudySeconds)}</b></span><span>Nghỉ: <b>{formatSeconds(session.actualBreakSeconds)}</b></span></div></article>)}</div>}</section>
     </div>
-  );
+  </div>;
 }
+
+function NumberField({ label, suffix, min, max, value, onChange }: { label: string; suffix: string; min: number; max: number; value: number; onChange: (value: number) => void }) { return <label className="block text-sm font-medium text-slate-700">{label}<span className="relative mt-1.5 block"><input type="number" required min={min} max={max} value={value} onChange={(event) => onChange(Number(event.target.value))} className="min-h-12 w-full rounded-xl border border-slate-300 px-4 pr-14 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200" /><span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">{suffix}</span></span></label>; }
+function formatDate(value: string) { return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value)); }
+function formatSeconds(value: number) { const mins = Math.floor((value ?? 0) / 60); return `${mins} phút`; }
+function statusLabel(value: string) { return value === 'completed' ? 'Hoàn thành' : value === 'break' ? 'Đang nghỉ' : 'Đang học'; }
