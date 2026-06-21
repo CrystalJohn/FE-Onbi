@@ -118,19 +118,19 @@ export default function AdminUsersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="user@example.com" className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="user@example.com" className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 placeholder:opacity-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Mật khẩu</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent" />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 placeholder:opacity-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Họ tên</label>
-              <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Nguyễn Văn A" className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent" />
+              <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Nguyễn Văn A" className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 placeholder:opacity-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">SĐT</label>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="0901234567" className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent" />
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="0901234567" className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 placeholder:opacity-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400" />
             </div>
           </div>
           <button type="submit" disabled={formLoading} className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold text-sm disabled:opacity-50">

@@ -92,22 +92,35 @@ export default function ParentDashboardPage() {
 
   const connectedDevices = children.filter((child) => Boolean(child.device)).length;
   const activeSessions = children.filter((child) => child.currentSession?.status === "active").length;
+  const childrenWithoutDevice = children.length - connectedDevices;
+  const familyStatus = activeSessions > 0 && childrenWithoutDevice > 0
+    ? `${activeSessions} bé đang trong phiên giám sát. ${childrenWithoutDevice} bé chưa kết nối robot.`
+    : activeSessions > 0
+      ? `${activeSessions} bé đang trong phiên giám sát.`
+      : childrenWithoutDevice > 0
+        ? `${childrenWithoutDevice} bé chưa kết nối robot.`
+        : "Tất cả hồ sơ trẻ đã được kết nối robot. Chưa có phiên giám sát đang chạy.";
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <section className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-[#0B008B] via-indigo-700 to-indigo-500 px-5 py-5 text-white shadow-[0_20px_60px_rgba(11,0,139,0.20)] sm:px-7 sm:py-6">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-cyan-300/25 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute bottom-[-70px] left-1/3 h-40 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100">
+      <section className="relative overflow-hidden rounded-[30px] border border-white/80 bg-white/80 px-5 py-4 shadow-[0_18px_55px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:px-6 sm:py-5">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-[#0B008B] to-cyan-400" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-cyan-200/25 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 max-w-4xl">
+            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.17em] text-cyan-700">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
               Tổng quan hôm nay
             </div>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Chào {profile?.fullName || "phụ huynh"}</h1>
-            <p className="mt-1.5 text-sm leading-6 text-indigo-100 sm:text-base">Chọn hồ sơ của bé để bắt đầu giám sát hoặc xem lại hoạt động học tập.</p>
+            <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-950">Chào {profile?.fullName || "phụ huynh"}</h1>
+            <p className="mt-1 text-sm leading-5 text-slate-600">{children.length > 0 ? familyStatus : "Chọn hồ sơ của bé để bắt đầu giám sát hoặc xem lại hoạt động học tập."}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/80 px-3 py-1 text-xs font-semibold text-[#0B008B]"><Baby className="h-3.5 w-3.5" aria-hidden="true" />{children.length} hồ sơ trẻ</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-100 bg-cyan-50/80 px-3 py-1 text-xs font-semibold text-cyan-800"><Wifi className="h-3.5 w-3.5" aria-hidden="true" />{connectedDevices}/{children.length} robot kết nối</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50/80 px-3 py-1 text-xs font-semibold text-emerald-800"><Activity className="h-3.5 w-3.5" aria-hidden="true" />{activeSessions} phiên hoạt động</span>
+            </div>
           </div>
-          <Link href="/setup/step1" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-[#0B008B] shadow-[0_10px_28px_rgba(15,23,42,0.18)] transition-colors duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-700">
+          <Link href="/setup/step1" className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2 sm:w-auto">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Thêm hồ sơ bé
           </Link>
@@ -140,7 +153,7 @@ export default function ParentDashboardPage() {
               <div><h2 id="children-heading" className="text-xl font-bold text-slate-950">Các bé của bạn</h2><p className="mt-1 text-sm text-slate-600">Trạng thái mới nhất từ ONBI</p></div>
               <Link href="/parent/children" className="rounded-full px-3 py-2 text-sm font-semibold text-cyan-800 transition-colors hover:bg-white/70 hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Quản lý hồ sơ</Link>
             </div>
-            <div className="grid gap-5">
+            <div className="grid gap-5 xl:grid-cols-2">
               {children.map((child) => {
                 const monitoring = child.currentSession?.status === "active";
                 const hasDevice = Boolean(child.device);
@@ -153,17 +166,22 @@ export default function ParentDashboardPage() {
                         <div className="min-w-0 flex-1 pt-1">
                           <h3 className="truncate text-xl font-bold tracking-tight text-slate-950">{child.name}</h3>
                           <div className="mt-2 flex flex-wrap gap-2">
-                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${monitoring ? "border-emerald-100 bg-emerald-50/90 text-emerald-800" : "border-slate-200/80 bg-white/80 text-slate-600"}`}><Activity className="h-3.5 w-3.5" aria-hidden="true" />{monitoring ? "Đang giám sát" : "Chưa giám sát"}</span>
+                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${monitoring ? "border-emerald-100 bg-emerald-50/90 text-emerald-800" : "border-slate-200/80 bg-white/80 text-slate-600"}`}><Activity className="h-3.5 w-3.5" aria-hidden="true" />{monitoring ? "Đang giám sát" : "Chưa bắt đầu"}</span>
                             <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${hasDevice ? "border-cyan-100 bg-cyan-50/90 text-cyan-800" : "border-amber-100 bg-amber-50/90 text-amber-800"}`}>
-                              {hasDevice ? <Wifi className="h-3.5 w-3.5" aria-hidden="true" /> : <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />}{hasDevice ? child.device?.serialNumber : "Chưa có robot"}
+                              {hasDevice ? <Wifi className="h-3.5 w-3.5" aria-hidden="true" /> : <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />}Robot: {hasDevice ? child.device?.serialNumber : "Chưa kết nối"}
                             </span>
                           </div>
                         </div>
+                      </div>
+                      <div className="mt-4 rounded-2xl border border-white/80 bg-white/60 px-4 py-3 text-sm text-slate-600 shadow-sm">
+                        <span className="font-semibold text-slate-800">Trạng thái phiên: </span>
+                        {monitoring ? "Phiên đang hoạt động" : hasDevice ? "Sẵn sàng bắt đầu giám sát" : "Cần kết nối robot trước khi giám sát"}
                       </div>
                       <div className="mt-5 grid grid-cols-2 gap-3">
                         <Link href={hasDevice ? `/parent/monitoring/${child.id}` : "/parent/devices"} className="col-span-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-4 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2"><Camera className="h-4 w-4" aria-hidden="true" />{monitoring ? "Mở giám sát" : hasDevice ? "Bắt đầu giám sát" : "Kết nối robot"}</Link>
                         <Link href={`/parent/monitoring/${child.id}/history`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-4 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-cyan-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"><History className="h-4 w-4" aria-hidden="true" />Lịch sử</Link>
                         <Link href={`/parent/monitoring/${child.id}/pomodoro`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-4 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-cyan-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"><Timer className="h-4 w-4" aria-hidden="true" />Pomodoro</Link>
+                        <Link href={`/parent/children/${child.id}`} className="col-span-2 inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200/80 bg-white/60 px-4 text-sm font-semibold text-slate-600 transition-colors hover:border-cyan-200 hover:bg-white hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Quản lý hồ sơ</Link>
                       </div>
                     </div>
                   </article>
@@ -174,15 +192,17 @@ export default function ParentDashboardPage() {
 
           <aside className="rounded-[30px] border border-white/80 bg-white/70 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-700">Gia đình của bạn</p>
-            <h2 className="mt-2 text-lg font-bold text-slate-950">Tổng quan nhanh</h2>
+            <h2 className="mt-2 text-lg font-bold text-slate-950">Tổng quan gia đình</h2>
             <div className="mt-5 space-y-3">
               <QuickStat icon={Baby} label="Hồ sơ trẻ" value={children.length} tone="navy" />
-              <QuickStat icon={Wifi} label="Robot đã kết nối" value={connectedDevices} tone="cyan" />
+              <QuickStat icon={Wifi} label="Robot đã kết nối" value={`${connectedDevices} / ${children.length}`} tone="cyan" />
               <QuickStat icon={Activity} label="Phiên đang hoạt động" value={activeSessions} tone="indigo" />
+              <QuickStat icon={CircleAlert} label="Cảnh báo mới" value="—" tone="slate" />
             </div>
             <div className="mt-5 rounded-2xl border border-cyan-100/80 bg-cyan-50/70 p-4">
               <p className="text-sm font-semibold text-slate-800">Trạng thái hôm nay</p>
-              <p className="mt-1 text-sm leading-5 text-slate-600">{activeSessions > 0 ? `${activeSessions} bé đang trong phiên giám sát.` : "Chưa có phiên giám sát nào đang chạy."}</p>
+              <p className="mt-1 text-sm leading-5 text-slate-600">{familyStatus}</p>
+              <p className="mt-2 text-xs leading-5 text-slate-500">Chưa có dữ liệu cảnh báo để tổng hợp.</p>
             </div>
           </aside>
         </div>
@@ -191,11 +211,12 @@ export default function ParentDashboardPage() {
   );
 }
 
-function QuickStat({ icon: Icon, label, value, tone }: { icon: typeof Baby; label: string; value: number; tone: "navy" | "cyan" | "indigo" }) {
+function QuickStat({ icon: Icon, label, value, tone }: { icon: typeof Baby; label: string; value: number | string; tone: "navy" | "cyan" | "indigo" | "slate" }) {
   const colors = {
     navy: "bg-indigo-50 text-[#0B008B]",
     cyan: "bg-cyan-50 text-cyan-700",
     indigo: "bg-violet-50 text-indigo-700",
+    slate: "bg-slate-100 text-slate-500",
   };
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 shadow-sm">

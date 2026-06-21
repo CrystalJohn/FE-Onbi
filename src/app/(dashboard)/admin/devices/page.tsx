@@ -1,15 +1,38 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, X, Wifi, WifiOff, Eye } from 'lucide-react';
+import {
+  Ban,
+  Boxes,
+  CircleCheckBig,
+  CirclePause,
+  Filter,
+  Plus,
+  RotateCcw,
+  Wifi,
+  WifiOff,
+  X,
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface Device {
-  id: number;
+  id: string;
+  serialNumber: string;
   activationCode: string;
+  model?: string;
+  firmwareVersion?: string;
   status: string;
-  child?: { id: number; name: string } | null;
-  parent?: { id: number; fullName: string } | null;
+  child?: { id: string; name: string } | null;
+  parent?: { id: string; fullName: string } | null;
   createdAt: string;
 }
 
@@ -20,6 +43,12 @@ interface DeviceStats {
   deactivated: number;
 }
 
+const statusMeta: Record<string, { label: string; className: string }> = {
+  active: { label: 'Đang hoạt động', className: 'bg-emerald-50 text-emerald-700 ring-emerald-200/80' },
+  inactive: { label: 'Chưa hoạt động', className: 'bg-amber-50 text-amber-700 ring-amber-200/80' },
+  deactivated: { label: 'Đã vô hiệu hóa', className: 'bg-rose-50 text-rose-700 ring-rose-200/80' },
+};
+
 export default function AdminDevicesPage() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [stats, setStats] = useState<DeviceStats | null>(null);
@@ -27,17 +56,17 @@ export default function AdminDevicesPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  // Create form
   const [showForm, setShowForm] = useState(false);
   const [serialNumber, setSerialNumber] = useState('');
-  const [activationCode, setActivationCode] = useState('');
-  const [model, setModel] = useState('Onbi Robot V2');
-  const [firmwareVersion, setFirmwareVersion] = useState('1.0.0');
+  const [model, setModel] = useState('ONBI-CAM-X1');
+  const [firmwareVersion, setFirmwareVersion] = useState('1.4.2');
+  const [createdDevice, setCreatedDevice] = useState<Device | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
-  // Filters
   const [filterStatus, setFilterStatus] = useState('');
   const [filterUserId, setFilterUserId] = useState('');
+  const [deviceToDeactivate, setDeviceToDeactivate] = useState<Device | null>(null);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const getToken = () => localStorage.getItem('token') || '';
 
@@ -58,38 +87,43 @@ export default function AdminDevicesPage() {
       ]);
       if (devRes.ok) setDevices(await devRes.json());
       if (statsRes.ok) setStats(await statsRes.json());
-    } catch { /* ignore */ } finally {
+    } catch {
+      // Keep the current page state when the API is temporarily unavailable.
+    } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, [filterStatus, filterUserId]);
+  useEffect(() => {
+    fetchData();
+  }, [filterStatus, filterUserId]);
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreate = async (event: React.FormEvent) => {
+    event.preventDefault();
     setFormLoading(true);
     setError('');
     setMessage('');
+    setCreatedDevice(null);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/devices`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/devices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
-        body: JSON.stringify({ serialNumber, activationCode, model, firmwareVersion }),
+        body: JSON.stringify({ serialNumber, model, firmwareVersion }),
       });
+      const data = await response.json();
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || 'Tạo device thất bại');
+      if (!response.ok) {
+        setError(data.message || 'Tạo thiết bị thất bại');
         return;
       }
 
-      setMessage('Tạo device thành công');
+      setCreatedDevice(data);
+      setMessage('Tạo thiết bị thành công. Mã kích hoạt đã được hệ thống tạo.');
       setShowForm(false);
       setSerialNumber('');
-      setActivationCode('');
-      setModel('Onbi Robot V2');
-      setFirmwareVersion('1.0.0');
+      setModel('ONBI-CAM-X1');
+      setFirmwareVersion('1.4.2');
       fetchData();
     } catch {
       setError('Không thể kết nối server');
@@ -98,196 +132,281 @@ export default function AdminDevicesPage() {
     }
   };
 
-  const handleToggleStatus = async (id: number, currentStatus: string) => {
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
     const endpoint = currentStatus === 'active' ? 'deactivate' : 'reactivate';
+    setStatusLoading(true);
+    setError('');
+
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/devices/${id}/${endpoint}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/devices/${id}/${endpoint}`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-      if (res.ok) fetchData();
-      else {
-        const data = await res.json();
+      if (response.ok) {
+        await fetchData();
+        setDeviceToDeactivate(null);
+      } else {
+        const data = await response.json();
         setError(data.message || 'Thao tác thất bại');
       }
     } catch {
       setError('Không thể kết nối server');
+    } finally {
+      setStatusLoading(false);
     }
   };
 
-  if (loading) return <div className="text-sm text-gray-500">Đang tải...</div>;
+  if (loading) {
+    return <div className="rounded-3xl border border-white/80 bg-white/75 p-8 text-sm text-slate-500 shadow-sm">Đang tải thiết bị...</div>;
+  }
+
+  const statCards = stats
+    ? [
+        { label: 'Tổng thiết bị', value: stats.total, icon: Boxes, color: 'text-[#0B008B]', iconBg: 'bg-indigo-50' },
+        { label: 'Đang hoạt động', value: stats.active, icon: CircleCheckBig, color: 'text-emerald-600', iconBg: 'bg-emerald-50' },
+        { label: 'Chưa hoạt động', value: stats.inactive, icon: CirclePause, color: 'text-amber-600', iconBg: 'bg-amber-50' },
+        { label: 'Đã vô hiệu hóa', value: stats.deactivated, icon: Ban, color: 'text-rose-600', iconBg: 'bg-rose-50' },
+      ]
+    : [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Quản lý Devices</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-semibold transition-all"
-        >
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? 'Đóng' : 'Tạo Device'}
-        </button>
-      </div>
-
-      {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
-            <p className="text-xs text-gray-500">Tổng</p>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">{stats.active}</p>
-            <p className="text-xs text-gray-500">Active</p>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p className="text-2xl font-bold text-amber-500">{stats.inactive}</p>
-            <p className="text-xs text-gray-500">Inactive</p>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-            <p className="text-2xl font-bold text-red-500">{stats.deactivated}</p>
-            <p className="text-xs text-gray-500">Deactivated</p>
-          </div>
+    <div className="space-y-6 text-slate-900">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-700">Kho thiết bị ONBI</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Quản lý thiết bị</h1>
+          <p className="mt-2 text-sm text-slate-500">Theo dõi và quản lý toàn bộ robot ONBI trong hệ thống.</p>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowForm((current) => !current)}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-6 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(11,0,139,0.22)] transition-colors hover:bg-[#08006D] focus:outline-none focus:ring-2 focus:ring-[#0B008B]/25"
+        >
+          {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+          {showForm ? 'Đóng' : 'Tạo thiết bị'}
+        </button>
+      </header>
+
+      {stats && (
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Thống kê thiết bị">
+          {statCards.map(({ label, value, icon: Icon, color, iconBg }) => (
+            <article key={label} className="rounded-[24px] border border-white/80 bg-white/75 p-5 shadow-[0_16px_45px_rgba(15,23,42,0.07)] backdrop-blur-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">{label}</p>
+                  <p className={`mt-2 text-3xl font-bold tabular-nums ${color}`}>{value}</p>
+                </div>
+                <span className={`grid h-11 w-11 place-items-center rounded-2xl ${iconBg} ${color}`}>
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+              </div>
+            </article>
+          ))}
+        </section>
       )}
 
-      {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{error}</div>}
-      {message && <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700">{message}</div>}
+      {error && <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-700">{error}</div>}
+      {message && <div role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-700">{message}</div>}
 
-      {/* Filters */}
-      <div className="flex items-center gap-3">
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
-        >
-          <option value="">Tất cả status</option>
-          <option value="inactive">Inactive</option>
-          <option value="active">Active</option>
-          <option value="deactivated">Deactivated</option>
-        </select>
-        <input
-          type="text"
-          value={filterUserId}
-          onChange={(e) => setFilterUserId(e.target.value)}
-          placeholder="Filter by User ID"
-          className="px-3 py-2 rounded-xl border border-gray-300 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent w-44"
-        />
-        {(filterStatus || filterUserId) && (
-          <button
-            onClick={() => { setFilterStatus(''); setFilterUserId(''); }}
-            className="text-xs text-gray-500 hover:text-gray-700 underline"
-          >
-            Xóa filter
-          </button>
-        )}
-      </div>
+      {createdDevice && (
+        <section className="rounded-[24px] border border-cyan-200/70 bg-cyan-50/75 p-5 shadow-sm backdrop-blur-xl" aria-label="Thiết bị vừa tạo">
+          <p className="text-sm font-semibold text-slate-950">Thiết bị đã được tạo</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Serial Number</p>
+              <p className="mt-1 font-mono text-sm font-semibold">{createdDevice.serialNumber}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Mã kích hoạt do server tạo</p>
+              <p className="mt-1 font-mono text-base font-bold text-[#0B008B]">{createdDevice.activationCode}</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-slate-600">Hãy lưu mã này để cung cấp cho người dùng khi kích hoạt thiết bị.</p>
+        </section>
+      )}
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">Tạo Device mới (trước khi bán)</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Serial Number</label>
+        <form onSubmit={handleCreate} className="space-y-5 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
+          <div>
+            <h2 className="text-lg font-bold text-slate-950">Tạo thiết bị mới</h2>
+            <p className="mt-1 text-sm text-slate-500">Nhập thông tin Jetson. Mã kích hoạt sẽ được server tự động tạo.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <label className="text-sm font-semibold text-slate-700">
+              Serial Number
               <input
                 type="text"
                 value={serialNumber}
-                onChange={(e) => setSerialNumber(e.target.value)}
+                onChange={(event) => setSerialNumber(event.target.value)}
                 placeholder="SN-2024-001"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-mono placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
+                className="mt-2 min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/80 px-4 font-mono text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Mã kích hoạt</label>
-              <input
-                type="text"
-                value={activationCode}
-                onChange={(e) => setActivationCode(e.target.value.toUpperCase())}
-                placeholder="ACT-XYZ-123"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-mono placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Model</label>
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              Model
               <input
                 type="text"
                 value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="Onbi Robot V2"
+                onChange={(event) => setModel(event.target.value)}
+                placeholder="ONBI-CAM-X1"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
+                className="mt-2 min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/80 px-4 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Firmware Version</label>
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              Phiên bản firmware
               <input
                 type="text"
                 value={firmwareVersion}
-                onChange={(e) => setFirmwareVersion(e.target.value)}
-                placeholder="1.0.0"
+                onChange={(event) => setFirmwareVersion(event.target.value)}
+                placeholder="1.4.2"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-mono placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
+                className="mt-2 min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/80 px-4 font-mono text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
               />
-            </div>
+            </label>
           </div>
-          <button type="submit" disabled={formLoading} className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold text-sm disabled:opacity-50">
-            {formLoading ? 'Đang tạo...' : 'Tạo Device'}
+          <button type="submit" disabled={formLoading} className="min-h-12 rounded-full bg-[#0B008B] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(11,0,139,0.2)] transition-colors hover:bg-[#08006D] disabled:cursor-not-allowed disabled:opacity-50">
+            {formLoading ? 'Đang tạo...' : 'Tạo thiết bị'}
           </button>
         </form>
       )}
 
-      {/* Devices Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Device</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Gán cho</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Ngày tạo</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {devices.map((device) => (
-              <tr key={device.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    {device.status === 'active' ? <Wifi className="w-4 h-4 text-green-500" /> : <WifiOff className="w-4 h-4 text-gray-400" />}
-                    <Link href={`/admin/devices/${device.id}`} className="font-mono font-medium text-slate-900 hover:text-cyan-600 hover:underline">
-                      {device.activationCode}
-                    </Link>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs font-semibold ${device.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                    {device.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-gray-600">
-                  {device.child ? device.child.name : <span className="text-gray-400">—</span>}
-                </td>
-                <td className="px-4 py-3 text-gray-500">{new Date(device.createdAt).toLocaleDateString('vi-VN')}</td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => handleToggleStatus(device.id, device.status)}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                      device.status === 'active'
-                        ? 'text-red-600 bg-red-50 hover:bg-red-100'
-                        : 'text-green-600 bg-green-50 hover:bg-green-100'
-                    }`}
-                  >
-                    {device.status === 'active' ? 'Deactivate' : 'Reactivate'}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <section className="rounded-[24px] border border-white/80 bg-white/75 p-4 shadow-[0_16px_45px_rgba(15,23,42,0.06)] backdrop-blur-xl" aria-label="Bộ lọc thiết bị">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <Filter className="h-4 w-4 text-cyan-700" aria-hidden="true" />
+            Bộ lọc
+          </div>
+          <select
+            value={filterStatus}
+            onChange={(event) => setFilterStatus(event.target.value)}
+            className="min-h-11 rounded-full border border-slate-200/80 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
+            aria-label="Lọc theo trạng thái"
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Chưa hoạt động</option>
+            <option value="deactivated">Đã vô hiệu hóa</option>
+          </select>
+          <input
+            type="text"
+            value={filterUserId}
+            onChange={(event) => setFilterUserId(event.target.value)}
+            placeholder="Nhập User ID..."
+            className="min-h-11 w-full rounded-full border border-slate-200/80 bg-white px-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15 lg:max-w-xs"
+            aria-label="Lọc theo User ID"
+          />
+          {(filterStatus || filterUserId) && (
+            <button
+              type="button"
+              onClick={() => { setFilterStatus(''); setFilterUserId(''); }}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+            >
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
+              Đặt lại
+            </button>
+          )}
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-[28px] border border-white/80 bg-white/75 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl" aria-label="Danh sách thiết bị">
+        {devices.length === 0 ? (
+          <div className="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center">
+            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-50 text-cyan-700"><Boxes className="h-6 w-6" /></span>
+            <h2 className="mt-4 text-lg font-bold text-slate-950">Chưa có thiết bị nào</h2>
+            <p className="mt-2 max-w-md text-sm text-slate-500">Tạo thiết bị đầu tiên để bắt đầu quản lý robot ONBI.</p>
+            <button type="button" onClick={() => setShowForm(true)} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-semibold text-white hover:bg-[#08006D]">
+              <Plus className="h-4 w-4" /> Tạo thiết bị
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[850px] text-sm">
+              <thead className="border-b border-slate-200/70 bg-slate-50/80 text-left">
+                <tr>
+                  <th className="px-5 py-4 font-semibold text-slate-600">Thiết bị</th>
+                  <th className="px-5 py-4 font-semibold text-slate-600">Trạng thái</th>
+                  <th className="px-5 py-4 font-semibold text-slate-600">Gán cho</th>
+                  <th className="px-5 py-4 font-semibold text-slate-600">Ngày tạo</th>
+                  <th className="px-5 py-4 text-right font-semibold text-slate-600">Hành động</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {devices.map((device) => {
+                  const meta = statusMeta[device.status] ?? { label: device.status, className: 'bg-slate-100 text-slate-600 ring-slate-200' };
+                  const assignedName = device.child?.name || device.parent?.fullName;
+
+                  return (
+                    <tr key={device.id} className="transition-colors hover:bg-cyan-50/45">
+                      <td className="px-5 py-4">
+                        <div className="flex items-start gap-3">
+                          <span className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl ${device.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                            {device.status === 'active' ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+                          </span>
+                          <div>
+                            <Link href={`/admin/devices/${device.id}`} className="font-mono font-semibold text-slate-950 transition-colors hover:text-[#0B008B] hover:underline">
+                              {device.serialNumber}
+                            </Link>
+                            <p className="mt-1 text-xs text-slate-500">Mã kích hoạt: <span className="font-mono">{device.activationCode}</span></p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${meta.className}`}>{meta.label}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        {assignedName ? (
+                          <div>
+                            <p className="font-medium text-slate-800">{assignedName}</p>
+                            <p className="mt-0.5 text-xs text-slate-500">Đã gán</p>
+                          </div>
+                        ) : (
+                          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Chưa gán</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-slate-600">{new Date(device.createdAt).toLocaleDateString('vi-VN')}</td>
+                      <td className="px-5 py-4 text-right">
+                        {device.status === 'active' ? (
+                          <button type="button" onClick={() => setDeviceToDeactivate(device)} className="min-h-10 rounded-full border border-rose-200 bg-rose-50/60 px-4 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100">
+                            Vô hiệu hóa
+                          </button>
+                        ) : (
+                          <button type="button" onClick={() => handleToggleStatus(device.id, device.status)} disabled={statusLoading} className="min-h-10 rounded-full border border-emerald-200 bg-emerald-50/60 px-4 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50">
+                            Kích hoạt lại
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <Dialog open={!!deviceToDeactivate} onOpenChange={(open) => { if (!open && !statusLoading) setDeviceToDeactivate(null); }}>
+        <DialogContent className="rounded-[28px] border-white/80 bg-white/95">
+          <DialogHeader>
+            <DialogTitle>Vô hiệu hóa thiết bị?</DialogTitle>
+            <DialogDescription>
+              Thiết bị <span className="font-mono font-semibold text-slate-800">{deviceToDeactivate?.serialNumber}</span> sẽ không thể được sử dụng cho đến khi được kích hoạt lại.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDeviceToDeactivate(null)} disabled={statusLoading} className="rounded-full">Hủy</Button>
+            <Button
+              variant="destructive"
+              disabled={statusLoading || !deviceToDeactivate}
+              onClick={() => deviceToDeactivate && handleToggleStatus(deviceToDeactivate.id, deviceToDeactivate.status)}
+              className="rounded-full"
+            >
+              {statusLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

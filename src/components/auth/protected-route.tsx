@@ -31,6 +31,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const expired = payload?.exp ? payload.exp * 1000 <= Date.now() : false;
     const requiredRole = pathname.startsWith("/admin") ? "admin" : "parent";
 
+    // No token, bad payload, or expired → kick to login
     if (!token || !payload || expired) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -38,12 +39,32 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Wrong role → redirect to their own dashboard
     if (payload.role !== requiredRole) {
       router.replace(payload.role === "admin" ? "/admin/dashboard" : "/parent/dashboard");
       return;
     }
 
-    setReady(true);
+    // Verify token with server to prevent forged JWTs.
+    // Use role-appropriate profile endpoint — both require a valid signed JWT.
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+    const verifyEndpoint =
+      requiredRole === "admin"
+        ? `${apiUrl}/admin/dashboard`   // admin-only endpoint, returns 401/403 for non-admins
+        : `${apiUrl}/parents/profile`;  // parent-only endpoint, returns 401/403 for non-parents
+
+    fetch(verifyEndpoint, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("unauthorized");
+        setReady(true);
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        router.replace("/login");
+      });
   }, [pathname, router]);
 
   if (!ready) {
