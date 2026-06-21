@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Activity,
   Baby,
   LayoutDashboard,
   Menu,
@@ -27,7 +26,6 @@ const adminNav = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/devices", label: "Devices", icon: Wifi },
-  { href: "/admin/monitoring-sessions", label: "Sessions", icon: Activity },
 ];
 
 export function Sidebar() {

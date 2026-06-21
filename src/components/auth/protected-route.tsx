@@ -20,6 +20,9 @@ function readPayload(token: string): JwtPayload | null {
   }
 }
 
+// Cache verified tokens for the session — avoids an API call on every navigation
+const verifiedTokens = new Set<string>();
+
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -35,6 +38,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     if (!token || !payload || expired) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      verifiedTokens.clear();
       router.replace("/login");
       return;
     }
@@ -45,24 +49,31 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Verify token with server to prevent forged JWTs.
-    // Use role-appropriate profile endpoint — both require a valid signed JWT.
+    // Already verified this token in this session — skip the API call
+    if (verifiedTokens.has(token)) {
+      setReady(true);
+      return;
+    }
+
+    // First visit: verify token signature with server to prevent forged JWTs
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
     const verifyEndpoint =
       requiredRole === "admin"
-        ? `${apiUrl}/admin/dashboard`   // admin-only endpoint, returns 401/403 for non-admins
-        : `${apiUrl}/parents/profile`;  // parent-only endpoint, returns 401/403 for non-parents
+        ? `${apiUrl}/admin/dashboard`  // admin-only endpoint
+        : `${apiUrl}/parents/profile`; // parent-only endpoint
 
     fetch(verifyEndpoint, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
         if (!res.ok) throw new Error("unauthorized");
+        verifiedTokens.add(token); // cache so subsequent navigations are instant
         setReady(true);
       })
       .catch(() => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        verifiedTokens.clear();
         router.replace("/login");
       });
   }, [pathname, router]);

@@ -14,9 +14,9 @@ interface Snapshot {
 }
 
 const TYPE_LABELS: Record<string, string> = {
-  left_desk: 'Roi ban',
-  bad_posture: 'Sai tu the',
-  manual: 'Chup tay',
+  left_desk: 'Rời bàn',
+  bad_posture: 'Sai tư thế',
+  manual: 'Chụp tay',
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -101,7 +101,7 @@ export default function SnapshotsPage({
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
         <Camera className="w-6 h-6 text-cyan-500" />
-        <h1 className="text-2xl font-bold text-slate-900">Anh & Canh bao</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Ảnh & Cảnh báo</h1>
       </div>
 
       {error && (
@@ -120,7 +120,7 @@ export default function SnapshotsPage({
               : 'bg-white text-slate-600 border-gray-200 hover:border-slate-300'
           }`}
         >
-          Tat ca ({counts.total})
+          Tất cả ({counts.total})
         </button>
         {Object.entries(TYPE_LABELS).map(([key, label]) => (
           <button

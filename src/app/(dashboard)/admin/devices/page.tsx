@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   Ban,
   Boxes,
+  CheckCircle2,
   CircleCheckBig,
   CirclePause,
   Filter,
@@ -31,8 +32,12 @@ interface Device {
   model?: string;
   firmwareVersion?: string;
   status: string;
-  child?: { id: string; name: string } | null;
-  parent?: { id: string; fullName: string } | null;
+  activatedBy?: string | null;
+  activatedByUser?: {
+    id: string;
+    email: string;
+    fullName: string;
+  } | null;
   createdAt: string;
 }
 
@@ -97,6 +102,13 @@ export default function AdminDevicesPage() {
   useEffect(() => {
     fetchData();
   }, [filterStatus, filterUserId]);
+
+  useEffect(() => {
+    if (!message) return;
+
+    const timer = window.setTimeout(() => setMessage(''), 4500);
+    return () => window.clearTimeout(timer);
+  }, [message]);
 
   const handleCreate = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -206,7 +218,27 @@ export default function AdminDevicesPage() {
       )}
 
       {error && <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-700">{error}</div>}
-      {message && <div role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-700">{message}</div>}
+      {message && (
+        <div className="fixed right-4 top-4 z-[100] w-[calc(100%-2rem)] max-w-sm animate-in slide-in-from-top-2 fade-in duration-200 sm:right-6 sm:top-6" role="status" aria-live="polite">
+          <div className="flex items-start gap-3 rounded-2xl border border-emerald-200/80 bg-white/95 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur-xl">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+              <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-slate-950">Tạo thiết bị thành công</p>
+              <p className="mt-1 text-sm leading-5 text-slate-600">Mã kích hoạt đã được hệ thống tạo.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMessage('')}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              aria-label="Đóng thông báo"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {createdDevice && (
         <section className="rounded-[24px] border border-cyan-200/70 bg-cyan-50/75 p-5 shadow-sm backdrop-blur-xl" aria-label="Thiết bị vừa tạo">
@@ -327,7 +359,7 @@ export default function AdminDevicesPage() {
                 <tr>
                   <th className="px-5 py-4 font-semibold text-slate-600">Thiết bị</th>
                   <th className="px-5 py-4 font-semibold text-slate-600">Trạng thái</th>
-                  <th className="px-5 py-4 font-semibold text-slate-600">Gán cho</th>
+                  <th className="px-5 py-4 font-semibold text-slate-600">Tài khoản kích hoạt</th>
                   <th className="px-5 py-4 font-semibold text-slate-600">Ngày tạo</th>
                   <th className="px-5 py-4 text-right font-semibold text-slate-600">Hành động</th>
                 </tr>
@@ -335,7 +367,7 @@ export default function AdminDevicesPage() {
               <tbody className="divide-y divide-slate-100">
                 {devices.map((device) => {
                   const meta = statusMeta[device.status] ?? { label: device.status, className: 'bg-slate-100 text-slate-600 ring-slate-200' };
-                  const assignedName = device.child?.name || device.parent?.fullName;
+                  const assignedAccount = device.activatedByUser;
 
                   return (
                     <tr key={device.id} className="transition-colors hover:bg-cyan-50/45">
@@ -356,13 +388,15 @@ export default function AdminDevicesPage() {
                         <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${meta.className}`}>{meta.label}</span>
                       </td>
                       <td className="px-5 py-4">
-                        {assignedName ? (
+                        {assignedAccount ? (
                           <div>
-                            <p className="font-medium text-slate-800">{assignedName}</p>
-                            <p className="mt-0.5 text-xs text-slate-500">Đã gán</p>
+                            <p className="font-medium text-slate-800">{assignedAccount.email}</p>
+                            <p className="mt-0.5 text-xs text-slate-500">
+                              {assignedAccount.fullName || `User ID: ${assignedAccount.id}`}
+                            </p>
                           </div>
                         ) : (
-                          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Chưa gán</span>
+                          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Chưa kích hoạt</span>
                         )}
                       </td>
                       <td className="px-5 py-4 text-slate-600">{new Date(device.createdAt).toLocaleDateString('vi-VN')}</td>
@@ -387,20 +421,20 @@ export default function AdminDevicesPage() {
       </section>
 
       <Dialog open={!!deviceToDeactivate} onOpenChange={(open) => { if (!open && !statusLoading) setDeviceToDeactivate(null); }}>
-        <DialogContent className="rounded-[28px] border-white/80 bg-white/95">
+        <DialogContent className="overflow-hidden rounded-[28px] border border-slate-200/80 !bg-white !text-slate-950 shadow-[0_24px_70px_rgba(15,23,42,0.20)]">
           <DialogHeader>
-            <DialogTitle>Vô hiệu hóa thiết bị?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg font-bold leading-6 text-slate-950">Vô hiệu hóa thiết bị?</DialogTitle>
+            <DialogDescription className="text-sm leading-6 text-slate-600">
               Thiết bị <span className="font-mono font-semibold text-slate-800">{deviceToDeactivate?.serialNumber}</span> sẽ không thể được sử dụng cho đến khi được kích hoạt lại.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setDeviceToDeactivate(null)} disabled={statusLoading} className="rounded-full">Hủy</Button>
+          <DialogFooter className="gap-2 border-slate-200 !bg-slate-50">
+            <Button variant="outline" onClick={() => setDeviceToDeactivate(null)} disabled={statusLoading} className="min-h-10 rounded-full border-slate-300 bg-white px-5 text-slate-700 hover:bg-slate-100 hover:text-slate-950">Hủy</Button>
             <Button
               variant="destructive"
               disabled={statusLoading || !deviceToDeactivate}
               onClick={() => deviceToDeactivate && handleToggleStatus(deviceToDeactivate.id, deviceToDeactivate.status)}
-              className="rounded-full"
+              className="min-h-10 rounded-full bg-rose-600 px-5 text-white hover:bg-rose-700"
             >
               {statusLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
             </Button>
