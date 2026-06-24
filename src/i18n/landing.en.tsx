@@ -116,8 +116,8 @@ const en: LandingContent = {
       excerpt: 'Discover how OnBi combines physical Pomodoro automation, posture tracking AI, and parent updates to foster organic concentration and self-study habits in children.',
     },
     placeholders: [
-      { id: 3, category: 'Parenting Guide', title: 'What Should Parents Do When a Child Refuses to Study?', excerpt: 'Understand the six real reasons children avoid homework and build a calm system that helps them study without daily reminders.', author: 'OnBi Team', date: '24/06/2026', href: '/blog/con-khong-chiu-hoc-phai-lam-sao', image: '/blog/blog-2/image-1.jpg', imageAlt: 'Primary school child avoiding the study desk while parents worry' },
-      { id: 4, category: 'Digital Parenting', title: 'Digital Age Parenting: Academic Monitoring vs. Trust & Privacy', excerpt: 'Exploring the healthy boundary between automated insight tracking and micromanagement in modern education.' },
+      { id: 2, category: 'Learning Method', title: 'Building Self-Study Skills for Children: What Can Parents Do When They Cannot Always Be There?', excerpt: 'A practical 5-step method to help primary school children sit down, focus on time, and study independently without daily reminders.', author: 'OnBi Team', date: '06/2026', href: '/blog/ren-ky-nang-tu-hoc-cho-tre-tieu-hoc', image: '/blog/blog-2/image-1.jpg', imageAlt: 'A tidy study corner that helps primary school children build independent learning habits at home' },
+      { id: 3, category: 'Parenting Guide', title: 'What Should Parents Do When a Child Refuses to Study?', excerpt: 'Understand the six real reasons children avoid homework and build a calm system that helps them study without daily reminders.', author: 'OnBi Team', date: '24/06/2026', href: '/blog/con-khong-chiu-hoc-phai-lam-sao', image: '/blog/blog-3/image-2.jpg', imageAlt: 'Primary school child losing focus while studying alone at home' },
     ],
   },
 };

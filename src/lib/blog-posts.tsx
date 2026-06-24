@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import type { Metadata } from 'next';
 import BlogDetail from '@/components/blog/BlogDetail';
+import BlogSelfStudyDetail from '@/components/blog/BlogSelfStudyDetail';
 import BlogTwoDetail from '@/components/blog/BlogTwoDetail';
 
 export type BlogPostConfig = {
@@ -43,6 +44,35 @@ export const blogPosts = [
     Component: BlogDetail,
   },
   {
+    slug: 'ren-ky-nang-tu-hoc-cho-tre-tieu-hoc',
+    metadata: {
+      title: 'Rèn Kỹ Năng Tự Học Cho Con: Ba Mẹ Cần Làm Gì Khi Không Thể Luôn Ở Bên?',
+      description:
+        'Rèn kỹ năng tự học cho con tiểu học đúng cách — 5 bước khoa học giúp trẻ tự giác ngồi vào bàn, tập trung đúng giờ mà ba mẹ không cần nhắc mỗi ngày.',
+      keywords: [
+        'rèn kỹ năng tự học cho trẻ tiểu học',
+        'thói quen tự học cho trẻ',
+        'trẻ tự giác học bài',
+        'cách giúp con tự học tại nhà',
+        'kỷ luật tự học tiểu học',
+        'quản lý thời gian học cho trẻ',
+      ],
+      alternates: {
+        canonical: '/blog/ren-ky-nang-tu-hoc-cho-tre-tieu-hoc',
+      },
+      openGraph: {
+        title: 'Rèn Kỹ Năng Tự Học Cho Con',
+        description:
+          '5 bước khoa học giúp trẻ tự giác ngồi vào bàn, tập trung đúng giờ mà ba mẹ không cần nhắc mỗi ngày.',
+        type: 'article',
+        url: '/blog/ren-ky-nang-tu-hoc-cho-tre-tieu-hoc',
+        images: ['/blog/blog-2/image-1.jpg'],
+        authors: ['Đội ngũ OnBi'],
+      },
+    },
+    Component: BlogSelfStudyDetail,
+  },
+  {
     slug: 'con-khong-chiu-hoc-phai-lam-sao',
     metadata: {
       title: 'Con Không Chịu Học Phải Làm Sao? 6 Nguyên Nhân Và Cách Giúp Con Tự Giác',
@@ -62,7 +92,7 @@ export const blogPosts = [
           'Tìm hiểu ngay 6 nguyên nhân thật sự khiến trẻ lười học và giải pháp giúp con tự giác học bài mà không cần ba mẹ nhắc mỗi ngày.',
         type: 'article',
         url: '/blog/con-khong-chiu-hoc-phai-lam-sao',
-        images: ['/blog/blog-2/image-1.jpg'],
+        images: ['/blog/blog-3/image-2.jpg'],
         publishedTime: '2026-06-24',
         authors: ['Đội ngũ OnBi'],
       },

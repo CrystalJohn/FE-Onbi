@@ -32,6 +32,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://onbi.online"),
   title: "Onbi Education IoT Solution",
   description: "Onbi Camera - Smart monitoring for your child",
 };

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useLanding } from '@/i18n/useLanding';
-import type { LandingContent } from '@/i18n/landing';
+import type { BlogArticle, LandingContent } from '@/i18n/landing';
 import { BlurFade } from '@/components/ui/blur-fade';
 import { fadeUp, viewport } from '@/lib/animations';
 
@@ -44,51 +44,132 @@ export default function BlogSection({ t: initialT }: BlogSectionProps) {
     setShowToast(true);
   };
 
+  const renderSecondaryCard = (card: BlogArticle, idx: number) => {
+    const cardContent = (
+      <motion.article
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewport}
+        custom={idx}
+        onClick={card.href ? undefined : () => triggerToast(language === 'en' ? t.toastMsgEn : t.toastMsg)}
+        className={`group flex h-full min-h-[260px] flex-col overflow-hidden rounded-[18px] border bg-white/60 shadow-[0_18px_48px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:bg-white/75 hover:shadow-[0_24px_56px_rgba(15,23,42,0.12)] dark:bg-white/5 dark:shadow-none dark:hover:bg-white/8 ${
+          card.href ? 'cursor-pointer border-white/15' : 'cursor-pointer border-dashed border-white/10 p-5'
+        }`}
+      >
+        {card.image && (
+          <div className="relative aspect-[16/8.3] w-full shrink-0 overflow-hidden">
+            <Image
+              src={card.image}
+              alt={card.imageAlt || card.title}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          </div>
+        )}
+
+        <div className={card.href ? 'flex flex-1 flex-col gap-3 p-4 sm:p-5' : 'flex flex-1 flex-col gap-3'}>
+          <div className="flex items-start justify-between gap-3">
+            <span className="inline-flex max-w-[70%] items-center rounded-md bg-slate-950/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white dark:bg-white/12 dark:text-zinc-200">
+              {card.category}
+            </span>
+            {card.href ? (
+              <span className="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                {t.readMore}
+              </span>
+            ) : (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+                <Lock className="h-2.5 w-2.5" />
+                {t.comingSoon}
+              </span>
+            )}
+          </div>
+
+          {(card.author || card.date) && (
+            <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+              {card.author && (
+                <span className="inline-flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 text-indigo-400" />
+                  {card.author}
+                </span>
+              )}
+              {card.date && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                  {card.date}
+                </span>
+              )}
+            </div>
+          )}
+
+          <h4 className="font-display text-lg font-bold leading-tight text-slate-950 transition-colors line-clamp-2 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300">
+            {card.title}
+          </h4>
+
+          <p className="text-sm leading-relaxed text-slate-600 line-clamp-2 dark:text-zinc-400">
+            {card.excerpt}
+          </p>
+
+          <div className={`mt-auto inline-flex items-center gap-1.5 text-xs font-bold transition-all ${card.href ? 'text-indigo-600 group-hover:gap-2 dark:text-indigo-300' : 'text-slate-400 group-hover:text-indigo-500'}`}>
+            {card.href ? <ArrowRight className="h-3.5 w-3.5" /> : <Bell className="h-3.5 w-3.5" />}
+            <span>{card.href ? t.readMore : t.comingSoon}</span>
+          </div>
+        </div>
+      </motion.article>
+    );
+
+    return card.href ? (
+      <Link key={card.id} href={card.href} className="block h-full">
+        {cardContent}
+      </Link>
+    ) : (
+      <React.Fragment key={card.id}>{cardContent}</React.Fragment>
+    );
+  };
 
   return (
-    <div className="w-full space-y-6 md:space-y-8 py-4 md:py-6 relative overflow-hidden bg-gradient-to-b from-transparent via-indigo-50/10 to-transparent dark:via-zinc-950/15" id="onbi_insights_blog">
-      
-      {/* Decorative MacOS/iOS style ambient background glows - Z-index 0 to sit on top of background but behind content */}
-      <div className="absolute top-1/4 left-1/4 w-[380px] h-[380px] bg-indigo-400/25 dark:bg-indigo-900/20 rounded-full blur-[100px] pointer-events-none z-0 select-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[420px] h-[420px] bg-sky-300/20 dark:bg-sky-950/15 rounded-full blur-[120px] pointer-events-none z-0 select-none" />
-
-      {/* Header section */}
-      <div className="max-w-[1400px] mx-auto text-left space-y-2.5 px-6 relative z-10">
-        <BlurFade delay={0.15} inView>
-          <span className="text-sm md:text-base font-semibold text-indigo-600 dark:text-indigo-400 tracking-tight block">
-            {t.tag}
-          </span>
-        </BlurFade>
-        
-        <BlurFade delay={0.25} inView>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-[44px] lg:text-[48px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.12] flex flex-col">
-            <span>{t.titleLine1}</span>
-            <span>{t.titleLine2}</span>
-          </h2>
-        </BlurFade>
-        
-        <BlurFade delay={0.35} inView>
-          <p className="text-base md:text-[17px] text-[#86868b] dark:text-[#a1a1a6] max-w-[620px] leading-relaxed font-normal tracking-tight pt-1">
-            {t.description}
-          </p>
-        </BlurFade>
-      </div>
-
-      {/* Main Blog grid wrapper - Bento 1+2 layout */}
-      <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* 1. Featured card - Navigation Link (left, vertical compact) */}
-        <Link href="/blog/robot-ban-hoc-onbi-giai-phap-theo-doi-hoc-tap-thong-minh" className="block w-full h-full">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={viewport}
-            className="group relative w-full h-full bg-[#f8f9fa]/40 dark:bg-white/8 border border-[#e2e8f0]/80 dark:border-white/15 rounded-3xl overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl transition-all duration-500 flex flex-col"
+    <section
+      className="relative w-full overflow-hidden py-10 md:py-14"
+      id="onbi_insights_blog"
+    >
+      <div className="mx-auto max-w-[1400px] space-y-8 px-4 sm:px-6">
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <BlurFade delay={0.15} inView>
+              <span className="block text-sm font-semibold text-indigo-700 dark:text-indigo-300">
+                {t.tag}
+              </span>
+            </BlurFade>
+            <BlurFade delay={0.25} inView>
+              <h2 className="mt-2 font-display text-4xl font-bold leading-none text-slate-950 dark:text-white sm:text-5xl">
+                {t.titleLine1} {t.titleLine2}
+              </h2>
+            </BlurFade>
+            <BlurFade delay={0.35} inView>
+              <p className="mt-3 text-base leading-relaxed text-slate-600 dark:text-zinc-300">
+                {t.description}
+              </p>
+            </BlurFade>
+          </div>
+          <Link
+            href="/#blog_section"
+            className="inline-flex min-h-11 w-max items-center justify-center rounded-full bg-white/80 px-5 text-sm font-bold text-slate-800 shadow-sm ring-1 ring-white/70 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-white/90 dark:text-slate-900"
           >
-            {/* Top visual cover (vertical card: image on top) */}
-            <div className="relative w-full aspect-[16/10] overflow-hidden shrink-0">
+            {language === 'vi' ? 'Xem tất cả blog' : 'View all blogs'}
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.05fr_1.65fr]">
+          <Link href="/blog/robot-ban-hoc-onbi-giai-phap-theo-doi-hoc-tap-thong-minh" className="block h-full">
+            <motion.article
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={viewport}
+              className="group flex h-full min-h-[560px] flex-col overflow-hidden rounded-[20px] border border-white/20 bg-white/60 shadow-[0_24px_60px_rgba(15,23,42,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/75 hover:shadow-[0_30px_70px_rgba(15,23,42,0.16)] dark:bg-white/5 dark:shadow-none dark:hover:bg-white/8"
+            >
+              <div className="relative aspect-[16/11] w-full shrink-0 overflow-hidden">
               <Image
                 src="/blog/blog-1/image-1.jpg"
                 alt={t.blog.title}
@@ -98,140 +179,48 @@ export default function BlogSection({ t: initialT }: BlogSectionProps) {
                 fetchPriority="high"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              {/* Top-left category badge */}
               <div className="absolute top-4 left-4 z-10">
-                <span className="px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase bg-indigo-600/90 dark:bg-indigo-500/95 text-white backdrop-blur-xs shadow-md">
+                <span className="rounded-md bg-indigo-600 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
                   {t.category}
                 </span>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent md:hidden" />
-            </div>
+              </div>
 
-            {/* Bottom info block */}
-            <div className="w-full p-5 md:p-6 flex flex-col flex-1 space-y-3">
-              <div className="space-y-4">
-                
-                {/* Meta details */}
-                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-550 dark:text-zinc-400 tracking-wider">
-                  <span className="flex items-center gap-1.5 bg-[#ffffff]/60 dark:bg-zinc-850 px-2.5 py-1 rounded-full border border-slate-200/50 dark:border-zinc-800">
-                    <User className="w-3.5 h-3.5 text-indigo-500" />
+              <div className="flex flex-1 flex-col gap-4 p-5 md:p-6">
+                <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-500 dark:text-zinc-400">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 ring-1 ring-slate-200/60 dark:bg-white/8 dark:ring-white/10">
+                    <User className="h-3.5 w-3.5 text-indigo-400" />
                     {t.author}
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-indigo-400" />
                     {t.date}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/25 px-2 py-0.5 rounded-sm uppercase tracking-widest border border-emerald-100/50 dark:border-emerald-900/30">
-                    ★ {t.featuredBadge}
+                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    {t.featuredBadge}
                   </span>
                 </div>
 
-                {/* Title */}
-                <h3 className="font-display text-xl md:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight line-clamp-2">
+                <h3 className="font-display text-2xl font-bold leading-tight text-slate-950 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300">
                   {t.blog.title}
                 </h3>
 
-                {/* Excerpt */}
-                <p className="text-slate-650 dark:text-zinc-400 text-sm leading-relaxed line-clamp-3">
+                <p className="text-sm leading-relaxed text-slate-600 line-clamp-3 dark:text-zinc-400">
                   {t.blog.excerpt}
                 </p>
 
-              </div>
-
-              {/* Read action */}
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold group-hover:gap-3 transition-all">
-                <span>{t.readMore}</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </div>
-
-            </div>
-          </motion.div>
-        </Link>
-
-        {/* 2. Secondary cards stacked vertically (right side of bento) */}
-        <div className="flex flex-col gap-6 h-full">
-          {t.placeholders.map((card, idx) => {
-            const cardContent = (
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewport}
-                custom={idx}
-                onClick={card.href ? undefined : () => triggerToast(language === 'en' ? t.toastMsgEn : t.toastMsg)}
-                className={`group relative bg-[#f8f9fa]/25 dark:bg-white/4 border rounded-3xl overflow-hidden hover:bg-white/45 dark:hover:bg-white/8 hover:border-solid hover:border-slate-300 dark:hover:border-white/15 hover:shadow-[0_12px_30px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all duration-300 flex flex-col flex-1 ${card.href ? 'border-[#e2e8f0]/80 dark:border-white/15 cursor-pointer' : 'border-dashed border-[#d1d5db] dark:border-white/10 cursor-pointer p-5'}`}
-              >
-                {card.image && (
-                  <div className="relative w-full aspect-[16/8] overflow-hidden shrink-0">
-                    <Image
-                      src={card.image}
-                      alt={card.imageAlt || card.title}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" />
-                  </div>
-                )}
-
-                <div className={card.href ? 'space-y-4 p-5 flex flex-col flex-1' : 'space-y-4'}>
-                  <div className="flex justify-between items-center w-full gap-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-zinc-450 bg-[#ffffff]/60 dark:bg-zinc-850 px-2.5 py-1 rounded-md border border-slate-200/40 dark:border-zinc-800">
-                      {card.category}
-                    </span>
-                    {card.href ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/25 border border-emerald-100/50 dark:border-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                        {t.readMore}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-500 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                        <Lock className="w-2.5 h-2.5" />
-                        {t.comingSoon}
-                      </span>
-                    )}
-                  </div>
-
-                  {(card.author || card.date) && (
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
-                      <span className="inline-flex items-center gap-1.5">
-                        <User className="h-3.5 w-3.5 text-indigo-500" />
-                        {card.author}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-indigo-500" />
-                        {card.date}
-                      </span>
-                    </div>
-                  )}
-
-                  <h4 className="font-display text-lg sm:text-xl font-bold text-slate-750 dark:text-zinc-350 group-hover:text-slate-900 dark:group-hover:text-white transition-colors line-clamp-3 leading-snug">
-                    {card.title}
-                  </h4>
-
-                  <p className="text-slate-550 dark:text-zinc-450 text-xs sm:text-sm leading-relaxed line-clamp-3">
-                    {card.excerpt}
-                  </p>
+                <div className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-indigo-600 transition-all group-hover:gap-3 dark:text-indigo-300">
+                  <span>{t.readMore}</span>
+                  <ArrowRight className="h-4 w-4" />
                 </div>
+              </div>
+            </motion.article>
+          </Link>
 
-                <div className={`flex items-center gap-1.5 text-xs font-semibold transition-colors ${card.href ? 'px-5 pb-5 text-indigo-600 dark:text-indigo-400 group-hover:gap-2' : 'pt-4 text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400'}`}>
-                  {card.href ? <ArrowRight className="w-3.5 h-3.5" /> : <Bell className="w-3.5 h-3.5" />}
-                  <span>{card.href ? t.readMore : t.comingSoon}</span>
-                </div>
-              </motion.div>
-            );
-
-            return card.href ? (
-              <Link key={card.id} href={card.href} className="block flex-1">
-                {cardContent}
-              </Link>
-            ) : (
-              <React.Fragment key={card.id}>{cardContent}</React.Fragment>
-            );
-          })}
+          <div className="grid gap-6 md:grid-cols-2">
+            {t.placeholders.map((card, idx) => renderSecondaryCard(card, idx))}
+          </div>
         </div>
-
-        </div>{/* end bento 1+2 grid */}
-
       </div>
 
       {/* Sleek Custom Notification Toast */}
@@ -259,6 +248,6 @@ export default function BlogSection({ t: initialT }: BlogSectionProps) {
         )}
       </AnimatePresence>
 
-    </div>
+    </section>
   );
 }

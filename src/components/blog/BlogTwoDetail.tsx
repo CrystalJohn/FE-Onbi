@@ -26,6 +26,7 @@ interface ImageBlockProps {
   caption: string;
   ratio?: string;
   priority?: boolean;
+  fit?: 'cover' | 'contain';
 }
 
 interface ComparisonRow {
@@ -67,16 +68,16 @@ function FAQAccordion({ question, answer }: FAQItemProps) {
   );
 }
 
-function ImageBlock({ src, alt, caption, ratio = 'aspect-[16/9]', priority = false }: ImageBlockProps) {
+function ImageBlock({ src, alt, caption, ratio = 'aspect-[16/9]', priority = false, fit = 'cover' }: ImageBlockProps) {
   return (
     <figure className="py-4">
-      <div className={`relative w-full overflow-hidden ${ratio}`}>
+      <div className={`relative w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900 ${ratio}`}>
         <Image
           src={src}
           alt={alt}
           fill
           sizes="(max-width: 1024px) 100vw, 1024px"
-          className="object-contain"
+          className={fit === 'contain' ? 'object-contain' : 'object-cover'}
           priority={priority}
         />
       </div>
@@ -375,7 +376,7 @@ export default function BlogTwoDetail() {
           </div>
 
           <ImageBlock
-            src="/blog/blog-2/image-1.jpg"
+            src="/blog/blog-3/image-1.jpg"
             alt="Trẻ tiểu học không chịu ngồi vào bàn học"
             caption={t.coverCaption}
             priority
@@ -405,10 +406,10 @@ export default function BlogTwoDetail() {
               {t.causesTitle}
             </h2>
             <ImageBlock
-              src="/blog/blog-2/image-2.jpg"
+              src="/blog/blog-3/image-2.jpg"
               alt="6 nguyên nhân khiến trẻ tiểu học không chịu học bài tại nhà"
               caption={t.causesCaption}
-              ratio="aspect-[4/5] max-w-2xl"
+              ratio="aspect-[16/9]"
             />
             <div className="grid gap-4 md:grid-cols-2">
               {t.causes.map((cause, index) => (
@@ -430,9 +431,11 @@ export default function BlogTwoDetail() {
               {t.stepsTitle}
             </h2>
             <ImageBlock
-              src="/blog/blog-2/image-3.jpg"
+              src="/blog/blog-3/image-3.jpg"
               alt="Phụ huynh hướng dẫn con lập kế hoạch học bài tại nhà"
               caption={t.planningCaption}
+              ratio="mx-auto aspect-[9/16] max-w-2xl"
+              fit="contain"
             />
             <div className="space-y-3">
               {t.steps.map((step, index) => (
@@ -470,7 +473,7 @@ export default function BlogTwoDetail() {
               {t.hardProblemTitle}
             </h2>
             <ImageBlock
-              src="/blog/blog-2/image-4.jpg"
+              src="/blog/blog-3/image-4.jpg"
               alt="Bàn học trống khi trẻ tiểu học tự học một mình tại nhà"
               caption={t.lonelyCaption}
             />
@@ -485,7 +488,7 @@ export default function BlogTwoDetail() {
             </h2>
             <p>{t.onbiIntro}</p>
             <ImageBlock
-              src="/blog/blog-2/image-5.jpg"
+              src="/blog/blog-3/image-5.jpg"
               alt="Robot OnBi tự động khởi động Pomodoro khi trẻ ngồi vào bàn học"
               caption={t.onbiCaption}
               priority
@@ -500,7 +503,7 @@ export default function BlogTwoDetail() {
               ))}
             </div>
             <ImageBlock
-              src="/blog/blog-2/image-6.jpg"
+              src="/blog/blog-3/image-6.jpg"
               alt="App OnBi hiển thị báo cáo học tập và timeline hành vi của trẻ"
               caption={t.appCaption}
             />

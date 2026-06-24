@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { blogPosts, getBlogPostBySlug } from '@/lib/blog-posts';
+import ReadingProgressBar from '@/components/blog/ReadingProgressBar';
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;
@@ -36,5 +37,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const BlogPost = post.Component;
-  return <BlogPost />;
+  return (
+    <>
+      <ReadingProgressBar />
+      <BlogPost />
+    </>
+  );
 }
