@@ -8,7 +8,6 @@ import { useTheme } from 'next-themes';
 import { BlurFade } from '@/components/ui/blur-fade';
 import Header from '@/components/landing/Header';
 import ParentProblems from '@/components/landing/ParentProblems';
-import HeroVideo from '@/components/landing/HeroVideo';
 import type { Lang, LandingContent } from '@/i18n/landing';
 import { useLanding } from '@/i18n/useLanding';
 import { useLanguage } from '@/context/LanguageContext';
@@ -19,6 +18,7 @@ const BlogSection = dynamic(() => import('@/components/landing/BlogSection'));
 const MeetOurTeam = dynamic(() => import('@/components/landing/MeetOurTeam'));
 const Pricing = dynamic(() => import('@/components/landing/Pricing'));
 const Footer = dynamic(() => import('@/components/landing/Footer'));
+const HeroVideo = dynamic(() => import('@/components/landing/HeroVideo'), { ssr: false });
 
 const HERO_PLAYBACK_IDS = {
   light: 'hBUxfG3M6oXAFc9r01HT02IiDj5UB3IXRvO1C3q02wCk0000',

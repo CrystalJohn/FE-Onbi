@@ -67,6 +67,8 @@ export interface BlogArticle {
   category: string;
   title: string;
   excerpt: string;
+  author?: string;
+  date?: string;
   href?: string;
   image?: string;
   imageAlt?: string;

@@ -191,6 +191,19 @@ export default function BlogSection({ t: initialT }: BlogSectionProps) {
                     )}
                   </div>
 
+                  {(card.author || card.date) && (
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+                      <span className="inline-flex items-center gap-1.5">
+                        <User className="h-3.5 w-3.5 text-indigo-500" />
+                        {card.author}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-indigo-500" />
+                        {card.date}
+                      </span>
+                    </div>
+                  )}
+
                   <h4 className="font-display text-lg sm:text-xl font-bold text-slate-750 dark:text-zinc-350 group-hover:text-slate-900 dark:group-hover:text-white transition-colors line-clamp-3 leading-snug">
                     {card.title}
                   </h4>

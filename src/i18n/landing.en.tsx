@@ -116,8 +116,8 @@ const en: LandingContent = {
       excerpt: 'Discover how OnBi combines physical Pomodoro automation, posture tracking AI, and parent updates to foster organic concentration and self-study habits in children.',
     },
     placeholders: [
-      { id: 2, category: 'Parenting Guide', title: 'What Should Parents Do When a Child Refuses to Study?', excerpt: 'Understand the six real reasons children avoid homework and build a calm system that helps them study without daily reminders.', href: '/blog/con-khong-chiu-hoc-phai-lam-sao', image: '/blog/blog-2/image-1.jpg', imageAlt: 'Primary school child avoiding the study desk while parents worry' },
-      { id: 3, category: 'Digital Parenting', title: 'Digital Age Parenting: Academic Monitoring vs. Trust & Privacy', excerpt: 'Exploring the healthy boundary between automated insight tracking and micromanagement in modern education.' },
+      { id: 3, category: 'Parenting Guide', title: 'What Should Parents Do When a Child Refuses to Study?', excerpt: 'Understand the six real reasons children avoid homework and build a calm system that helps them study without daily reminders.', author: 'OnBi Team', date: '24/06/2026', href: '/blog/con-khong-chiu-hoc-phai-lam-sao', image: '/blog/blog-2/image-1.jpg', imageAlt: 'Primary school child avoiding the study desk while parents worry' },
+      { id: 4, category: 'Digital Parenting', title: 'Digital Age Parenting: Academic Monitoring vs. Trust & Privacy', excerpt: 'Exploring the healthy boundary between automated insight tracking and micromanagement in modern education.' },
     ],
   },
 };

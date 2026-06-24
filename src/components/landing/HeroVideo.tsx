@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import MuxPlayer from '@mux/mux-player-react';
-import type MuxPlayerElement from '@mux/mux-player';
+import MuxVideo from '@mux/mux-video-react';
 
 interface HeroVideoProps {
   playbackId: string;
@@ -15,39 +14,35 @@ const HERO_INITIAL_BANDWIDTH_KBPS = 12000;
 const HERO_INITIAL_ESTIMATE_SEGMENTS = 3;
 
 export default function HeroVideo({ playbackId, className = '' }: HeroVideoProps) {
-  const playerARef = useRef<MuxPlayerElement | null>(null);
-  const playerBRef = useRef<MuxPlayerElement | null>(null);
+  const playerARef = useRef<HTMLVideoElement | null>(null);
+  const playerBRef = useRef<HTMLVideoElement | null>(null);
   const [activePlayer, setActivePlayer] = useState<'A' | 'B'>('A');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const durationRef = useRef(0);
   const preplayTriggered = useRef(false);
   const crossfadeTriggered = useRef(false);
 
-  const playerStyle = {
-    '--controls': 'none',
-    '--media-object-fit': 'cover',
-    '--media-object-position': 'center',
+  const playerStyle: React.CSSProperties = {
+    objectFit: 'cover',
+    objectPosition: 'center',
     width: '100%',
     height: '100%',
     position: 'absolute',
     inset: 0,
-  } as React.CSSProperties & Record<`--${string}`, string>;
+  };
 
   const commonProps = {
     playbackId,
     muted: true,
     loop: false,
+    playsInline: true,
     capRenditionToPlayerSize: false,
     initialBandwidthEstimateKbps: HERO_INITIAL_BANDWIDTH_KBPS,
     initialEstimateSegments: HERO_INITIAL_ESTIMATE_SEGMENTS,
     minResolution: '1080p' as const,
     maxResolution: '1080p' as const,
-    maxAutoResolution: '1080p' as const,
     disableTracking: true,
     disableCookies: true,
-    primaryColor: 'transparent',
-    secondaryColor: 'transparent',
-    nohotkeys: true,
     style: playerStyle,
   };
 
@@ -78,7 +73,7 @@ export default function HeroVideo({ playbackId, className = '' }: HeroVideoProps
     const b = playerBRef.current;
     if (!a || !b) return;
 
-    const target = event.currentTarget as MuxPlayerElement;
+    const target = event.currentTarget as HTMLVideoElement;
     const isA = target === a;
     const isActive = (activePlayer === 'A' && isA) || (activePlayer === 'B' && !isA);
 
@@ -158,7 +153,7 @@ export default function HeroVideo({ playbackId, className = '' }: HeroVideoProps
       style={{ zIndex: 0 }}
     >
       <div className="absolute inset-0" style={getPlayerStyle('A')}>
-        <MuxPlayer
+        <MuxVideo
           ref={playerARef}
           {...commonProps}
           autoPlay="muted"
@@ -167,7 +162,7 @@ export default function HeroVideo({ playbackId, className = '' }: HeroVideoProps
       </div>
 
       <div className="absolute inset-0" style={getPlayerStyle('B')}>
-        <MuxPlayer
+        <MuxVideo
           ref={playerBRef}
           {...commonProps}
           preload="metadata"
@@ -176,3 +171,4 @@ export default function HeroVideo({ playbackId, className = '' }: HeroVideoProps
     </div>
   );
 }
+

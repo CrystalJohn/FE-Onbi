@@ -116,8 +116,8 @@ const vi: LandingContent = {
       excerpt: 'Khám phá cách OnBi kết hợp tự động hóa Pomodoro vật lý, AI theo dõi tư thế và cập nhật cho phụ huynh để nuôi dưỡng sự tập trung tự nhiên và thói quen tự học cho trẻ.',
     },
     placeholders: [
-      { id: 2, category: 'Kinh nghiệm nuôi dạy con', title: 'Con Không Chịu Học Phải Làm Sao? Đây Là Câu Trả Lời Ba Mẹ Cần Ngay Hôm Nay', excerpt: 'Tìm hiểu 6 nguyên nhân thật sự khiến trẻ lười học và cách xây dựng thói quen tự giác học bài mà không cần ba mẹ nhắc mỗi ngày.', href: '/blog/con-khong-chiu-hoc-phai-lam-sao', image: '/blog/blog-2/image-1.jpg', imageAlt: 'Trẻ tiểu học không chịu ngồi vào bàn học khiến phụ huynh lo lắng' },
-      { id: 3, category: 'Làm cha mẹ thời số', title: 'Làm cha mẹ thời số: Theo dõi học tập vs. Tin tưởng & Riêng tư', excerpt: 'Khám phá ranh giới lành mạnh giữa theo dõi tự động và việc kiểm soát quá mức trong giáo dục hiện đại.' },
+      { id: 3, category: 'Kinh nghiệm nuôi dạy con', title: 'Con Không Chịu Học Phải Làm Sao? Đây Là Câu Trả Lời Ba Mẹ Cần Ngay Hôm Nay', excerpt: 'Con không chịu học phải làm sao? Tìm hiểu ngay 6 nguyên nhân thật sự khiến trẻ lười học và giải pháp giúp con tự giác học bài mà không cần ba mẹ nhắc mỗi ngày.', author: 'Đội ngũ OnBi', date: '24/06/2026', href: '/blog/con-khong-chiu-hoc-phai-lam-sao', image: '/blog/blog-2/image-1.jpg', imageAlt: 'Trẻ tiểu học không chịu ngồi vào bàn học khiến phụ huynh lo lắng' },
+      { id: 4, category: 'Làm cha mẹ thời số', title: 'Làm cha mẹ thời số: Theo dõi học tập vs. Tin tưởng & Riêng tư', excerpt: 'Khám phá ranh giới lành mạnh giữa theo dõi tự động và việc kiểm soát quá mức trong giáo dục hiện đại.' },
     ],
   },
 };
