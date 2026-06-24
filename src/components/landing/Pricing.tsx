@@ -243,9 +243,7 @@ export default function Pricing({ t: initialT }: PricingProps) {
             {t.toggleHasDevice}
           </button>
         </div>
-        <p className="text-center text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium max-w-md mt-1 px-4 leading-normal">
-          {t.toggleHelperText}
-        </p>
+
       </div>
 
       {/* Pricing Cards Grid (Switched based on hasDevice toggle) */}

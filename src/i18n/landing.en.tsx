@@ -55,7 +55,7 @@ const en: LandingContent = {
     subheading: 'Purchase the ONBI robot or renew the app to continue tracking study habits, Pomodoro cycles, and progress reports.',
     toggleNoDevice: 'New Purchase',
     toggleHasDevice: 'Already have ONBI',
-    toggleHelperText: 'New purchase includes robot + app. Already have ONBI to renew Premium.',
+
     batchInfo: 'Estimated shipping Q3/2026',
     tiers: [
       { id: 'monthly', name: 'Monthly Pass', badge: 'App Renewal', description: 'Maintain smart tracking, reporting, and alerting features every month.', price: '149,000đ', period: 'month', dividerLabel: 'MONTHLY ACCESS +', features: ['Automated 25/5 Pomodoro', 'Real-time app tracking', 'Posture & focus alerts', 'Detailed parent dashboard reports'], cta: 'Subscribe Monthly', colorTheme: 'cyan' },

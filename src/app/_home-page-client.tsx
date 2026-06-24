@@ -21,8 +21,8 @@ const Footer = dynamic(() => import('@/components/landing/Footer'));
 const HeroVideo = dynamic(() => import('@/components/landing/HeroVideo'), { ssr: false });
 
 const HERO_PLAYBACK_IDS = {
-  light: 'hBUxfG3M6oXAFc9r01HT02IiDj5UB3IXRvO1C3q02wCk0000',
-  dark: 'jsO5K1n4rUbiIWF1jL302sxUDH00SKe26Am00svJX6w7RM',
+  light: '02P3tbW4l7BAXM6KgUwPm00Hi8x2tbGEcO45w6R1Aw8jE',
+  dark: 'zgPnGoDAvmp2NZcuXNPEnRpuyJNTelgeY5ED000073ev4',
 } as const;
 
 function HeroThemeVideo() {
@@ -62,14 +62,14 @@ export default function HomePageClient({ lang, t }: Props) {
     <div className="min-h-screen bg-white dark:bg-black text-[#18181a] dark:text-[#f5f5f7] font-sans antialiased selection:bg-indigo-950 dark:selection:bg-blue-950 selection:text-white relative overflow-hidden">
 
       {/* HERO ZONE */}
-      <div className="relative hero-height min-h-screen md:min-h-screen bg-white dark:bg-black">
+      <div className="relative bg-white dark:bg-black">
         <Header
           onJoinClick={() => scrollToId('pricing_section')}
           onTimerClick={() => setShowTimerModal(true)}
           t={t}
         />
 
-        <div className="w-full relative pt-16 md:pt-20 z-10">
+        <div className="w-full relative pt-0 md:pt-20 z-10">
           <section id="hero_section" className="scroll-mt-24 relative flex flex-col justify-start py-0 max-w-[1920px] mx-auto">
             <motion.div
               className="relative z-10 flex flex-1 items-start justify-center w-full pt-0"
@@ -77,31 +77,36 @@ export default function HomePageClient({ lang, t }: Props) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             >
-              <div className="relative w-full aspect-video overflow-hidden bg-black transform -translate-y-12 md:-translate-y-16 lg:-translate-y-20">
-                <HeroThemeVideo />
-                <div
-                  className="absolute inset-0 pointer-events-none z-10"
-                  style={{
-                    background: 'linear-gradient(to right, rgba(6,27,58,0.52) 0%, rgba(10,42,94,0.28) 40%, rgba(10,42,94,0.05) 70%, transparent 75%)',
-                  }}
-                  aria-hidden="true"
-                />
-                <div className="absolute inset-0 flex items-start pt-[12%] px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 pointer-events-none z-20">
-                  <div className="max-w-3xl space-y-5 sm:space-y-6 text-white w-full">
+              <div className="relative w-full flex flex-col md:block md:aspect-video md:overflow-hidden md:bg-black md:transform md:-translate-y-16 lg:-translate-y-20 md:-mb-16 lg:-mb-20">
+                {/* VIDEO BOX — mobile: 16:9 block below text; md+: fills hero box */}
+                <div className="order-2 md:order-none relative w-full aspect-[4/5] sm:aspect-[4/3] overflow-hidden bg-black md:absolute md:inset-0 md:aspect-auto [--hero-object-position:80%_50%] sm:[--hero-object-position:100%_50%] md:[--hero-object-position:50%_50%]">
+                  <HeroThemeVideo />
+                  <div
+                    className="absolute inset-0 pointer-events-none z-10 hidden md:block"
+                    style={{
+                      background: 'linear-gradient(to right, rgba(6,27,58,0.52) 0%, rgba(10,42,94,0.28) 40%, rgba(10,42,94,0.05) 70%, transparent 75%)',
+                    }}
+                    aria-hidden="true"
+                  />
+                </div>
+
+                {/* TEXT — mobile: solid blue panel above video; md+: left overlay on video */}
+                <div className="order-1 md:order-none z-20 px-5 pt-[var(--header-clear)] pb-8 md:p-0 bg-[linear-gradient(135deg,#0a2a5e,#0f3d8c)] md:bg-none md:absolute md:inset-0 md:flex md:items-start md:pt-[max(6rem,9%)] md:px-16 lg:px-24 xl:px-32 md:pointer-events-none">
+                  <div className="w-full md:w-[52%] lg:w-[46%] max-w-[640px] flex flex-col gap-3 md:gap-6 text-white">
                     <BlurFade delay={0.2}>
                       <h1
-                        className="font-display text-3xl sm:text-4xl md:text-[3rem] lg:text-[4vw] xl:text-[4.5rem] font-semibold tracking-tight leading-[1.03]"
-                        style={{ textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
+                        className="font-display font-semibold tracking-tight leading-[1.1] md:leading-[1.03]"
+                        style={{ fontSize: 'clamp(1.65rem, 4.5vw, 4rem)', textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
                       >
                         {live.hero.title}
                       </h1>
                     </BlurFade>
                     <BlurFade delay={0.35}>
-                      <p className="max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed font-medium tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+                      <p className="max-w-2xl text-sm md:text-lg leading-relaxed font-medium tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
                         {live.hero.description}
                       </p>
                     </BlurFade>
-                    <div className="flex flex-col sm:flex-row items-start gap-3 md:pt-4 pointer-events-auto">
+                    <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-start gap-2.5 md:gap-3 pt-1 md:pt-4 md:pointer-events-auto">
                       <button
                         id="hero_primary_cta"
                         onClick={() => scrollToId('pricing_section')}

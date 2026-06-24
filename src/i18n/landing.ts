@@ -92,7 +92,7 @@ export interface LandingContent {
   };
   pricing: {
     tag: string; headingLine1: string; headingLine2: string; subheading: string;
-    toggleNoDevice: string; toggleHasDevice: string; toggleHelperText: string; batchInfo: string;
+    toggleNoDevice: string; toggleHasDevice: string; batchInfo: string;
     tiers: PricingTier[];
   };
   team: { tag: string; titleLine1: string; titleLine2: string; subTitle: string; team: TeamMemberData[]; };
