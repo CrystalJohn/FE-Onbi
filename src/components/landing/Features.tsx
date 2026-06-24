@@ -70,7 +70,7 @@ export default function Features({ t: initialT }: FeaturesProps) {
     {
       category: t.categories.parent,
       title: "Study Timeline & Weekly Insights",
-      src: "/Study Timeline & Weekly Insights.webp",
+      src: "/Study%20Timeline%20%26%20Weekly%20Insights.webp",
       content: (
         <div className="bg-[#F5F5F7] dark:bg-zinc-900 p-8 md:p-14 rounded-3xl mb-4">
           <p className="text-neutral-600 dark:text-zinc-400 text-base md:text-2xl font-sans max-w-3xl mx-auto leading-relaxed">

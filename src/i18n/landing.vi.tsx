@@ -55,7 +55,7 @@ const vi: LandingContent = {
     subheading: 'Đăng ký nhận thông tin sớm để sở hữu robot ONBI và trải nghiệm ứng dụng theo dõi học tập tự động.',
     toggleNoDevice: 'Sở hữu Robot ONBI',
     toggleHasDevice: 'Gia hạn Ứng dụng',
-    toggleHelperText: 'Đăng ký nhận thông tin mua mới Robot + App, hoặc gia hạn riêng gói phần mềm nếu đã có thiết bị.',
+
     batchInfo: 'Dự kiến ra mắt Q3/2026',
     tiers: [
       { id: 'monthly', name: 'Thành viên Tháng', badge: 'Gia hạn app', description: 'Duy trì các tính năng theo dõi và nhắc nhở thông minh mỗi tháng.', price: '149.000đ', period: 'tháng', dividerLabel: 'QUYỀN TRUY CẬP THÁNG +', features: ['Tự động Pomodoro 25/5', 'Theo dõi realtime trên app', 'Cảnh báo tư thế & tập trung', 'Báo cáo tiến độ chi tiết cho ba mẹ'], cta: 'Đăng ký theo Tháng', colorTheme: 'cyan' },

@@ -66,9 +66,10 @@ export default function MeetOurTeam({ t: initialT }: MeetOurTeamProps) {
         viewport={viewport}
         variants={fadeUp}
       >
+        {/* Desktop: Expanding flex cards (hover effect) */}
         <div
-          className="flex items-stretch gap-3 md:gap-4"
-          style={{ height: 'clamp(300px, 32vw, 440px)' }}
+          className="hidden md:flex items-stretch gap-3 md:gap-4"
+          style={{ height: 'clamp(360px, 32vw, 440px)' }}
           onMouseLeave={() => setHoveredIndex(null)}
         >
           {team.map((member, idx) => {
@@ -102,7 +103,7 @@ export default function MeetOurTeam({ t: initialT }: MeetOurTeamProps) {
                     height={600}
                     unoptimized
                     className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[92%] w-auto max-w-none z-10 object-contain object-bottom pointer-events-none transition-transform duration-500"
-                    sizes="(max-width: 768px) 50vw, 20vw"
+                    sizes="20vw"
                   />
                 
                 ) : (
@@ -149,6 +150,44 @@ export default function MeetOurTeam({ t: initialT }: MeetOurTeamProps) {
               </div>
             );
           })}
+        </div>
+
+        {/* Mobile: 2-column grid fallback (no hover effect on touch) */}
+        <div className="grid grid-cols-2 gap-3 md:hidden">
+          {team.map((member, idx) => (
+            <div
+              key={idx}
+              className="relative rounded-2xl overflow-hidden aspect-[3/4] select-none"
+              style={{ backgroundColor: member.bgColor }}
+            >
+              {member.avatar ? (
+                <Image
+                  src={member.avatar}
+                  alt={member.name}
+                  width={300}
+                  height={400}
+                  unoptimized
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[90%] w-auto max-w-none z-10 object-contain object-bottom pointer-events-none"
+                  sizes="50vw"
+                />
+              ) : (
+                <div className={`absolute inset-0 bg-gradient-to-br ${member.color} flex items-center justify-center z-10`}>
+                  <span className="text-white font-bold text-3xl drop-shadow">{member.initials}</span>
+                </div>
+              )}
+              <div
+                className="absolute bottom-0 left-0 right-0 z-20 px-3 pb-3 text-center"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.08) 70%, transparent 100%)' }}
+              >
+                <h3 className="font-display text-sm font-bold text-white tracking-tight drop-shadow-lg">
+                  {member.name}
+                </h3>
+                <p className="text-white/80 text-[10px] font-semibold mt-0.5 drop-shadow">
+                  {member.role}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </motion.div>
     </div>

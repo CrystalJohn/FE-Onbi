@@ -152,10 +152,10 @@ export default function ParentProblems({ t: initialT }: ParentProblemsProps) {
           </div>
 
           {/* ── RIGHT COLUMN: Video Showcase ── */}
-          <div className="w-full lg:w-[55%] flex items-center justify-center min-h-[300px] md:min-h-[400px]">
+          <div className="w-full lg:w-[55%] flex items-center justify-center">
             {/* All 3 videos rendered simultaneously, only active is visible.
                 Stacked pattern ensures instant transitions without flickering or delay. */}
-            <div className="w-full h-full min-h-[320px] md:min-h-[500px] rounded-[32px] md:rounded-[40px] bg-[#f5f5f7] dark:bg-zinc-950 border border-slate-100 dark:border-zinc-850 shadow-inner relative overflow-hidden">
+            <div className="w-full h-full aspect-[4/3] sm:aspect-video lg:aspect-auto lg:min-h-[500px] rounded-[32px] md:rounded-[40px] bg-[#f5f5f7] dark:bg-zinc-950 border border-slate-100 dark:border-zinc-850 shadow-inner relative overflow-hidden">
               {TAB_IDS.map((id) => (
                 <video
                   key={id}
