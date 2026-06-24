@@ -20,7 +20,7 @@ export default function HeroVideo({ playbackId, className = '' }: HeroVideoProps
     '--media-object-position': 'var(--hero-object-position, center)',
     width: '100%',
     height: '100%',
-    position: 'absolute',
+    position: 'absolute' as const,
     inset: 0,
   };
 
