@@ -59,7 +59,7 @@ export default function HomePageClient({ lang, t }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-[#18181a] dark:text-[#f5f5f7] font-sans antialiased selection:bg-indigo-950 dark:selection:bg-blue-950 selection:text-white pb-16 relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-black text-[#18181a] dark:text-[#f5f5f7] font-sans antialiased selection:bg-indigo-950 dark:selection:bg-blue-950 selection:text-white relative overflow-hidden">
 
       {/* HERO ZONE */}
       <div className="relative hero-height min-h-screen md:min-h-screen bg-white dark:bg-black">

@@ -4,9 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Activity,
   Baby,
   LayoutDashboard,
   Menu,
+  MessageSquareText,
   Pin,
   PinOff,
   Settings,
@@ -14,18 +16,26 @@ import {
   Users,
   Wifi,
   X,
+  ShoppingCart,
+  Crown
 } from "lucide-react";
 
 const parentNav = [
   { href: "/parent/dashboard", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/parent/profile", label: "Thông tin cá nhân", icon: User },
   { href: "/parent/children", label: "Hồ sơ trẻ", icon: Baby },
+  { href: "/parent/subscription", label: "Gói dịch vụ", icon: Crown },
+  { href: "/parent/feedback", label: "Phản hồi", icon: MessageSquareText },
 ];
 
 const adminNav = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/devices", label: "Devices", icon: Wifi },
+  { href: "/admin/pre-orders", label: "Pre-orders", icon: ShoppingCart },
+  { href: "/admin/subscription-orders", label: "Gói dịch vụ", icon: Crown },
+  { href: "/admin/feedback", label: "Feedback", icon: MessageSquareText },
+  { href: "/admin/activity", label: "Activity", icon: Activity },
 ];
 
 export function Sidebar() {
@@ -42,9 +52,8 @@ export function Sidebar() {
       <aside
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`sticky top-0 z-30 hidden h-dvh shrink-0 p-3 transition-all duration-300 ease-out lg:block ${
-          isExpanded ? "w-[280px]" : "w-[88px]"
-        }`}
+        className={`sticky top-0 z-30 hidden h-dvh shrink-0 p-3 transition-all duration-300 ease-out lg:block ${isExpanded ? "w-[280px]" : "w-[88px]"
+          }`}
       >
         <div className="relative flex h-[calc(100dvh-24px)] flex-col overflow-visible rounded-[32px] border border-white/80 bg-white/75 p-2.5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
           <button
@@ -76,13 +85,11 @@ export function Sidebar() {
                   aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
                   title={!isExpanded ? item.label : undefined}
-                  className={`flex min-h-12 items-center overflow-hidden rounded-2xl text-sm font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${
-                    isExpanded ? "gap-3 px-3.5" : "justify-center px-0"
-                  } ${
-                    isActive
+                  className={`flex min-h-12 items-center overflow-hidden rounded-2xl text-sm font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${isExpanded ? "gap-3 px-3.5" : "justify-center px-0"
+                    } ${isActive
                       ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]"
                       : "text-slate-600 hover:bg-cyan-50/90 hover:text-[#0B008B]"
-                  }`}
+                    }`}
                 >
                   <Icon aria-hidden="true" className={`h-[19px] w-[19px] shrink-0 ${isActive ? "text-white" : "text-slate-400"}`} />
                   <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-out ${isExpanded ? "w-44 translate-x-0 opacity-100" : "w-0 -translate-x-2 opacity-0"}`}>{item.label}</span>
@@ -132,9 +139,8 @@ export function Sidebar() {
                     href={item.href}
                     onClick={() => setIsMobileOpen(false)}
                     aria-current={isActive ? "page" : undefined}
-                    className={`flex min-h-12 items-center gap-3 rounded-2xl px-4 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
-                      isActive ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]" : "text-slate-600 hover:bg-cyan-50 hover:text-[#0B008B]"
-                    }`}
+                    className={`flex min-h-12 items-center gap-3 rounded-2xl px-4 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${isActive ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]" : "text-slate-600 hover:bg-cyan-50 hover:text-[#0B008B]"
+                      }`}
                   >
                     <Icon aria-hidden="true" className="h-[19px] w-[19px] shrink-0" />
                     {item.label}

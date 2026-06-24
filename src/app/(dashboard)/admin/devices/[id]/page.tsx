@@ -5,14 +5,19 @@ import { ArrowLeft, Hash, Barcode, Calendar, Cpu, User, Baby, Wifi, WifiOff } fr
 import Link from 'next/link';
 
 interface DeviceDetail {
-  id: number;
+  id: string;
   activationCode: string;
   serialNumber?: string;
   model?: string;
   firmwareVersion?: string;
   status: string;
-  child?: { id: number; name: string } | null;
-  parent?: { id: number; fullName: string } | null;
+  // BE (device.service.ts adminGetDeviceDetail) trả: device.activatedByUser + device.currentAssignment.child
+  activatedByUser?: { id: string; email: string; fullName: string } | null;
+  currentAssignment?: {
+    childId: string;
+    child: { id: string; name: string };
+    assignedAt: string;
+  } | null;
   createdAt: string;
 }
 
@@ -105,27 +110,33 @@ export default function AdminDeviceDetailPage({
               <span className="text-slate-500 w-32">Activation Code:</span>
               <span className="font-mono text-sm text-slate-900">{device.activationCode}</span>
             </div>
-            {device.serialNumber && (
-              <div className="flex items-center gap-3">
-                <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="text-slate-500 w-32">Serial:</span>
+            <div className="flex items-center gap-3">
+              <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
+              <span className="text-slate-500 w-32">Serial:</span>
+              {device.serialNumber ? (
                 <span className="font-medium text-slate-900">{device.serialNumber}</span>
-              </div>
-            )}
-            {device.model && (
-              <div className="flex items-center gap-3">
-                <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="text-slate-500 w-32">Model:</span>
+              ) : (
+                <span className="italic text-slate-400">Chờ thiết bị kết nối</span>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
+              <span className="text-slate-500 w-32">Model:</span>
+              {device.model ? (
                 <span className="font-medium text-slate-900">{device.model}</span>
-              </div>
-            )}
-            {device.firmwareVersion && (
-              <div className="flex items-center gap-3">
-                <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="text-slate-500 w-32">Firmware:</span>
+              ) : (
+                <span className="italic text-slate-400">Chờ thiết bị báo</span>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
+              <span className="text-slate-500 w-32">Firmware:</span>
+              {device.firmwareVersion ? (
                 <span className="font-medium text-slate-900">{device.firmwareVersion}</span>
-              </div>
-            )}
+              ) : (
+                <span className="italic text-slate-400">Chờ thiết bị báo</span>
+              )}
+            </div>
             <div className="flex items-center gap-3">
               <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
               <span className="text-slate-500 w-32">Ngay tao:</span>
@@ -143,22 +154,22 @@ export default function AdminDeviceDetailPage({
             <div className="flex items-center gap-3">
               <User className="w-4 h-4 text-slate-400 shrink-0" />
               <span className="text-slate-500 w-32">Phu huynh:</span>
-              {device.parent ? (
+              {device.activatedByUser ? (
                 <Link
-                  href={`/admin/users/${device.parent.id}`}
+                  href={`/admin/users/${device.activatedByUser.id}`}
                   className="font-medium text-cyan-600 hover:text-cyan-700 hover:underline"
                 >
-                  {device.parent.fullName}
+                  {device.activatedByUser.fullName}
                 </Link>
               ) : (
-                <span className="text-slate-400 italic">Chua gan</span>
+                <span className="text-slate-400 italic">Chua kich hoat</span>
               )}
             </div>
             <div className="flex items-center gap-3">
               <Baby className="w-4 h-4 text-slate-400 shrink-0" />
               <span className="text-slate-500 w-32">Tre:</span>
-              {device.child ? (
-                <span className="font-medium text-slate-900">{device.child.name}</span>
+              {device.currentAssignment?.child ? (
+                <span className="font-medium text-slate-900">{device.currentAssignment.child.name}</span>
               ) : (
                 <span className="text-slate-400 italic">Chua gan</span>
               )}

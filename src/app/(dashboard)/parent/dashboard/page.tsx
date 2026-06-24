@@ -37,6 +37,7 @@ type ChildOverview = Child & {
 export default function ParentDashboardPage() {
   const [profile, setProfile] = useState<User | null>(null);
   const [children, setChildren] = useState<ChildOverview[]>([]);
+  const [alerts24h, setAlerts24h] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -44,11 +45,13 @@ export default function ParentDashboardPage() {
     setLoading(true);
     setError("");
     try {
-      const [profileResponse, childrenResponse, devicesResponse] = await Promise.all([
+      const [profileResponse, childrenResponse, devicesResponse, alertResponse] = await Promise.all([
         api.get<User>("/parents/profile"),
         api.get<Child[]>("/children"),
         api.get<ParentDevice[]>("/devices"),
+        api.get<{ last24h: number }>("/parents/alerts/summary"),
       ]);
+      setAlerts24h(alertResponse.data.last24h);
 
       const sessionResponses = await Promise.all(
         childrenResponse.data.map((child) =>
@@ -197,12 +200,12 @@ export default function ParentDashboardPage() {
               <QuickStat icon={Baby} label="Hồ sơ trẻ" value={children.length} tone="navy" />
               <QuickStat icon={Wifi} label="Robot đã kết nối" value={`${connectedDevices} / ${children.length}`} tone="cyan" />
               <QuickStat icon={Activity} label="Phiên đang hoạt động" value={activeSessions} tone="indigo" />
-              <QuickStat icon={CircleAlert} label="Cảnh báo mới" value="—" tone="slate" />
+              <QuickStat icon={CircleAlert} label="Cảnh báo (24h)" value={alerts24h ?? "—"} tone="slate" />
             </div>
             <div className="mt-5 rounded-2xl border border-cyan-100/80 bg-cyan-50/70 p-4">
               <p className="text-sm font-semibold text-slate-800">Trạng thái hôm nay</p>
               <p className="mt-1 text-sm leading-5 text-slate-600">{familyStatus}</p>
-              <p className="mt-2 text-xs leading-5 text-slate-500">Chưa có dữ liệu cảnh báo để tổng hợp.</p>
+              <p className="mt-2 text-xs leading-5 text-slate-500">{alerts24h === null ? "Đang tổng hợp cảnh báo…" : alerts24h > 0 ? `${alerts24h} cảnh báo trong 24 giờ qua trên các hồ sơ trẻ.` : "Không có cảnh báo nào trong 24 giờ qua."}</p>
             </div>
           </aside>
         </div>

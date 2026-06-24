@@ -195,7 +195,7 @@ export default function DevicesPage() {
             <p className="mt-1 text-sm text-slate-500">{device.model || 'Robot ONBI'}{device.firmwareVersion ? ` · Firmware ${device.firmwareVersion}` : ''}</p>
           </div>
           <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide ${active ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-            {active ? 'Đang hoạt động' : device.status === 'offline' ? 'Ngoại tuyến' : 'Chưa hoạt động'}
+            {active ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
           </span>
         </div>
 

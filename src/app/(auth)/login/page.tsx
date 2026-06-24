@@ -43,8 +43,24 @@ function LoginForm() {
       if (payload.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
-        // Redirect parent to setup first to check if they need to complete onboarding
-        router.push('/setup');
+        // Fetch dữ liệu để quyết định điều hướng, tránh chớp nháy UI ở trang /setup
+        const [childrenRes, devicesRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, { headers: { Authorization: `Bearer ${data.accessToken}` } }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/devices`, { headers: { Authorization: `Bearer ${data.accessToken}` } }),
+        ]);
+        
+        const childData = childrenRes.ok ? await childrenRes.json() : [];
+        const deviceData = devicesRes.ok ? await devicesRes.json() : [];
+        
+        // Đã kích hoạt nhưng chưa gán thiết bị -> Vào Setup để hiện Onboard Gán
+        // Đã gán thiết bị -> Bỏ qua Onboarding -> Vào Dashboard
+        const hasAssignedDevice = deviceData.some((device: any) => device.assigned || device.assignedChildId);
+
+        if (hasAssignedDevice) {
+          router.push('/parent/dashboard');
+        } else {
+          router.push('/setup');
+        }
       }
     } catch {
       setError('Không thể kết nối server');

@@ -45,17 +45,24 @@ export default function SetupStep1() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center p-4">
-      <div className="w-full max-w-md mt-10">
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-[#0F172A] p-4 sm:p-6 lg:p-12">
+      {/* Background Decorators */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-cyan-900/20 blur-[100px]" />
+        <div className="absolute -bottom-40 -right-40 h-[600px] w-[600px] rounded-full bg-[#0B008B]/30 blur-[120px]" />
+      </div>
+
+      <section className="relative w-full max-w-[600px] flex flex-col items-center rounded-[32px] border border-white/40 bg-gradient-to-b from-[#F0F5FA] to-[#E2EAF1] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.5)] sm:p-10 lg:p-12 backdrop-blur-2xl">
+      <div className="w-full max-w-md px-2">
         <button 
           onClick={() => router.push('/setup')}
-          className="p-2 -ml-2 mb-4 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
+          className="p-2 -ml-2 mb-6 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-50 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
-        <h1 className="text-2xl font-bold text-[#000080] mb-2">Bước 1: Tạo hồ sơ cho bé</h1>
-        <p className="text-sm text-slate-500 mb-8">
+        <h1 className="text-2xl font-extrabold tracking-tight text-[#0B008B] mb-2">Bước 1: Tạo hồ sơ cho bé</h1>
+        <p className="text-sm text-slate-500 mb-8 leading-relaxed">
           Hồ sơ giúp ONBI cá nhân hóa trải nghiệm và theo dõi quá trình học tập tốt hơn.
         </p>
 
@@ -67,38 +74,38 @@ export default function SetupStep1() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Tên của bé</label>
+            <label className="block text-[13px] font-medium text-slate-700 mb-2">Tên của bé</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ví dụ: Bé An"
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#000080] focus:border-transparent transition-all"
+              className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0B008B] focus:border-[#0B008B] transition-all bg-white shadow-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Ngày sinh</label>
+            <label className="block text-[13px] font-medium text-slate-700 mb-2">Ngày sinh</label>
             <input
               type="date"
               value={dateOfBirth}
               onChange={(e) => setDateOfBirth(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#000080] focus:border-transparent transition-all"
+              className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0B008B] focus:border-[#0B008B] transition-all bg-white shadow-sm"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Giới tính</label>
+            <label className="block text-[13px] font-medium text-slate-700 mb-2">Giới tính</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setGender('male')}
-                className={`py-3 rounded-xl border text-sm font-medium transition-all ${
+                className={`py-3.5 rounded-xl border text-sm font-medium transition-all ${
                   gender === 'male' 
-                    ? 'border-[#000080] bg-[#000080]/5 text-[#000080]' 
-                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                    ? 'border-[#0B008B] bg-[#F2F4FB] text-[#0B008B] shadow-sm' 
+                    : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 Nam
@@ -106,10 +113,10 @@ export default function SetupStep1() {
               <button
                 type="button"
                 onClick={() => setGender('female')}
-                className={`py-3 rounded-xl border text-sm font-medium transition-all ${
+                className={`py-3.5 rounded-xl border text-sm font-medium transition-all ${
                   gender === 'female' 
-                    ? 'border-[#000080] bg-[#000080]/5 text-[#000080]' 
-                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                    ? 'border-[#0B008B] bg-[#F2F4FB] text-[#0B008B] shadow-sm' 
+                    : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 Nữ
@@ -121,13 +128,14 @@ export default function SetupStep1() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-full bg-[#000080] hover:bg-[#000066] text-white font-bold text-sm transition-colors disabled:opacity-50"
+              className="w-full py-4 rounded-full bg-[#0B008B] hover:bg-[#090070] text-white font-bold text-[15px] shadow-[0_8px_20px_rgba(11,0,139,0.2)] transition-all hover:shadow-[0_12px_25px_rgba(11,0,139,0.3)] disabled:opacity-60"
             >
               {loading ? 'Đang lưu...' : 'Lưu và tiếp tục'}
             </button>
           </div>
         </form>
       </div>
-    </div>
+      </section>
+    </main>
   );
 }

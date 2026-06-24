@@ -23,37 +23,68 @@ import {
 } from "lucide-react";
 
 interface DashboardStats {
-  devices: {
-    total: number;
-    inactive: number;
-    active: number;
-    deactivated: number;
-  };
-  users: {
-    total: number;
-    parents: number;
-    admins: number;
-  };
+  devices: { total: number; inactive: number; active: number; deactivated: number };
+  users: { total: number; parents: number; admins: number };
+  feedback?: { new: number; unresolved: number };
+  recentActivity?: ActivityLogEntry[];
 }
+
+interface RecentFeedback {
+  id: string;
+  subject: string;
+  status: "new" | "in_progress" | "resolved";
+  createdAt: string;
+  parent?: { fullName: string; email: string } | null;
+}
+
+interface ActivityLogEntry {
+  id: string;
+  adminName: string;
+  action: string;
+  entityType: string;
+  entityId?: string;
+  detail?: string;
+  createdAt: string;
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  create_device: "Tạo thiết bị",
+  delete_device: "Xóa thiết bị",
+  deactivate_device: "Vô hiệu hóa thiết bị",
+  reactivate_device: "Kích hoạt lại thiết bị",
+  create_user: "Tạo người dùng",
+  delete_user: "Xóa người dùng",
+  update_feedback: "Cập nhật phản hồi",
+  reply_feedback: "Phản hồi feedback",
+};
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentFeedback, setRecentFeedback] = useState<RecentFeedback[]>([]);
+  const [recentActivity, setRecentActivity] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const getToken = () => localStorage.getItem("token") || "";
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const headers = { Authorization: `Bearer ${getToken()}` };
+    const fetchAll = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/dashboard`, {
-          headers: { Authorization: `Bearer ${getToken()}` },
-        });
-        if (res.ok) setStats(await res.json());
+        const [statsRes, fbRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/dashboard`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/feedback`, { headers }),
+        ]);
+        if (statsRes.ok) {
+          const data: DashboardStats = await statsRes.json();
+          setStats(data);
+          setRecentActivity(data.recentActivity ?? []);
+        }
+        if (fbRes.ok) setRecentFeedback((await fbRes.json()).slice(0, 4));
       } catch { /* ignore */ } finally {
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchAll();
   }, []);
 
   if (loading) {
@@ -62,6 +93,7 @@ export default function AdminDashboardPage() {
 
   const devices = stats?.devices ?? { total: 0, active: 0, inactive: 0, deactivated: 0 };
   const users = stats?.users ?? { total: 0, parents: 0, admins: 0 };
+  const feedback = stats?.feedback ?? { new: 0, unresolved: 0 };
   const needsAttention = devices.deactivated > 0;
 
   const statCards = [
@@ -92,8 +124,8 @@ export default function AdminDashboardPage() {
       </section>
 
       <section aria-label="Chỉ số vận hành" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <OperationalMetric icon={MessageSquareText} label="Feedback mới" value="—" helper="Chưa kết nối dữ liệu" tone="slate" />
-        <OperationalMetric icon={BellRing} label="Feedback chưa xử lý" value="—" helper="Chưa kết nối dữ liệu" tone="slate" />
+        <OperationalMetric icon={MessageSquareText} label="Feedback mới" value={feedback.new} helper={feedback.new > 0 ? "Cần xem sớm" : "Không có phản hồi mới"} tone={feedback.new > 0 ? "warning" : "success"} />
+        <OperationalMetric icon={BellRing} label="Feedback chưa xử lý" value={feedback.unresolved} helper={feedback.unresolved > 0 ? "Đang chờ xử lý" : "Đã xử lý hết"} tone={feedback.unresolved > 0 ? "warning" : "success"} />
         <OperationalMetric icon={Wrench} label="Thiết bị cần kiểm tra" value={devices.deactivated} helper={devices.deactivated > 0 ? "Cần xử lý sớm" : "Không có thiết bị lỗi"} tone={devices.deactivated > 0 ? "danger" : "success"} />
         <OperationalMetric icon={PowerOff} label="Robot chưa kích hoạt" value={devices.inactive} helper={devices.inactive > 0 ? "Đang chờ thiết lập" : "Không có tác vụ chờ"} tone={devices.inactive > 0 ? "warning" : "success"} />
       </section>
@@ -118,22 +150,51 @@ export default function AdminDashboardPage() {
         <section className="flex flex-col rounded-[30px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-700">Parent support</p><h2 className="mt-1.5 text-xl font-bold text-slate-950">Feedback mới nhất</h2><p className="mt-1 text-sm text-slate-600">Phản hồi từ phụ huynh khi thiết bị có vấn đề</p></div>
-            <button disabled title="Chưa có dữ liệu feedback" className="min-h-10 shrink-0 rounded-full px-3 text-sm font-semibold text-slate-400 disabled:cursor-not-allowed">Xem tất cả</button>
+            <Link href="/admin/feedback" className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/80 px-3 text-sm font-semibold text-[#0B008B] shadow-sm transition-colors hover:bg-cyan-50">Xem tất cả <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></Link>
           </div>
-          <div className="grid min-h-64 flex-1 place-items-center py-8 text-center">
-            <div className="max-w-sm">
-              <span className="mx-auto grid h-14 w-14 place-items-center rounded-[20px] bg-cyan-50 text-cyan-700"><MessageSquareText className="h-6 w-6" aria-hidden="true" /></span>
-              <h3 className="mt-4 font-bold text-slate-900">Chưa có feedback mới</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">Khi phụ huynh báo lỗi thiết bị, phản hồi sẽ xuất hiện tại đây.</p>
+          {recentFeedback.length === 0 ? (
+            <div className="grid min-h-64 flex-1 place-items-center py-8 text-center">
+              <div className="max-w-sm">
+                <span className="mx-auto grid h-14 w-14 place-items-center rounded-[20px] bg-cyan-50 text-cyan-700"><MessageSquareText className="h-6 w-6" aria-hidden="true" /></span>
+                <h3 className="mt-4 font-bold text-slate-900">Chưa có feedback mới</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">Khi phụ huynh báo lỗi thiết bị, phản hồi sẽ xuất hiện tại đây.</p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-5 flex-1 space-y-3">
+              {recentFeedback.map((f) => (
+                <Link key={f.id} href="/admin/feedback" className="block rounded-2xl border border-slate-200/80 bg-white/70 p-4 transition-colors hover:border-cyan-200 hover:bg-cyan-50/40">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 truncate font-semibold text-slate-900">{f.subject}</p>
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${f.status === "resolved" ? "bg-emerald-50 text-emerald-700 ring-emerald-200/80" : f.status === "in_progress" ? "bg-cyan-50 text-cyan-700 ring-cyan-200/80" : "bg-amber-50 text-amber-700 ring-amber-200/80"}`}>{f.status === "resolved" ? "Đã xử lý" : f.status === "in_progress" ? "Đang xử lý" : "Mới"}</span>
+                  </div>
+                  <p className="mt-1 truncate text-xs text-slate-500">{f.parent?.fullName ?? "Phụ huynh"} · {new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(new Date(f.createdAt))}</p>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <section className="rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.07)] backdrop-blur-xl sm:p-6">
           <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-50 text-[#0B008B]"><Activity className="h-5 w-5" aria-hidden="true" /></span><div><h2 className="font-bold text-slate-950">Hoạt động gần đây</h2><p className="text-sm text-slate-500">Các thay đổi vận hành mới nhất</p></div></div>
-          <div className="mt-5 grid min-h-36 place-items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-5 text-center"><div><Clock3 className="mx-auto h-6 w-6 text-slate-300" /><p className="mt-2 text-sm font-medium text-slate-600">Chưa có dữ liệu hoạt động gần đây</p><p className="mt-1 text-xs text-slate-400">Lịch sử vận hành sẽ xuất hiện khi backend cung cấp dữ liệu.</p></div></div>
+          {recentActivity.length === 0 ? (
+            <div className="mt-5 grid min-h-36 place-items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-5 text-center"><div><Clock3 className="mx-auto h-6 w-6 text-slate-300" /><p className="mt-2 text-sm font-medium text-slate-600">Chưa có hoạt động nào</p><p className="mt-1 text-xs text-slate-400">Tạo thiết bị, người dùng, hoặc xử lý feedback để bắt đầu ghi lại lịch sử.</p></div></div>
+          ) : (
+            <ul className="mt-4 space-y-0 divide-y divide-slate-100">
+              {recentActivity.map((a) => (
+                <li key={a.id} className="flex items-start gap-3 py-3">
+                  <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-indigo-50 text-[10px] font-bold text-[#0B008B]">{a.adminName.charAt(0).toUpperCase()}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-800">{ACTION_LABELS[a.action] ?? a.action}</p>
+                    <p className="mt-0.5 truncate text-xs text-slate-500">{a.adminName}{a.detail ? ` · ${a.detail}` : ""}</p>
+                  </div>
+                  <time className="shrink-0 text-[11px] text-slate-400">{new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(new Date(a.createdAt))}</time>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.07)] backdrop-blur-xl sm:p-6">

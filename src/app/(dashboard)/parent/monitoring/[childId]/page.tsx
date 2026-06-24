@@ -141,7 +141,7 @@ export default function MonitoringPage({ params }: { params: Promise<{ childId: 
         <div><p className="text-sm font-medium text-cyan-700">Live Monitoring</p><h1 className="text-2xl font-bold tracking-tight text-slate-950">{child?.name ?? 'Bé'}</h1></div>
         <div className="ml-auto flex gap-2 text-xs font-semibold">
           <StatusBadge active={socketConnected} label={socketConnected ? 'Realtime' : 'Mất kết nối'} />
-          <StatusBadge active={deviceOnline || device?.status === 'online'} label={deviceOnline ? 'Robot online' : 'Robot offline'} />
+          <StatusBadge active={deviceOnline} label={deviceOnline ? 'Robot online' : 'Robot offline'} />
         </div>
       </header>
 

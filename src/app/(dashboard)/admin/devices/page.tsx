@@ -11,6 +11,7 @@ import {
   Filter,
   Plus,
   RotateCcw,
+  Trash2,
   Wifi,
   WifiOff,
   X,
@@ -27,7 +28,7 @@ import { Button } from '@/components/ui/button';
 
 interface Device {
   id: string;
-  serialNumber: string;
+  serialNumber?: string;
   activationCode: string;
   model?: string;
   firmwareVersion?: string;
@@ -63,8 +64,6 @@ export default function AdminDevicesPage() {
 
   const [showForm, setShowForm] = useState(false);
   const [serialNumber, setSerialNumber] = useState('');
-  const [model, setModel] = useState('ONBI-CAM-X1');
-  const [firmwareVersion, setFirmwareVersion] = useState('1.4.2');
   const [createdDevice, setCreatedDevice] = useState<Device | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
@@ -72,6 +71,8 @@ export default function AdminDevicesPage() {
   const [filterUserId, setFilterUserId] = useState('');
   const [deviceToDeactivate, setDeviceToDeactivate] = useState<Device | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [deviceToDelete, setDeviceToDelete] = useState<Device | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const getToken = () => localStorage.getItem('token') || '';
 
@@ -121,7 +122,7 @@ export default function AdminDevicesPage() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/devices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
-        body: JSON.stringify({ serialNumber, model, firmwareVersion }),
+        body: JSON.stringify({ serialNumber }),
       });
       const data = await response.json();
 
@@ -131,11 +132,9 @@ export default function AdminDevicesPage() {
       }
 
       setCreatedDevice(data);
-      setMessage('Tạo thiết bị thành công. Mã kích hoạt đã được hệ thống tạo.');
+      setMessage('Đã cấp mã kích hoạt. Model & firmware sẽ tự điền khi thiết bị kết nối.');
       setShowForm(false);
       setSerialNumber('');
-      setModel('ONBI-CAM-X1');
-      setFirmwareVersion('1.4.2');
       fetchData();
     } catch {
       setError('Không thể kết nối server');
@@ -165,6 +164,30 @@ export default function AdminDevicesPage() {
       setError('Không thể kết nối server');
     } finally {
       setStatusLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deviceToDelete) return;
+    setDeleteLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/devices/${deviceToDelete.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (response.ok) {
+        setMessage('Đã xóa thiết bị.');
+        setDeviceToDelete(null);
+        await fetchData();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setError(data.message || 'Không thể xóa thiết bị');
+      }
+    } catch {
+      setError('Không thể kết nối server');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -246,7 +269,7 @@ export default function AdminDevicesPage() {
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Serial Number</p>
-              <p className="mt-1 font-mono text-sm font-semibold">{createdDevice.serialNumber}</p>
+              <p className="mt-1 font-mono text-sm font-semibold">{createdDevice.serialNumber || <span className="font-sans font-normal italic text-slate-400">Chờ thiết bị kết nối</span>}</p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Mã kích hoạt do server tạo</p>
@@ -260,46 +283,24 @@ export default function AdminDevicesPage() {
       {showForm && (
         <form onSubmit={handleCreate} className="space-y-5 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
           <div>
-            <h2 className="text-lg font-bold text-slate-950">Tạo thiết bị mới</h2>
-            <p className="mt-1 text-sm text-slate-500">Nhập thông tin Jetson. Mã kích hoạt sẽ được server tự động tạo.</p>
+            <h2 className="text-lg font-bold text-slate-950">Cấp mã kích hoạt</h2>
+            <p className="mt-1 text-sm text-slate-500">Nhập serial do đội phần cứng cung cấp. Mã kích hoạt server tự tạo; <span className="font-medium text-slate-700">model & firmware sẽ tự điền khi thiết bị (Jetson) kết nối.</span></p>
           </div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:max-w-md">
             <label className="text-sm font-semibold text-slate-700">
               Serial Number
               <input
                 type="text"
                 value={serialNumber}
                 onChange={(event) => setSerialNumber(event.target.value)}
-                placeholder="SN-2024-001"
-                required
-                className="mt-2 min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/80 px-4 font-mono text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
-              />
-            </label>
-            <label className="text-sm font-semibold text-slate-700">
-              Model
-              <input
-                type="text"
-                value={model}
-                onChange={(event) => setModel(event.target.value)}
-                placeholder="ONBI-CAM-X1"
-                required
-                className="mt-2 min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/80 px-4 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
-              />
-            </label>
-            <label className="text-sm font-semibold text-slate-700">
-              Phiên bản firmware
-              <input
-                type="text"
-                value={firmwareVersion}
-                onChange={(event) => setFirmwareVersion(event.target.value)}
-                placeholder="1.4.2"
+                placeholder="JETSON-AABBCCDD"
                 required
                 className="mt-2 min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/80 px-4 font-mono text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
               />
             </label>
           </div>
           <button type="submit" disabled={formLoading} className="min-h-12 rounded-full bg-[#0B008B] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(11,0,139,0.2)] transition-colors hover:bg-[#08006D] disabled:cursor-not-allowed disabled:opacity-50">
-            {formLoading ? 'Đang tạo...' : 'Tạo thiết bị'}
+            {formLoading ? 'Đang tạo...' : 'Cấp mã kích hoạt'}
           </button>
         </form>
       )}
@@ -378,9 +379,10 @@ export default function AdminDevicesPage() {
                           </span>
                           <div>
                             <Link href={`/admin/devices/${device.id}`} className="font-mono font-semibold text-slate-950 transition-colors hover:text-[#0B008B] hover:underline">
-                              {device.serialNumber}
+                              {device.serialNumber || <span className="font-sans font-normal italic text-slate-400">Chờ thiết bị kết nối</span>}
                             </Link>
                             <p className="mt-1 text-xs text-slate-500">Mã kích hoạt: <span className="font-mono">{device.activationCode}</span></p>
+                            <p className="mt-0.5 text-xs text-slate-400">{device.model || '—'}{device.firmwareVersion ? ` · FW ${device.firmwareVersion}` : ''}</p>
                           </div>
                         </div>
                       </td>
@@ -400,16 +402,21 @@ export default function AdminDevicesPage() {
                         )}
                       </td>
                       <td className="px-5 py-4 text-slate-600">{new Date(device.createdAt).toLocaleDateString('vi-VN')}</td>
-                      <td className="px-5 py-4 text-right">
-                        {device.status === 'active' ? (
-                          <button type="button" onClick={() => setDeviceToDeactivate(device)} className="min-h-10 rounded-full border border-rose-200 bg-rose-50/60 px-4 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100">
-                            Vô hiệu hóa
+                      <td className="px-5 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          {device.status === 'active' ? (
+                            <button type="button" onClick={() => setDeviceToDeactivate(device)} className="min-h-10 rounded-full border border-rose-200 bg-rose-50/60 px-4 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100">
+                              Vô hiệu hóa
+                            </button>
+                          ) : (
+                            <button type="button" onClick={() => handleToggleStatus(device.id, device.status)} disabled={statusLoading} className="min-h-10 rounded-full border border-emerald-200 bg-emerald-50/60 px-4 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50">
+                              Kích hoạt lại
+                            </button>
+                          )}
+                          <button type="button" onClick={() => setDeviceToDelete(device)} aria-label="Xóa thiết bị" title="Xóa thiết bị" className="grid min-h-10 min-w-10 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700">
+                            <Trash2 className="h-4 w-4" />
                           </button>
-                        ) : (
-                          <button type="button" onClick={() => handleToggleStatus(device.id, device.status)} disabled={statusLoading} className="min-h-10 rounded-full border border-emerald-200 bg-emerald-50/60 px-4 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50">
-                            Kích hoạt lại
-                          </button>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -437,6 +444,28 @@ export default function AdminDevicesPage() {
               className="min-h-10 rounded-full bg-rose-600 px-5 text-white hover:bg-rose-700"
             >
               {statusLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deviceToDelete} onOpenChange={(open) => { if (!open && !deleteLoading) setDeviceToDelete(null); }}>
+        <DialogContent className="overflow-hidden rounded-[28px] border border-slate-200/80 !bg-white !text-slate-950 shadow-[0_24px_70px_rgba(15,23,42,0.20)]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold leading-6 text-slate-950">Xóa thiết bị?</DialogTitle>
+            <DialogDescription className="text-sm leading-6 text-slate-600">
+              Thiết bị <span className="font-mono font-semibold text-slate-800">{deviceToDelete?.serialNumber || deviceToDelete?.activationCode}</span> sẽ bị xóa vĩnh viễn, kèm toàn bộ lịch sử phiên giám sát của nó. Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 border-slate-200 !bg-slate-50">
+            <Button variant="outline" onClick={() => setDeviceToDelete(null)} disabled={deleteLoading} className="min-h-10 rounded-full border-slate-300 bg-white px-5 text-slate-700 hover:bg-slate-100 hover:text-slate-950">Hủy</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteLoading || !deviceToDelete}
+              onClick={handleDelete}
+              className="min-h-10 rounded-full bg-rose-600 px-5 text-white hover:bg-rose-700"
+            >
+              {deleteLoading ? 'Đang xóa...' : 'Xóa thiết bị'}
             </Button>
           </DialogFooter>
         </DialogContent>

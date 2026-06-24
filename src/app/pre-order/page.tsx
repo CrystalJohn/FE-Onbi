@@ -8,6 +8,7 @@ import { motion, AnimatePresence, useSpring, useMotionValue, useTransform } from
 import { Check, ArrowLeft, ArrowRight, ClipboardCopy, Gift, ShieldAlert, Languages } from 'lucide-react';
 import { useLanguage, LanguageProvider } from '@/context/LanguageContext';
 import ThemeToggle from '@/components/ThemeToggle';
+import { PremiumQRModal } from '@/components/payment/PremiumQRModal';
 
 interface PricingTier {
   id: string;
@@ -160,8 +161,32 @@ function PreOrderFormContent() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copiedText, setCopiedText] = useState<'copylink' | null>(null);
-  const [reservationNum] = useState<number>(() => Math.floor(400 + Math.random() * 200));
+  const [reservationNum, setReservationNum] = useState<number>(0);
   const [passCode, setPassCode] = useState('');
+
+  const [expiresAt, setExpiresAt] = useState<number>(0);
+
+  // Khôi phục session đơn hàng từ localStorage (nếu phụ huynh quay lại)
+  useEffect(() => {
+    const saved = localStorage.getItem('onbi_preorder_session');
+    if (saved) {
+      try {
+        const session = JSON.parse(saved);
+        // Chỉ khôi phục nếu đơn chưa quá 10 phút
+        const createdAt = new Date(session.createdAt).getTime();
+        const now = Date.now();
+        if (now - createdAt < 10 * 60 * 1000) {
+          setPassCode(session.orderCode);
+          setReservationNum(session.reservationNum);
+          setParentName(session.parentName);
+          setExpiresAt(createdAt + 10 * 60 * 1000);
+          setIsSubmitted(true);
+        } else {
+          localStorage.removeItem('onbi_preorder_session');
+        }
+      } catch { localStorage.removeItem('onbi_preorder_session'); }
+    }
+  }, []);
 
   // Dynamic stars state & effect to avoid SSR hydration mismatch
   const [stars, setStars] = useState<Star[]>([]);
@@ -206,7 +231,9 @@ function PreOrderFormContent() {
     setTimeout(() => setCopiedText(null), 2000);
   };
 
-  const handlePreOrderSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handlePreOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!parentName.trim()) { setErrorMsg(t.errName); return; }
     const phoneTrim = phone.trim();
@@ -220,9 +247,56 @@ function PreOrderFormContent() {
     if (selectedTier.id === 'device' && !shippingAddress.trim()) { setErrorMsg(t.errAddress); return; }
 
     setErrorMsg('');
-    const suffix = Math.floor(1000 + Math.random() * 9000);
-    setPassCode(`ONBI-2026-PRE-${selectedTier.id === 'device' ? 'DEV' : 'SUB'}-${suffix}`);
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+
+    // Call backend API
+    try {
+      const payload = {
+        parentName: parentName.trim(),
+        phone: phoneTrim,
+        email: email.trim(),
+        shippingAddress: selectedTier.id === 'device' ? shippingAddress.trim() : null,
+        packageId: selectedTier.id,
+        price: parseInt(selectedTier.price.replace(/[^\d]/g, ''), 10)
+      };
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/pre-orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          const errData = await res.json();
+          setErrorMsg(errData.message || (language === 'vi' ? 'Email này đã có đơn đang chờ thanh toán. Vui lòng thanh toán hoặc đợi đơn hết hạn.' : 'This email already has a pending order.'));
+          return;
+        }
+        throw new Error('API Error');
+      }
+
+      const data = await res.json();
+      setPassCode(data.orderCode);
+      setReservationNum(data.reservationNum);
+
+      const nowMs = Date.now();
+      // Lưu session vào localStorage để phụ huynh quay lại vẫn thấy QR
+      localStorage.setItem('onbi_preorder_session', JSON.stringify({
+        orderCode: data.orderCode,
+        reservationNum: data.reservationNum,
+        parentName: parentName.trim(),
+        packageId: selectedTier.id,
+        price: selectedTier.price,
+        createdAt: new Date(nowMs).toISOString(),
+      }));
+
+      setExpiresAt(nowMs + 10 * 60 * 1000);
+      setIsSubmitted(true);
+    } catch (err) {
+      setErrorMsg(language === 'vi' ? 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.' : 'Failed to create pre-order. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const t = {
@@ -597,79 +671,29 @@ function PreOrderFormContent() {
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      className="w-full py-4.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 hover:-translate-y-0.5 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/10 hover:shadow-blue-500/25 flex items-center justify-center gap-2 group outline-none"
+                      disabled={isSubmitting}
+                      className="w-full py-4.5 rounded-2xl text-sm font-bold tracking-wide transition-all duration-300 hover:-translate-y-0.5 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/10 hover:shadow-blue-500/25 flex items-center justify-center gap-2 group outline-none disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      <span>{t.btnSubmit}</span>
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      <span>{isSubmitting ? (language === 'vi' ? 'Đang xử lý...' : 'Processing...') : t.btnSubmit}</span>
+                      {!isSubmitting && <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
                     </button>
                   </form>
                 </div>
               </div>
             </motion.div>
           ) : (
-            // PRE-ORDER COUPON SUCCESS CARD
-            <motion.div
-              key="preorder-success-screen"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 24 }}
-              className="flex flex-col items-center justify-center gap-7 text-center py-12 relative z-10 w-full max-w-xl mx-auto"
-            >
-              <div className="flex flex-col items-center gap-3">
-                <div className={`inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-full border shadow-2xs ${activeDetails.badgeColor} border-current/25 bg-white dark:bg-zinc-900`}>
-                  <Check className="w-4 h-4 stroke-[3]" /> {t.successTitle}
-                </div>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t.successSub}</h3>
-              </div>
-
-              {/* Success ticket card */}
-              <div className="w-full max-w-[340px] bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-850 rounded-3xl p-6 shadow-md flex flex-col items-center justify-center relative overflow-hidden my-4 transition-colors">
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-cyan-400" />
-                
-                <div className="w-14 h-14 bg-blue-50/80 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 rounded-full flex items-center justify-center text-blue-500 dark:text-blue-400 mb-5 shadow-2xs">
-                  <Gift className="w-6 h-6" />
-                </div>
-                
-                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 font-mono">
-                  {t.cardTitle}
-                </div>
-                <div className="text-xl font-black text-slate-800 dark:text-slate-200 tracking-wider mb-5 font-mono">
-                  {passCode}
-                </div>
-                
-                <div className="flex flex-row justify-between w-full border-t border-slate-100 dark:border-zinc-800 pt-5">
-                  <div className="text-left">
-                    <div className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">{t.member}</div>
-                    <div className="text-sm font-bold text-slate-700 dark:text-slate-350 truncate max-w-[140px]">{parentName}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">{t.placement}</div>
-                    <div className="text-sm font-bold text-emerald-500">#{reservationNum}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Copy pass code & Done control tray */}
-              <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm mt-2">
-                <button
-                  onClick={() => handleCopy(passCode, 'copylink')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs font-bold transition-all border cursor-pointer outline-none ${copiedText === 'copylink'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/80 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-white dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-300'
-                    }`}
-                >
-                  <ClipboardCopy className="w-4 h-4" />
-                  <span>{copiedText === 'copylink' ? t.copied : language === 'vi' ? 'Chép mã đăng ký' : 'Copy registration code'}</span>
-                </button>
-                <button
-                  onClick={() => router.push('/')}
-                  className="px-6 py-3.5 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-zinc-850 border border-transparent hover:border-slate-200 dark:hover:border-zinc-700 transition-all cursor-pointer outline-none"
-                >
-                  {t.btnDone}
-                </button>
-              </div>
-            </motion.div>
+            <PremiumQRModal
+              isOpen={isSubmitted}
+              onClose={() => router.push('/')}
+              onExpire={() => {
+                localStorage.removeItem('onbi_preorder_session');
+                setIsSubmitted(false);
+              }}
+              price={selectedTier.price}
+              orderCode={passCode}
+              parentName={parentName}
+              expiresAt={expiresAt}
+            />
           )}
         </AnimatePresence>
       </main>

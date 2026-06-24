@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 
 interface Child {
-  id: number;
+  id: string;
   name: string;
   dateOfBirth: string;
   gender: string;
