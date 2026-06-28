@@ -2,8 +2,8 @@ import type { LandingContent } from './landing';
 
 const vi: LandingContent = {
   hero: {
-    title: (<>Giúp con <span className="text-white">tập trung học tốt hơn</span>,<br className="hidden sm:inline" /> ba mẹ <span className="text-white">bớt phải nhắc mỗi ngày</span>.</>),
-    description: 'Robot bạn học ONBI tự động theo dõi phiên học Pomodoro, nhắc nhở nhẹ nhàng và cập nhật tiến độ học tập về điện thoại phụ huynh.',
+    title: (<><span className="text-transparent bg-clip-text bg-brand-gradient font-extrabold tracking-wide animate-brand-gradient">ONBI</span> <span className="text-slate-900 dark:text-white">Rèn Tự Học</span><br className="hidden md:inline" /> <span className="text-slate-900 dark:text-white">Tư Thế Chuẩn</span></>),
+    description: 'ONBI bạn học tự động theo dõi phiên học Pomodoro khoa học, nhắc nhở nhẹ nhàng không màn hình và cập nhật tiến trình học tập về điện thoại phụ huynh.',
     cta: 'Tìm hiểu ONBI',
     ctaSecondary: 'Trải nghiệm hẹn giờ',
   },

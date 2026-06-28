@@ -273,3 +273,37 @@ html:not(.theme-transitioning)::view-transition-old(root) {
 html:not(.theme-transitioning)::view-transition-new(root) {
   animation: 350ms cubic-bezier(0, 0, 0.2, 1) both page-fade-in-up;
 }
+
+/* Theme-adaptive Brand Gradient for ONBI */
+:root {
+  --brand-gradient-start: #0f172a;
+  --brand-gradient-mid: #1d4ed8;
+  --brand-gradient-end: #5b21b6;
+}
+
+.dark {
+  --brand-gradient-start: #00c6ff;
+  --brand-gradient-mid: #0072ff;
+  --brand-gradient-end: #d946ef;
+}
+
+.bg-brand-gradient {
+  background-image: linear-gradient(to right, var(--brand-gradient-start), var(--brand-gradient-mid), var(--brand-gradient-end));
+}
+
+@keyframes brand-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-brand-gradient {
+  background-size: 200% auto;
+  animation: brand-gradient 5s ease infinite;
+}

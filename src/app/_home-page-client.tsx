@@ -54,8 +54,11 @@ export default function HomePageClient({ lang, t }: Props) {
 
   const scrollToId = (id: string) => {
     if (typeof document === 'undefined') return;
-    const element = document.getElementById(id);
-    if (element) element.scrollIntoView({ behavior: 'smooth' });
+    const el = document.getElementById(id);
+    if (!el) return;
+    const headerHeight = document.querySelector('header')?.offsetHeight ?? 72;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerHeight;
+    window.scrollTo({ top, behavior: 'smooth' });
   };
 
   return (
@@ -91,38 +94,32 @@ export default function HomePageClient({ lang, t }: Props) {
                 </div>
 
                 {/* TEXT — mobile: solid blue panel above video; md+: left overlay on video */}
-                <div className="order-1 md:order-none z-20 px-5 pt-[var(--header-clear)] pb-8 md:p-0 bg-[linear-gradient(135deg,#0a2a5e,#0f3d8c)] md:bg-none md:absolute md:inset-0 md:flex md:items-start md:pt-[max(6rem,9%)] md:px-16 lg:px-24 xl:px-32 md:pointer-events-none">
-                  <div className="w-full md:w-[52%] lg:w-[46%] max-w-[640px] flex flex-col gap-3 md:gap-6 text-white">
+                <div className="order-1 md:order-none z-20 px-5 pt-[var(--header-clear)] pb-8 md:p-0 bg-[linear-gradient(135deg,#0a2a5e,#0f3d8c)] md:bg-none md:absolute md:inset-0 md:flex md:items-center md:pt-12 md:px-16 lg:px-24 xl:px-32 md:pointer-events-none">
+                  <div className="w-full md:w-[48%] lg:w-[42%] max-w-[520px] flex flex-col gap-3 md:gap-6 text-slate-900 dark:text-white">
                     <BlurFade delay={0.2}>
                       <h1
-                        className="font-display font-semibold tracking-tight leading-[1.1] md:leading-[1.03]"
-                        style={{ fontSize: 'clamp(1.65rem, 4.5vw, 4rem)', textShadow: '0 3px 18px rgba(0,0,0,0.22)' }}
+                        className="font-display font-semibold tracking-tight leading-[1.25] md:leading-[1.18]"
+                        style={{ fontSize: 'clamp(1.65rem, 4.5vw, 4rem)', textShadow: '0 3px 18px rgba(0,0,0,0.1)' }}
                       >
                         {live.hero.title}
                       </h1>
                     </BlurFade>
                     <BlurFade delay={0.35}>
-                      <p className="max-w-2xl text-sm md:text-lg leading-relaxed font-medium tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+                      <p className="max-w-2xl text-sm md:text-lg leading-relaxed font-medium tracking-tight text-slate-700 dark:text-zinc-200/90" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                         {live.hero.description}
                       </p>
                     </BlurFade>
                     <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-start gap-2.5 md:gap-3 pt-1 md:pt-4 md:pointer-events-auto">
                       <button
                         id="hero_primary_cta"
-                        onClick={() => scrollToId('pricing_section')}
+                        onClick={() => scrollToId('parent_problems_section')}
                         className="bg-white text-[#111113] hover:bg-white/90 font-semibold px-7 py-3 rounded-full transition-all duration-200 active:scale-95 cursor-pointer text-sm sm:text-base tracking-tight shrink-0 inline-flex items-center justify-center"
                       >
                         {live.hero.cta}
                       </button>
                       <button
                         onClick={() => setShowTimerModal(true)}
-                        className="text-white font-semibold transition-all duration-200 active:scale-95 cursor-pointer text-sm sm:text-base tracking-tight shrink-0 inline-flex items-center justify-center px-5 py-3 rounded-full"
-                        style={{
-                          background: 'rgba(255,255,255,0.16)',
-                          border: '1px solid rgba(255,255,255,0.35)',
-                          backdropFilter: 'blur(14px)',
-                          WebkitBackdropFilter: 'blur(14px)',
-                        }}
+                        className="text-slate-800 dark:text-white bg-white/50 dark:bg-white/[0.16] border border-slate-800/15 dark:border-white/[0.35] font-semibold transition-all duration-200 active:scale-95 cursor-pointer text-sm sm:text-base tracking-tight shrink-0 inline-flex items-center justify-center px-5 py-3 rounded-full backdrop-blur-md"
                       >
                         {live.hero.ctaSecondary}
                       </button>
@@ -225,7 +222,7 @@ export default function HomePageClient({ lang, t }: Props) {
 
       {/* SECTIONS */}
       <div className="max-w-[1600px] mx-auto px-6 relative pt-0 z-10">
-        <section id="parent_problems_section" className="scroll-mt-24">
+        <section id="parent_problems_section" className="scroll-mt-20">
           <ParentProblems t={t} />
         </section>
       </div>

@@ -84,8 +84,15 @@ export default function Header({ t: initialT, onJoinClick, onTimerClick }: Heade
     setActiveSection(key);                          // immediate feedback on click
     const section = NAV_SECTIONS.find((s) => s.key === key);
     if (!section) return;
-    const el = document.getElementById(section.id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    // Delay scroll slightly so mobile menu finishes closing before we
+    // measure element position (avoids layout shift from open menu height).
+    setTimeout(() => {
+      const el = document.getElementById(section.id);
+      if (!el) return;
+      const headerHeight = document.querySelector('header')?.offsetHeight ?? 72;
+      const top = el.getBoundingClientRect().top + window.scrollY - headerHeight;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }, 50);
   };
 
   // ─── Per-item class helper ───────────────────────────────────────────────────

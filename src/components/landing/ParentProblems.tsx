@@ -32,8 +32,7 @@ export default function ParentProblems({ t: initialT }: ParentProblemsProps) {
 
   return (
     <div
-      id="parent_problems_section"
-      className="space-y-6 md:space-y-8 w-full py-10 md:py-16"
+      className="space-y-6 md:space-y-8 w-full pt-4 pb-10 md:pb-16"
       style={{ overflowAnchor: 'none' }}
     >
       {/* ── Section Header ── */}
