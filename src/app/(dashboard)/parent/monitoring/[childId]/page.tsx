@@ -2,6 +2,7 @@
 
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import {
   Activity, AlertTriangle, ArrowLeft, Camera, Clock3, History,
@@ -23,6 +24,7 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 export default function MonitoringPage({ params }: { params: Promise<{ childId: string }> }) {
   const { childId } = use(params);
+  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const peerRef = useRef<RTCPeerConnection | null>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -137,7 +139,7 @@ export default function MonitoringPage({ params }: { params: Promise<{ childId: 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
       <header className="flex flex-wrap items-center gap-3">
-        <Link href="/parent/dashboard" aria-label="Quay lại tổng quan" className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"><ArrowLeft className="h-5 w-5" /></Link>
+        <button onClick={() => router.back()} aria-label="Quay lại" className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"><ArrowLeft className="h-5 w-5" /></button>
         <div><p className="text-sm font-medium text-cyan-700">Live Monitoring</p><h1 className="text-2xl font-bold tracking-tight text-slate-950">{child?.name ?? 'Bé'}</h1></div>
         <div className="ml-auto flex gap-2 text-xs font-semibold">
           <StatusBadge active={socketConnected} label={socketConnected ? 'Realtime' : 'Mất kết nối'} />
