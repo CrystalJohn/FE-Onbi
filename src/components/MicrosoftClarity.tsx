@@ -15,11 +15,10 @@
 
 import Script from "next/script";
 
-const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "x1l9ug9xax";
 
 export default function MicrosoftClarity() {
-  if (!IS_PRODUCTION || !CLARITY_ID) {
+  if (!CLARITY_ID) {
     return null;
   }
 
