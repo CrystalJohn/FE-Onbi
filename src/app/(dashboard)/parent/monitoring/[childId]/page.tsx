@@ -36,6 +36,8 @@ export default function MonitoringPage({ params }: { params: Promise<{ childId: 
   const [socketConnected, setSocketConnected] = useState(false);
   const [deviceOnline, setDeviceOnline] = useState(false);
   const [streamState, setStreamState] = useState<'idle' | 'connecting' | 'live' | 'failed'>('idle');
+  const [frameUrl, setFrameUrl] = useState<string | null>(null);
+  const [frameState, setFrameState] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -103,6 +105,13 @@ export default function MonitoringPage({ params }: { params: Promise<{ childId: 
     socket.on('device-status', ({ online }: { online: boolean }) => setDeviceOnline(online));
     socket.on('alert', (event: AlertEvent) => setAlerts((items) => [event, ...items].slice(0, 20)));
     socket.on('pomodoro-event', (event: PomodoroEvent) => setPomodoro(event));
+    // WebSocket video: annotated JPEG frames pushed by the device (alternative to WebRTC)
+    socket.on('video-frame', ({ image, state }: { image: string; state: Record<string, any> | null }) => {
+      setFrameUrl(image);
+      setFrameState(state);
+      setDeviceOnline(true);
+      setStreamState('live');
+    });
     socket.on('webrtc-answer', async ({ sdp }: { sdp: RTCSessionDescriptionInit }) => {
       try { await peerRef.current?.setRemoteDescription(sdp); } catch { setStreamState('failed'); }
     });
@@ -129,7 +138,7 @@ export default function MonitoringPage({ params }: { params: Promise<{ childId: 
 
   const stop = async () => {
     setBusy(true); setError('');
-    try { await api.post(`/children/${childId}/monitoring/stop`); setCurrent(null); closePeer(); }
+    try { await api.post(`/children/${childId}/monitoring/stop`); setCurrent(null); closePeer(); setFrameUrl(null); setFrameState(null); }
     catch (reason: any) { setError(reason?.response?.data?.message ?? 'Không thể dừng giám sát.'); }
     finally { setBusy(false); }
   };
@@ -152,6 +161,8 @@ export default function MonitoringPage({ params }: { params: Promise<{ childId: 
       <section className="overflow-hidden rounded-3xl bg-[#070b2b] shadow-xl shadow-navy-950/10">
         <div className="relative aspect-video min-h-64 bg-slate-950">
           <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-contain" aria-label={`Camera của ${child?.name ?? 'bé'}`} />
+          {frameUrl && <img src={frameUrl} alt={`Camera của ${child?.name ?? 'bé'}`} className="absolute inset-0 h-full w-full object-contain" />}
+          {frameUrl && frameState && <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-black/55 px-3 py-1.5 text-xs font-semibold text-white">{[frameState.seat && `Chỗ ngồi: ${frameState.seat}`, frameState.posture && `Tư thế: ${frameState.posture}`, frameState.focus && `Tập trung: ${frameState.focus}`, frameState.score != null && `Điểm: ${frameState.score}%`].filter(Boolean).join('  ·  ')}</div>}
           {streamState !== 'live' && <div className="absolute inset-0 grid place-items-center p-6 text-center text-white"><div>{streamState === 'connecting' ? <LoaderCircle className="mx-auto mb-3 h-9 w-9 animate-spin text-cyan-400" /> : <VideoOff className="mx-auto mb-3 h-9 w-9 text-slate-500" />}<p className="font-semibold">{!current ? 'Camera chưa được bật' : streamState === 'failed' ? 'Chưa nhận được hình ảnh' : 'Đang kết nối camera…'}</p><p className="mt-1 text-sm text-slate-400">{!current ? 'Bắt đầu phiên để theo dõi trực tiếp.' : 'Robot cần online và tham gia phòng WebRTC.'}</p></div></div>}
           {streamState === 'live' && <span className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-red-600 px-3 py-1.5 text-xs font-bold text-white"><Radio className="h-3.5 w-3.5" /> LIVE</span>}
         </div>
