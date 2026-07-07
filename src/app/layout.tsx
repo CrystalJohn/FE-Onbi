@@ -6,6 +6,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
+import { GlobalCursor } from "@/components/GlobalCursor";
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -69,7 +70,9 @@ export default function RootLayout({
           defaultTheme="light"
         >
           <LanguageProvider>
-            {children}
+            <GlobalCursor>
+              {children}
+            </GlobalCursor>
           </LanguageProvider>
         </ThemeProvider>
       </body>
