@@ -30,13 +30,13 @@ const parentNav = [
 ];
 
 const adminNav = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/devices", label: "Devices", icon: Wifi },
-  { href: "/admin/pre-orders", label: "Pre-orders", icon: ShoppingCart },
+  { href: "/admin/dashboard", label: "Tổng quan", icon: LayoutDashboard },
+  { href: "/admin/users", label: "Người dùng", icon: Users },
+  { href: "/admin/devices", label: "Thiết bị", icon: Wifi },
+  { href: "/admin/pre-orders", label: "Đặt trước", icon: ShoppingCart },
   { href: "/admin/subscription-orders", label: "Gói dịch vụ", icon: Crown },
-  { href: "/admin/feedback", label: "Feedback", icon: MessageSquareText },
-  { href: "/admin/activity", label: "Activity", icon: Activity },
+  { href: "/admin/feedback", label: "Phản hồi", icon: MessageSquareText },
+  { href: "/admin/activity", label: "Hoạt động", icon: Activity },
 ];
 
 function LogoutConfirmModal({
@@ -155,7 +155,7 @@ export function Sidebar() {
         <div className="relative flex h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-[32px] border border-white/80 bg-white/75 p-2.5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
 
           {/* Logo + title row */}
-          <div className="flex min-h-14 items-center gap-2 px-2">
+          <div className="flex min-h-14 items-center justify-between gap-2 px-2">
             <div className="relative h-9 w-20 shrink-0 overflow-hidden rounded-lg">
               <Image
                 src="/logo_onbi.jpg"
@@ -166,11 +166,9 @@ export function Sidebar() {
                 priority
               />
             </div>
-            <div className="flex min-w-0 flex-col justify-center">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                {isAdmin ? "Admin Panel" : "Parent Dashboard"}
-              </div>
-            </div>
+            <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+              {isAdmin ? "Quản trị viên" : "Phụ huynh"}
+            </span>
           </div>
 
           {/* Navigation */}
@@ -220,7 +218,7 @@ export function Sidebar() {
               </div>
               <div className="flex min-w-0 flex-1 flex-col justify-center">
                 <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                  {isAdmin ? "Admin Panel" : "Parent Dashboard"}
+                  {isAdmin ? "Quản trị viên" : "Phụ huynh"}
                 </div>
               </div>
               <button

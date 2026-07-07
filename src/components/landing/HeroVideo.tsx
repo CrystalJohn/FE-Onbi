@@ -8,6 +8,17 @@ interface HeroVideoProps {
   className?: string;
 }
 
+// Suppress harmless media-chrome warning about ShadowRoot styles
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('No style sheet found on style tag of [object ShadowRoot]')) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
+
 const HERO_INITIAL_BANDWIDTH_KBPS = 12000;
 const HERO_INITIAL_ESTIMATE_SEGMENTS = 3;
 

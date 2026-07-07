@@ -4,9 +4,6 @@ import * as React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 
-// Suppress the React 19 warning about script tags in components during development.
-// This is a known issue with next-themes where the injected FOUC-prevention script
-// triggers a warning in React 19/Next.js 15+ hydration, which is safe to ignore.
 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   const originalError = console.error;
   console.error = (...args: any[]) => {
@@ -41,17 +38,13 @@ const VALID_MODES: ThemeMode[] = ["light", "dark", "auto"];
 
 function ThemeModeResolver({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme();
-  // null = not yet loaded from localStorage (prevents race condition flash)
   const [themeMode, setThemeModeState] = useState<ThemeMode | null>(null);
 
-  // Bug fix: Load themeMode from localStorage BEFORE applying any theme
   useEffect(() => {
     const savedMode = localStorage.getItem("theme-mode");
-    // Bug fix: validate the stored value before trusting it
     if (savedMode && VALID_MODES.includes(savedMode as ThemeMode)) {
       setThemeModeState(savedMode as ThemeMode);
     } else {
-      // Default to auto
       localStorage.setItem("theme-mode", "auto");
       setThemeModeState("auto");
     }
@@ -63,7 +56,6 @@ function ThemeModeResolver({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Bug fix: do nothing until localStorage has been read (prevents race condition)
     if (themeMode === null) return;
 
     if (themeMode === "auto") {
