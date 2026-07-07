@@ -61,11 +61,12 @@ export default function RootLayout({
           <GoogleAnalytics />
         </Suspense>
         <MicrosoftClarity />
+        {/* Bug fix: removed defaultTheme="system" + enableSystem + disableTransitionOnChange
+            - defaultTheme="system" / enableSystem conflicts with our custom time-based Auto logic
+            - disableTransitionOnChange conflicts with the View Transition API circle animation */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+          defaultTheme="light"
         >
           <LanguageProvider>
             {children}
