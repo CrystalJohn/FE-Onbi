@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export function Header() {
   const router = useRouter();
@@ -18,13 +19,16 @@ export function Header() {
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-700">Education IoT Solution</p>
         <div className="mt-0.5 text-sm font-bold text-slate-900">Onbi Camera</div>
       </div>
-      <button
-        onClick={handleLogout}
-        className="flex min-h-11 items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-4 text-sm font-semibold text-slate-600 shadow-sm transition-colors duration-200 hover:border-cyan-200 hover:bg-white hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-      >
-        <LogOut aria-hidden="true" className="h-4 w-4" />
-        Đăng xuất
-      </button>
+      <div className="flex items-center gap-2.5">
+        <ThemeToggle />
+        <button
+          onClick={handleLogout}
+          className="flex min-h-11 items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-4 text-sm font-semibold text-slate-600 shadow-sm transition-colors duration-200 hover:border-cyan-200 hover:bg-white hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          <LogOut aria-hidden="true" className="h-4 w-4" />
+          Đăng xuất
+        </button>
+      </div>
     </header>
   );
 }

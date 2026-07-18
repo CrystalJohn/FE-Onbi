@@ -43,22 +43,22 @@ export default function AdminUserDetailPage({
     fetchUser();
   }, [id]);
 
-  if (loading) return <div className="text-sm text-slate-500">Dang tai...</div>;
+  if (loading) return <div className="text-sm text-slate-500">Đang tải...</div>;
   if (error) return <div className="text-sm text-red-500">{error}</div>;
-  if (!user) return <div className="text-sm text-slate-500">Khong tim thay user</div>;
+  if (!user) return <div className="text-sm text-slate-500">Không tìm thấy người dùng</div>;
 
   return (
     <div className="space-y-6">
       <Link
         href="/admin/users"
-        className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors"
+        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-[#000080] hover:text-[#000080]"
       >
         <ArrowLeft className="w-4 h-4" />
-        Quay lai Users
+        Quay lại Người dùng
       </Link>
 
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">Chi tiet User</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Chi tiết người dùng</h1>
         <span
           className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
             user.role === 'admin'
@@ -71,7 +71,7 @@ export default function AdminUserDetailPage({
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm max-w-lg">
-        <h2 className="text-lg font-semibold text-slate-900">Thong tin co ban</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Thông tin cơ bản</h2>
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-3">
             <Hash className="w-4 h-4 text-slate-400 shrink-0" />
@@ -80,7 +80,7 @@ export default function AdminUserDetailPage({
           </div>
           <div className="flex items-center gap-3">
             <User className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Ho ten:</span>
+            <span className="text-slate-500 w-28">Họ tên:</span>
             <span className="font-medium text-slate-900">{user.fullName}</span>
           </div>
           <div className="flex items-center gap-3">
@@ -90,12 +90,12 @@ export default function AdminUserDetailPage({
           </div>
           <div className="flex items-center gap-3">
             <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Phone:</span>
+            <span className="text-slate-500 w-28">Điện thoại:</span>
             <span className="font-medium text-slate-900">{user.phone || '—'}</span>
           </div>
           <div className="flex items-center gap-3">
             <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Role:</span>
+            <span className="text-slate-500 w-28">Vai trò:</span>
             <span
               className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
                 user.role === 'admin'
@@ -108,7 +108,7 @@ export default function AdminUserDetailPage({
           </div>
           <div className="flex items-center gap-3">
             <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Ngay tao:</span>
+            <span className="text-slate-500 w-28">Ngày tạo:</span>
             <span className="font-medium text-slate-900">
               {new Date(user.createdAt).toLocaleString('vi-VN')}
             </span>

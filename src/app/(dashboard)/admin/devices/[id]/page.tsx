@@ -51,9 +51,9 @@ export default function AdminDeviceDetailPage({
     fetchDevice();
   }, [id]);
 
-  if (loading) return <div className="text-sm text-slate-500">Dang tai...</div>;
+  if (loading) return <div className="text-sm text-slate-500">Đang tải...</div>;
   if (error) return <div className="text-sm text-red-500">{error}</div>;
-  if (!device) return <div className="text-sm text-slate-500">Khong tim thay device</div>;
+  if (!device) return <div className="text-sm text-slate-500">Không tìm thấy thiết bị</div>;
 
   const statusStyle: Record<string, string> = {
     active: 'text-green-600 bg-green-50 border-green-200',
@@ -73,14 +73,14 @@ export default function AdminDeviceDetailPage({
     <div className="space-y-6">
       <Link
         href="/admin/devices"
-        className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors"
+        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-[#000080] hover:text-[#000080]"
       >
         <ArrowLeft className="w-4 h-4" />
-        Quay lai Devices
+        Quay lại Thiết bị
       </Link>
 
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">Chi tiet Device</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Chi tiết thiết bị</h1>
         <span
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
             statusStyle[device.status] || 'text-slate-600 bg-slate-50 border-slate-200'
@@ -98,7 +98,7 @@ export default function AdminDeviceDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Device info */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Thong tin thiet bi</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Thông tin thiết bị</h2>
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-3">
               <Hash className="w-4 h-4 text-slate-400 shrink-0" />
@@ -139,7 +139,7 @@ export default function AdminDeviceDetailPage({
             </div>
             <div className="flex items-center gap-3">
               <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Ngay tao:</span>
+              <span className="text-slate-500 w-32">Ngày tạo:</span>
               <span className="font-medium text-slate-900">
                 {new Date(device.createdAt).toLocaleString('vi-VN')}
               </span>
@@ -149,11 +149,11 @@ export default function AdminDeviceDetailPage({
 
         {/* Assignment info */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Thong tin gan thiet bi</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Thông tin gán thiết bị</h2>
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-3">
               <User className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Phu huynh:</span>
+              <span className="text-slate-500 w-32">Phụ huynh:</span>
               {device.activatedByUser ? (
                 <Link
                   href={`/admin/users/${device.activatedByUser.id}`}
@@ -162,16 +162,16 @@ export default function AdminDeviceDetailPage({
                   {device.activatedByUser.fullName}
                 </Link>
               ) : (
-                <span className="text-slate-400 italic">Chua kich hoat</span>
+                <span className="text-slate-400 italic">Chưa kích hoạt</span>
               )}
             </div>
             <div className="flex items-center gap-3">
               <Baby className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Tre:</span>
+              <span className="text-slate-500 w-32">Trẻ:</span>
               {device.currentAssignment?.child ? (
                 <span className="font-medium text-slate-900">{device.currentAssignment.child.name}</span>
               ) : (
-                <span className="text-slate-400 italic">Chua gan</span>
+                <span className="text-slate-400 italic">Chưa gán</span>
               )}
             </div>
           </div>

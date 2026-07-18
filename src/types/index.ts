@@ -5,7 +5,7 @@ export type UserRole = "parent" | "admin";
 export type DeviceStatus = "inactive" | "active" | "deactivated";
 
 // Snapshot type
-export type SnapshotType = "left_desk" | "bad_posture" | "manual";
+export type SnapshotType = "left_desk" | "bad_posture" | "unfocused" | "manual";
 
 // Monitoring session status
 export type MonitoringStatus = "active" | "stopped";
@@ -83,6 +83,10 @@ export interface StudySession {
   endedAt?: string;
   actualStudySeconds: number;
   actualBreakSeconds: number;
+  /** Điểm tập trung 0-100 (%) do robot chấm cuối phiên học; null nếu chưa có */
+  score?: number | null;
+  /** 'Good' | 'Average' | 'Needs improvement' */
+  rating?: string | null;
 }
 
 // Auth responses

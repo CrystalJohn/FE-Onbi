@@ -1,50 +1,55 @@
 'use client'
 
-import React from 'react';
-import MuxPlayer from '@mux/mux-player-react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 
 interface HeroVideoProps {
-  playbackId: string;
+  src?: string;
+  poster?: string;
   className?: string;
 }
 
-const HERO_INITIAL_BANDWIDTH_KBPS = 12000;
-const HERO_INITIAL_ESTIMATE_SEGMENTS = 3;
+const DEFAULT_HERO_VIDEO_SRC = '/ONBI_robot_real-time.mp4';
+const DEFAULT_HERO_POSTER_SRC = '/background_hero_onbi.webp';
 
 // The hero source videos are authored to loop seamlessly (end frame ≈ start
 // frame), so a single native-loop player is smooth — no crossfade needed.
-export default function HeroVideo({ playbackId, className = '' }: HeroVideoProps) {
-  const playerStyle = {
-    '--controls': 'none',
-    '--media-object-fit': 'cover',
-    '--media-object-position': 'var(--hero-object-position, center)',
-    width: '100%',
-    height: '100%',
-    position: 'absolute' as const,
-    inset: 0,
-  };
+export default function HeroVideo({
+  src = DEFAULT_HERO_VIDEO_SRC,
+  poster = DEFAULT_HERO_POSTER_SRC,
+  className = '',
+}: HeroVideoProps) {
+  const [videoFailed, setVideoFailed] = useState(false);
 
   return (
     <div
       className={`absolute inset-0 overflow-hidden ${className}`}
       style={{ zIndex: 0 }}
     >
-      <MuxPlayer
-        playbackId={playbackId}
-        muted
-        loop
-        autoPlay="muted"
-        preload="auto"
-        capRenditionToPlayerSize
-        initialBandwidthEstimateKbps={HERO_INITIAL_BANDWIDTH_KBPS}
-        initialEstimateSegments={HERO_INITIAL_ESTIMATE_SEGMENTS}
-        disableTracking
-        disableCookies
-        primaryColor="transparent"
-        secondaryColor="transparent"
-        nohotkeys
-        style={playerStyle}
-      />
+      {videoFailed ? (
+        <Image
+          src={poster}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover [object-position:var(--hero-object-position,center)]"
+        />
+      ) : (
+        <video
+          className="absolute inset-0 h-full w-full object-cover [object-position:var(--hero-object-position,center)]"
+          src={src}
+          poster={poster}
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          onError={() => setVideoFailed(true)}
+        />
+      )}
     </div>
   );
 }

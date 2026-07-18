@@ -4,7 +4,6 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'motion/react';
-import { useTheme } from 'next-themes';
 import { BlurFade } from '@/components/ui/blur-fade';
 import Header from '@/components/landing/Header';
 import ParentProblems from '@/components/landing/ParentProblems';
@@ -20,18 +19,9 @@ const Pricing = dynamic(() => import('@/components/landing/Pricing'));
 const Footer = dynamic(() => import('@/components/landing/Footer'));
 const HeroVideo = dynamic(() => import('@/components/landing/HeroVideo'), { ssr: false });
 
-const HERO_PLAYBACK_IDS = {
-  light: '02P3tbW4l7BAXM6KgUwPm00Hi8x2tbGEcO45w6R1Aw8jE',
-  dark: 'zgPnGoDAvmp2NZcuXNPEnRpuyJNTelgeY5ED000073ev4',
-} as const;
-
 function HeroThemeVideo() {
-  const { resolvedTheme } = useTheme();
-  const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
   return (
     <HeroVideo
-      key={theme}
-      playbackId={HERO_PLAYBACK_IDS[theme]}
       className="pointer-events-none"
     />
   );

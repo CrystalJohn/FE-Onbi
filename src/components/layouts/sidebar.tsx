@@ -6,11 +6,11 @@ import { usePathname } from "next/navigation";
 import {
   Activity,
   Baby,
+  ChevronLeft,
+  ChevronRight,
   LayoutDashboard,
   Menu,
   MessageSquareText,
-  Pin,
-  PinOff,
   Settings,
   User,
   Users,
@@ -40,30 +40,27 @@ const adminNav = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [isPinned, setIsPinned] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  // Đóng/mở THỦ CÔNG bằng nút "<" — không tự động theo hover nữa
+  const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const isAdmin = pathname.startsWith("/admin");
   const nav = isAdmin ? adminNav : parentNav;
-  const isExpanded = isPinned || isHovered;
 
   return (
     <>
       <aside
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         className={`sticky top-0 z-30 hidden h-dvh shrink-0 p-3 transition-all duration-300 ease-out lg:block ${isExpanded ? "w-[280px]" : "w-[88px]"
           }`}
       >
         <div className="relative flex h-[calc(100dvh-24px)] flex-col overflow-visible rounded-[32px] border border-white/80 bg-white/75 p-2.5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
           <button
             type="button"
-            onClick={() => setIsPinned((value) => !value)}
-            aria-label={isPinned ? "Bỏ ghim thanh điều hướng" : "Ghim thanh điều hướng"}
-            title={isPinned ? "Bỏ ghim thanh điều hướng" : "Ghim thanh điều hướng"}
-            className="absolute -right-3 top-6 z-10 grid h-8 w-8 place-items-center rounded-full border border-white bg-white text-slate-500 shadow-[0_8px_20px_rgba(15,23,42,0.14)] transition-all duration-300 ease-out hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+            onClick={() => setIsExpanded((value) => !value)}
+            aria-label={isExpanded ? "Thu gọn thanh điều hướng" : "Mở rộng thanh điều hướng"}
+            title={isExpanded ? "Thu gọn" : "Mở rộng"}
+            className="absolute -right-3 top-6 z-10 grid h-8 w-8 place-items-center rounded-full border border-white bg-[#0B008B] text-white shadow-[0_8px_20px_rgba(15,23,42,0.20)] transition-all duration-300 ease-out hover:bg-[#000066] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
           >
-            {isPinned ? <PinOff aria-hidden="true" className="h-3.5 w-3.5" /> : <Pin aria-hidden="true" className="h-3.5 w-3.5" />}
+            {isExpanded ? <ChevronLeft aria-hidden="true" className="h-4 w-4" /> : <ChevronRight aria-hidden="true" className="h-4 w-4" />}
           </button>
 
           <div className={`flex min-h-14 items-center rounded-[22px] transition-all duration-300 ease-out ${isExpanded ? "gap-3 px-2" : "justify-center"}`}>
@@ -85,7 +82,7 @@ export function Sidebar() {
                   aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
                   title={!isExpanded ? item.label : undefined}
-                  className={`flex min-h-12 items-center overflow-hidden rounded-2xl text-sm font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${isExpanded ? "gap-3 px-3.5" : "justify-center px-0"
+                  className={`flex min-h-12 items-center overflow-hidden rounded-2xl text-sm font-semibold transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${isExpanded ? "gap-3 px-3.5" : "justify-center px-0"
                     } ${isActive
                       ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]"
                       : "text-slate-600 hover:bg-cyan-50/90 hover:text-[#0B008B]"

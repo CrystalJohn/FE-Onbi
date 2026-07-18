@@ -54,9 +54,10 @@ export default function SetupStep1() {
 
       <section className="relative w-full max-w-[600px] flex flex-col items-center rounded-[32px] border border-white/40 bg-gradient-to-b from-[#F0F5FA] to-[#E2EAF1] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.5)] sm:p-10 lg:p-12 backdrop-blur-2xl">
       <div className="w-full max-w-md px-2">
-        <button 
+        <button
           onClick={() => router.push('/setup')}
-          className="p-2 -ml-2 mb-6 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-50 transition-colors"
+          aria-label="Quay lại"
+          className="mb-6 grid h-10 w-10 place-items-center rounded-xl bg-[#000080] text-white shadow-md transition hover:bg-[#000066]"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
