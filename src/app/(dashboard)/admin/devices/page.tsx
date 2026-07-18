@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import {
   Ban,
@@ -56,6 +56,14 @@ const statusMeta: Record<string, { label: string; className: string }> = {
 };
 
 export default function AdminDevicesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-500">Đang tải...</div>}>
+      <AdminDevicesContent />
+    </Suspense>
+  );
+}
+
+function AdminDevicesContent() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [stats, setStats] = useState<DeviceStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +77,9 @@ export default function AdminDevicesPage() {
 
   const [filterStatus, setFilterStatus] = useState('');
   const [filterUserId, setFilterUserId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
   const [deviceToDeactivate, setDeviceToDeactivate] = useState<Device | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<Device | null>(null);
@@ -104,12 +115,43 @@ export default function AdminDevicesPage() {
     fetchData();
   }, [filterStatus, filterUserId]);
 
+  // Client-side search filter by serial/activation code only
+  const filteredDevices = searchQuery.trim()
+    ? devices.filter((d) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          (d.serialNumber ?? '').toLowerCase().includes(q) ||
+          d.activationCode.toLowerCase().includes(q)
+        );
+      })
+    : devices;
+
+  useEffect(() => {
+    // Read query params from URL directly on mount to handle soft navigation correctly
+    const params = new URLSearchParams(window.location.search);
+    const statusParam = params.get('status');
+    if (statusParam) {
+      setFilterStatus(statusParam);
+    }
+  }, []);
+
   useEffect(() => {
     if (!message) return;
 
     const timer = window.setTimeout(() => setMessage(''), 4500);
     return () => window.clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [filterOpen]);
 
   const handleCreate = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -305,35 +347,60 @@ export default function AdminDevicesPage() {
         </form>
       )}
 
-      <section className="rounded-[24px] border border-white/80 bg-white/75 p-4 shadow-[0_16px_45px_rgba(15,23,42,0.06)] backdrop-blur-xl" aria-label="Bộ lọc thiết bị">
+      <section className="relative z-30 overflow-visible rounded-[24px] border border-white/80 bg-white/75 p-4 shadow-[0_16px_45px_rgba(15,23,42,0.06)] backdrop-blur-xl" aria-label="Bộ lọc thiết bị">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
             <Filter className="h-4 w-4 text-cyan-700" aria-hidden="true" />
             Bộ lọc
           </div>
-          <select
-            value={filterStatus}
-            onChange={(event) => setFilterStatus(event.target.value)}
-            className="min-h-11 rounded-full border border-slate-200/80 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15"
-            aria-label="Lọc theo trạng thái"
-          >
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Đang hoạt động</option>
-            <option value="inactive">Chưa hoạt động</option>
-            <option value="deactivated">Đã vô hiệu hóa</option>
-          </select>
-          <input
-            type="text"
-            value={filterUserId}
-            onChange={(event) => setFilterUserId(event.target.value)}
-            placeholder="Nhập User ID..."
-            className="min-h-11 w-full rounded-full border border-slate-200/80 bg-white px-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15 lg:max-w-xs"
-            aria-label="Lọc theo User ID"
-          />
-          {(filterStatus || filterUserId) && (
+          <div ref={filterRef} className="relative">
             <button
               type="button"
-              onClick={() => { setFilterStatus(''); setFilterUserId(''); }}
+              onClick={() => setFilterOpen((o) => !o)}
+              className="inline-flex items-center justify-center gap-2 min-h-11 rounded-full border border-slate-200/80 bg-white px-4 text-sm font-normal text-slate-900 outline-none hover:bg-slate-50 focus:border-[#0B008B] transition-colors"
+            >
+              {filterStatus === '' ? 'Tất cả trạng thái' :
+               filterStatus === 'active' ? 'Đang hoạt động' :
+               filterStatus === 'inactive' ? 'Chưa hoạt động' :
+               'Đã vô hiệu hóa'}
+              <svg className={`h-4 w-4 text-slate-400 transition-transform ${filterOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            {filterOpen && (
+              <div
+                className="absolute left-0 top-full z-50 mt-2 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-xl"
+              >
+                {([
+                  { value: '', label: 'Tất cả trạng thái' },
+                  { value: 'active', label: 'Đang hoạt động' },
+                  { value: 'inactive', label: 'Chưa hoạt động' },
+                  { value: 'deactivated', label: 'Đã vô hiệu hóa' },
+                ] as { value: string; label: string }[]).map(({ value, label }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => { setFilterStatus(value); setFilterOpen(false); }}
+                    className={`flex w-full items-center rounded-lg px-3 py-2 text-sm transition-colors hover:bg-slate-50 ${
+                      filterStatus === value ? 'font-semibold text-[#0B008B] bg-indigo-50' : 'text-slate-700'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Tìm serial, mã kích hoạt, model..."
+            className="min-h-11 w-full rounded-full border border-slate-200/80 bg-white px-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-[#0B008B]/15 lg:max-w-xs"
+            aria-label="Tìm kiếm thiết bị"
+          />
+          {(filterStatus || filterUserId || searchQuery) && (
+            <button
+              type="button"
+              onClick={() => { setFilterStatus(''); setFilterUserId(''); setSearchQuery(''); }}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
@@ -343,7 +410,7 @@ export default function AdminDevicesPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[28px] border border-white/80 bg-white/75 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl" aria-label="Danh sách thiết bị">
+      <section className="relative z-0 overflow-hidden rounded-[28px] border border-white/80 bg-white/75 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl" aria-label="Danh sách thiết bị">
         {devices.length === 0 ? (
           <div className="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center">
             <span className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-50 text-cyan-700"><Boxes className="h-6 w-6" /></span>
@@ -366,7 +433,7 @@ export default function AdminDevicesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {devices.map((device) => {
+               {filteredDevices.map((device) => {
                   const meta = statusMeta[device.status] ?? { label: device.status, className: 'bg-slate-100 text-slate-600 ring-slate-200' };
                   const assignedAccount = device.activatedByUser;
 

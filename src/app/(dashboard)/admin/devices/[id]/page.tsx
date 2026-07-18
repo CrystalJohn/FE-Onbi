@@ -1,7 +1,17 @@
-'use client'
+'use client';
 
 import { useState, useEffect, use } from 'react';
-import { ArrowLeft, Hash, Barcode, Calendar, Cpu, User, Baby, Wifi, WifiOff } from 'lucide-react';
+import {
+  ArrowLeft,
+  Hash,
+  Barcode,
+  Calendar,
+  Cpu,
+  User,
+  Baby,
+  Wifi,
+  WifiOff,
+} from 'lucide-react';
 import Link from 'next/link';
 
 interface DeviceDetail {
@@ -11,15 +21,33 @@ interface DeviceDetail {
   model?: string;
   firmwareVersion?: string;
   status: string;
-  // BE (device.service.ts adminGetDeviceDetail) trả: device.activatedByUser + device.currentAssignment.child
-  activatedByUser?: { id: string; email: string; fullName: string } | null;
+  activatedByUser?: {
+    id: string;
+    email: string;
+    fullName: string;
+  } | null;
   currentAssignment?: {
     childId: string;
-    child: { id: string; name: string };
+    child: {
+      id: string;
+      name: string;
+    };
     assignedAt: string;
   } | null;
   createdAt: string;
 }
+
+const STATUS_LABEL: Record<string, string> = {
+  active: 'Đang hoạt động',
+  inactive: 'Chưa hoạt động',
+  deactivated: 'Đã vô hiệu hóa',
+};
+
+const STATUS_STYLE: Record<string, string> = {
+  active: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+  inactive: 'text-amber-700 bg-amber-50 border-amber-200',
+  deactivated: 'text-rose-700 bg-rose-50 border-rose-200',
+};
 
 export default function AdminDeviceDetailPage({
   params,
@@ -27,6 +55,7 @@ export default function AdminDeviceDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+
   const [device, setDevice] = useState<DeviceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,145 +67,245 @@ export default function AdminDeviceDetailPage({
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/admin/devices/${id}`,
-          { headers: { Authorization: `Bearer ${getToken()}` } },
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+          },
         );
-        if (res.ok) setDevice(await res.json());
-        else setError('Không thể tải thông tin device');
+
+        if (res.ok) {
+          const data: DeviceDetail = await res.json();
+          setDevice(data);
+        } else {
+          setError('Không thể tải thông tin thiết bị');
+        }
       } catch {
-        setError('Không thể kết nối server');
+        setError('Không thể kết nối máy chủ');
       } finally {
         setLoading(false);
       }
     };
+
     fetchDevice();
   }, [id]);
 
-  if (loading) return <div className="text-sm text-slate-500">Đang tải...</div>;
-  if (error) return <div className="text-sm text-red-500">{error}</div>;
-  if (!device) return <div className="text-sm text-slate-500">Không tìm thấy thiết bị</div>;
+  if (loading) {
+    return (
+      <div className="p-8 text-sm text-slate-500">
+        Đang tải...
+      </div>
+    );
+  }
 
-  const statusStyle: Record<string, string> = {
-    active: 'text-green-600 bg-green-50 border-green-200',
-    inactive: 'text-amber-600 bg-amber-50 border-amber-200',
-    deactivated: 'text-red-600 bg-red-50 border-red-200',
-  };
+  if (error) {
+    return (
+      <div className="p-8 text-sm text-rose-600">
+        {error}
+      </div>
+    );
+  }
 
-  const statusIcon: Record<string, typeof Wifi> = {
-    active: Wifi,
-    inactive: WifiOff,
-    deactivated: WifiOff,
-  };
+  if (!device) {
+    return (
+      <div className="p-8 text-sm text-slate-500">
+        Không tìm thấy thiết bị
+      </div>
+    );
+  }
 
-  const StatusIcon = statusIcon[device.status] || Wifi;
+  const StatusIcon = device.status === 'active' ? Wifi : WifiOff;
 
   return (
     <div className="space-y-6">
+      {/* Back link */}
       <Link
         href="/admin/devices"
-        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-[#000080] hover:text-[#000080]"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Quay lại Thiết bị
+        <ArrowLeft className="h-4 w-4" />
+        Quay lại Danh sách thiết bị
       </Link>
 
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">Chi tiết thiết bị</h1>
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-bold text-slate-900">
+          Chi tiết thiết bị
+        </h1>
+
         <span
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
-            statusStyle[device.status] || 'text-slate-600 bg-slate-50 border-slate-200'
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${
+            STATUS_STYLE[device.status] ??
+            'border-slate-200 bg-slate-50 text-slate-600'
           }`}
         >
-          <StatusIcon className="w-3.5 h-3.5" />
-          {device.status === 'active'
-            ? 'Active'
-            : device.status === 'inactive'
-              ? 'Inactive'
-              : 'Deactivated'}
+          <StatusIcon className="h-3.5 w-3.5" />
+
+          {STATUS_LABEL[device.status] ?? device.status}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Device info */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Thông tin thiết bị</h2>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Device info card */}
+        <div className="space-y-4 rounded-[24px] border border-white/80 bg-white/75 p-6 shadow-[0_16px_45px_rgba(15,23,42,0.07)] backdrop-blur-xl">
+          <h2 className="text-base font-bold text-slate-950">
+            Thông tin thiết bị
+          </h2>
+
           <div className="space-y-3 text-sm">
-            <div className="flex items-center gap-3">
-              <Hash className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">ID:</span>
-              <span className="font-medium text-slate-900">{device.id}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Barcode className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Activation Code:</span>
-              <span className="font-mono text-sm text-slate-900">{device.activationCode}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Serial:</span>
-              {device.serialNumber ? (
-                <span className="font-medium text-slate-900">{device.serialNumber}</span>
-              ) : (
-                <span className="italic text-slate-400">Chờ thiết bị kết nối</span>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Model:</span>
-              {device.model ? (
-                <span className="font-medium text-slate-900">{device.model}</span>
-              ) : (
-                <span className="italic text-slate-400">Chờ thiết bị báo</span>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <Cpu className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Firmware:</span>
-              {device.firmwareVersion ? (
-                <span className="font-medium text-slate-900">{device.firmwareVersion}</span>
-              ) : (
-                <span className="italic text-slate-400">Chờ thiết bị báo</span>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Ngày tạo:</span>
-              <span className="font-medium text-slate-900">
-                {new Date(device.createdAt).toLocaleString('vi-VN')}
-              </span>
-            </div>
+            <InfoRow
+              icon={Hash}
+              label="ID"
+              value={device.id}
+              mono
+            />
+
+            <InfoRow
+              icon={Barcode}
+              label="Mã kích hoạt"
+              value={device.activationCode}
+              mono
+            />
+
+            <InfoRow
+              icon={Cpu}
+              label="Serial"
+              value={device.serialNumber}
+              empty="Chờ thiết bị kết nối"
+              mono
+            />
+
+            <InfoRow
+              icon={Cpu}
+              label="Model"
+              value={device.model}
+              empty="Chờ thiết bị báo"
+            />
+
+            <InfoRow
+              icon={Cpu}
+              label="Firmware"
+              value={device.firmwareVersion}
+              empty="Chờ thiết bị báo"
+              mono
+            />
+
+            <InfoRow
+              icon={Calendar}
+              label="Ngày tạo"
+              value={new Intl.DateTimeFormat('vi-VN', {
+                dateStyle: 'short',
+                timeStyle: 'short',
+              }).format(new Date(device.createdAt))}
+            />
           </div>
         </div>
 
-        {/* Assignment info */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Thông tin gán thiết bị</h2>
+        {/* Assignment info card */}
+        <div className="space-y-4 rounded-[24px] border border-white/80 bg-white/75 p-6 shadow-[0_16px_45px_rgba(15,23,42,0.07)] backdrop-blur-xl">
+          <h2 className="text-base font-bold text-slate-950">
+            Thông tin gán thiết bị
+          </h2>
+
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-3">
-              <User className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Phụ huynh:</span>
+              <User className="h-4 w-4 shrink-0 text-slate-400" />
+
+              <span className="w-32 shrink-0 text-slate-500">
+                Phụ huynh:
+              </span>
+
               {device.activatedByUser ? (
                 <Link
                   href={`/admin/users/${device.activatedByUser.id}`}
-                  className="font-medium text-cyan-600 hover:text-cyan-700 hover:underline"
+                  className="font-medium text-cyan-600 transition-colors hover:text-cyan-700 hover:underline"
                 >
                   {device.activatedByUser.fullName}
                 </Link>
               ) : (
-                <span className="text-slate-400 italic">Chưa kích hoạt</span>
+                <span className="italic text-slate-400">
+                  Chưa kích hoạt
+                </span>
               )}
             </div>
+
             <div className="flex items-center gap-3">
-              <Baby className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-slate-500 w-32">Trẻ:</span>
+              <Baby className="h-4 w-4 shrink-0 text-slate-400" />
+
+              <span className="w-32 shrink-0 text-slate-500">
+                Trẻ:
+              </span>
+
               {device.currentAssignment?.child ? (
-                <span className="font-medium text-slate-900">{device.currentAssignment.child.name}</span>
+                <span className="font-medium text-slate-900">
+                  {device.currentAssignment.child.name}
+                </span>
               ) : (
-                <span className="text-slate-400 italic">Chưa gán</span>
+                <span className="italic text-slate-400">
+                  Chưa gán
+                </span>
               )}
             </div>
+
+            {device.currentAssignment?.assignedAt && (
+              <div className="flex items-center gap-3">
+                <Calendar className="h-4 w-4 shrink-0 text-slate-400" />
+
+                <span className="w-32 shrink-0 text-slate-500">
+                  Ngày gán:
+                </span>
+
+                <span className="font-medium text-slate-900">
+                  {new Intl.DateTimeFormat('vi-VN', {
+                    dateStyle: 'short',
+                    timeStyle: 'short',
+                  }).format(
+                    new Date(device.currentAssignment.assignedAt),
+                  )}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+  empty = '—',
+  mono = false,
+}: {
+  icon: typeof Hash;
+  label: string;
+  value?: string | null;
+  empty?: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <Icon className="h-4 w-4 shrink-0 text-slate-400" />
+
+      <span className="w-32 shrink-0 text-slate-500">
+        {label}:
+      </span>
+
+      {value ? (
+        <span
+          className={`break-all font-medium text-slate-900 ${
+            mono ? 'font-mono text-xs' : ''
+          }`}
+        >
+          {value}
+        </span>
+      ) : (
+        <span className="italic text-slate-400">
+          {empty}
+        </span>
+      )}
     </div>
   );
 }

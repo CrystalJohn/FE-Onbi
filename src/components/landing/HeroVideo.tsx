@@ -10,7 +10,20 @@ interface HeroVideoProps {
 }
 
 const DEFAULT_HERO_VIDEO_SRC = '/ONBI_robot_real-time.mp4';
-const DEFAULT_HERO_POSTER_SRC = '/background_hero_onbi.webp';
+const DEFAULT_HERO_POSTER_SRC = '/background_hero_onbi.webp'
+// Suppress harmless media-chrome warning about ShadowRoot styles
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('No style sheet found on style tag of [object ShadowRoot]')) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
+
+const HERO_INITIAL_BANDWIDTH_KBPS = 12000;
+const HERO_INITIAL_ESTIMATE_SEGMENTS = 3;
 
 // The hero source videos are authored to loop seamlessly (end frame ≈ start
 // frame), so a single native-loop player is smooth — no crossfade needed.

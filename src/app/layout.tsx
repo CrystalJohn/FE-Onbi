@@ -6,6 +6,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
+import { GlobalCursor } from "@/components/GlobalCursor";
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -61,14 +62,17 @@ export default function RootLayout({
           <GoogleAnalytics />
         </Suspense>
         <MicrosoftClarity />
+        {/* Bug fix: removed defaultTheme="system" + enableSystem + disableTransitionOnChange
+            - defaultTheme="system" / enableSystem conflicts with our custom time-based Auto logic
+            - disableTransitionOnChange conflicts with the View Transition API circle animation */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+          defaultTheme="light"
         >
           <LanguageProvider>
-            {children}
+            <GlobalCursor>
+              {children}
+            </GlobalCursor>
           </LanguageProvider>
         </ThemeProvider>
       </body>

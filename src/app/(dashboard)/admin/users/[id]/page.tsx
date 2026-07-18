@@ -1,7 +1,16 @@
-'use client'
 
-import { useState, useEffect, use } from 'react';
-import { ArrowLeft, Mail, Phone, User, Calendar, ShieldCheck, Hash } from 'lucide-react';
+'use client';
+
+import { use, useEffect, useState } from 'react';
+import {
+  ArrowLeft,
+  Calendar,
+  Hash,
+  Mail,
+  Phone,
+  ShieldCheck,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
 
 interface UserDetail {
@@ -19,6 +28,7 @@ export default function AdminUserDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,91 +40,172 @@ export default function AdminUserDetailPage({
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/admin/users/${id}`,
-          { headers: { Authorization: `Bearer ${getToken()}` } },
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+          },
         );
-        if (res.ok) setUser(await res.json());
-        else setError('Không thể tải thông tin user');
+
+        if (res.ok) {
+          const data: UserDetail = await res.json();
+          setUser(data);
+        } else {
+          setError('Không thể tải thông tin người dùng');
+        }
       } catch {
-        setError('Không thể kết nối server');
+        setError('Không thể kết nối máy chủ');
       } finally {
         setLoading(false);
       }
     };
+
     fetchUser();
   }, [id]);
 
-  if (loading) return <div className="text-sm text-slate-500">Đang tải...</div>;
-  if (error) return <div className="text-sm text-red-500">{error}</div>;
-  if (!user) return <div className="text-sm text-slate-500">Không tìm thấy người dùng</div>;
+  if (loading) {
+    return (
+      <div className="p-8 text-sm text-slate-500">
+        Đang tải...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-sm text-rose-600">
+        {error}
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="p-8 text-sm text-slate-500">
+        Không tìm thấy người dùng
+      </div>
+    );
+  }
+
+  const isAdmin = user.role === 'admin';
 
   return (
     <div className="space-y-6">
       <Link
         href="/admin/users"
-        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-[#000080] hover:text-[#000080]"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Quay lại Người dùng
+        <ArrowLeft className="h-4 w-4" />
+        Quay lại Danh sách người dùng
       </Link>
 
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">Chi tiết người dùng</h1>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-bold text-slate-900">
+          Chi tiết người dùng
+        </h1>
+
         <span
-          className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-            user.role === 'admin'
-              ? 'bg-red-50 text-red-700 border-red-200'
-              : 'bg-blue-50 text-blue-700 border-blue-200'
+          className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+            isAdmin
+              ? 'border-rose-200 bg-rose-50 text-rose-700'
+              : 'border-blue-200 bg-blue-50 text-blue-700'
           }`}
         >
-          {user.role === 'admin' ? 'Admin' : 'Parent'}
+          {isAdmin ? 'Quản trị viên' : 'Phụ huynh'}
         </span>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4 shadow-sm max-w-lg">
-        <h2 className="text-lg font-semibold text-slate-900">Thông tin cơ bản</h2>
+      <div className="max-w-lg space-y-4 rounded-[24px] border border-white/80 bg-white/75 p-6 shadow-[0_16px_45px_rgba(15,23,42,0.07)] backdrop-blur-xl">
+        <h2 className="text-base font-bold text-slate-950">
+          Thông tin cơ bản
+        </h2>
+
         <div className="space-y-3 text-sm">
+          <InfoRow
+            icon={Hash}
+            label="ID"
+            value={String(user.id)}
+          />
+
+          <InfoRow
+            icon={User}
+            label="Họ tên"
+            value={user.fullName}
+          />
+
+          <InfoRow
+            icon={Mail}
+            label="Email"
+            value={user.email}
+          />
+
+          <InfoRow
+            icon={Phone}
+            label="Số điện thoại"
+            value={user.phone}
+            empty="—"
+          />
+
           <div className="flex items-center gap-3">
-            <Hash className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">ID:</span>
-            <span className="font-medium text-slate-900">{user.id}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <User className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Họ tên:</span>
-            <span className="font-medium text-slate-900">{user.fullName}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Email:</span>
-            <span className="font-medium text-slate-900">{user.email}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Điện thoại:</span>
-            <span className="font-medium text-slate-900">{user.phone || '—'}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Vai trò:</span>
+            <ShieldCheck className="h-4 w-4 shrink-0 text-slate-400" />
+
+            <span className="w-32 shrink-0 text-slate-500">
+              Vai trò:
+            </span>
+
             <span
-              className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                user.role === 'admin'
-                  ? 'bg-red-50 text-red-700 border-red-200'
-                  : 'bg-blue-50 text-blue-700 border-blue-200'
+              className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                isAdmin
+                  ? 'border-rose-200 bg-rose-50 text-rose-700'
+                  : 'border-blue-200 bg-blue-50 text-blue-700'
               }`}
             >
-              {user.role === 'admin' ? 'Admin' : 'Parent'}
+              {isAdmin ? 'Quản trị viên' : 'Phụ huynh'}
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="text-slate-500 w-28">Ngày tạo:</span>
-            <span className="font-medium text-slate-900">
-              {new Date(user.createdAt).toLocaleString('vi-VN')}
-            </span>
-          </div>
+
+          <InfoRow
+            icon={Calendar}
+            label="Ngày tạo tài khoản"
+            value={new Intl.DateTimeFormat('vi-VN', {
+              dateStyle: 'short',
+              timeStyle: 'short',
+            }).format(new Date(user.createdAt))}
+          />
         </div>
       </div>
+    </div>
+  );
+}
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+  empty = '—',
+}: {
+  icon: typeof Hash;
+  label: string;
+  value?: string | null;
+  empty?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <Icon className="h-4 w-4 shrink-0 text-slate-400" />
+
+      <span className="w-32 shrink-0 text-slate-500">
+        {label}:
+      </span>
+
+      {value ? (
+        <span className="break-all font-medium text-slate-900">
+          {value}
+        </span>
+      ) : (
+        <span className="italic text-slate-400">
+          {empty}
+        </span>
+      )}
     </div>
   );
 }

@@ -63,16 +63,16 @@ export default function AdminUsersPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.message || 'Tạo user thất bại');
+        setError(data.message || 'Tạo người dùng thất bại');
         return;
       }
 
-      setMessage('Tạo user thành công');
+      setMessage('Tạo người dùng thành công');
       setShowForm(false);
       setEmail(''); setPassword(''); setFullName(''); setPhone('');
       fetchUsers();
     } catch {
-      setError('Không thể kết nối server');
+      setError('Không thể kết nối máy chủ');
     } finally {
       setFormLoading(false);
     }
@@ -100,13 +100,13 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Quản lý Users</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Quản lý người dùng</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-semibold transition-all"
         >
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? 'Đóng' : 'Tạo User'}
+          {showForm ? 'Đóng' : 'Tạo người dùng'}
         </button>
       </div>
 
@@ -134,7 +134,7 @@ export default function AdminUsersPage() {
             </div>
           </div>
           <button type="submit" disabled={formLoading} className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold text-sm disabled:opacity-50">
-            {formLoading ? 'Đang tạo...' : 'Tạo User'}
+            {formLoading ? 'Đang tạo...' : 'Tạo người dùng'}
           </button>
         </form>
       )}
@@ -144,9 +144,9 @@ export default function AdminUsersPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">User</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Người dùng</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">SĐT</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Role</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Vai trò</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Ngày tạo</th>
               <th className="px-4 py-3"></th>
             </tr>
@@ -161,7 +161,7 @@ export default function AdminUsersPage() {
                 <td className="px-4 py-3 text-gray-600">{user.phone}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded text-xs font-semibold ${user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
-                    {user.role}
+                    {user.role === 'admin' ? 'Quản trị viên' : 'Phụ huynh'}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-500">{new Date(user.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
@@ -187,7 +187,7 @@ export default function AdminUsersPage() {
       <Dialog open={!!deleteUser} onOpenChange={(open) => { if (!open) setDeleteUser(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa user</DialogTitle>
+            <DialogTitle>Xác nhận xóa người dùng</DialogTitle>
             <DialogDescription>
               Bạn có chắc muốn xóa <span className="font-semibold text-slate-900">{deleteUser?.fullName}</span> ({deleteUser?.email})? Hành động này không thể hoàn tác.
             </DialogDescription>
@@ -197,7 +197,7 @@ export default function AdminUsersPage() {
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? 'Đang xóa...' : 'Xóa user'}
+              {deleting ? 'Đang xóa...' : 'Xóa người dùng'}
             </Button>
           </DialogFooter>
         </DialogContent>
