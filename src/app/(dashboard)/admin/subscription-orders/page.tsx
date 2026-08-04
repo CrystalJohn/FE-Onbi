@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Crown, CheckCircle, Clock, AlertCircle, Timer, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -42,11 +42,8 @@ export default function AdminSubscriptionOrdersPage() {
   const [updating, setUpdating] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('ALL');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  // Khai báo TRƯỚC useEffect sử dụng nó (fix react-hooks/immutability)
+  const fetchData = useCallback(async () => {
     try {
       const [ordersRes, statsRes] = await Promise.all([
         api.get('/subscription-orders'),
@@ -59,7 +56,11 @@ export default function AdminSubscriptionOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const updateStatus = async (id: string, newStatus: string) => {
     setUpdating(id);

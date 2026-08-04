@@ -4,13 +4,10 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X, ArrowUpRight, Timer, ChevronDown } from 'lucide-react';
-import { motion } from 'motion/react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useLanding } from '@/i18n/useLanding';
 import type { LandingContent } from '@/i18n/landing';
 import ThemeToggle from '../ThemeToggle';
-
-const MotionLink = motion.create(Link);
 
 interface HeaderProps {
   t: LandingContent;
@@ -182,15 +179,20 @@ export default function Header({ t: initialT, onJoinClick, onTimerClick }: Heade
             )}
           </div>
 
+          <button
+            onClick={onTimerClick}
+            className="text-sm font-semibold text-slate-700 dark:text-slate-350 px-4 py-2 rounded-full border border-slate-300 dark:border-zinc-700 hover:border-[#0066cc] dark:hover:border-[#0071e3] hover:text-[#0066cc] dark:hover:text-[#0071e3] transition-all duration-200 active:scale-95 cursor-pointer flex items-center gap-1.5"
+          >
+            <Timer className="w-4 h-4 text-[#0066cc] dark:text-blue-400" />
+            <span>{t.focusTimer}</span>
+          </button>
 
-          <MotionLink
+          <Link
             href="/login"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-sm font-semibold text-slate-700 dark:text-slate-350 px-4 py-2 rounded-full hover:bg-[#ccc9bf]/20 dark:hover:bg-zinc-800/60 hover:text-[#0066cc] dark:hover:text-[#0071e3] transition-colors duration-200 cursor-pointer"
+            className="text-sm font-semibold text-slate-700 dark:text-slate-350 px-4 py-2 rounded-full hover:bg-[#ccc9bf]/20 dark:hover:bg-zinc-800/60 hover:text-[#0066cc] dark:hover:text-[#0071e3] transition-all duration-200 active:scale-95 cursor-pointer"
           >
             {t.login}
-          </MotionLink>
+          </Link>
 
           <button
             onClick={onJoinClick}
@@ -269,7 +271,13 @@ export default function Header({ t: initialT, onJoinClick, onTimerClick }: Heade
           <button onClick={() => scrollToSection('team')}     className={mobileNavClass('team')}>{t.team}</button>
 
           <div className="h-px bg-gray-200 dark:bg-zinc-800 my-2" />
-
+          <button
+            onClick={() => { setIsOpen(false); if (onTimerClick) onTimerClick(); }}
+            className="w-full text-center text-sm font-semibold text-slate-700 dark:text-slate-300 py-3 rounded-full border border-slate-300 dark:border-zinc-700 hover:border-[#0066cc] dark:hover:border-[#0071e3] hover:text-[#0066cc] dark:hover:text-[#0071e3] transition-all flex items-center justify-center gap-1.5"
+          >
+            <Timer className="w-4 h-4 text-[#0066cc] dark:text-blue-400" />
+            {t.testTimer}
+          </button>
           <Link
             href="/login"
             onClick={() => setIsOpen(false)}

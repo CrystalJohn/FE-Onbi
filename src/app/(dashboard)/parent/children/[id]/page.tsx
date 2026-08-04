@@ -3,7 +3,8 @@
 import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Trash2, Bot, Link2, Unlink, CalendarDays, User, LoaderCircle } from 'lucide-react';
+import { Save, Trash2, Bot, Link2, Unlink, CalendarDays, User, LoaderCircle } from 'lucide-react';
+import BackButton from '@/components/ui/BackButton';
 
 interface Child {
   id: string;
@@ -254,13 +255,7 @@ export default function ChildDetailPage({
   return (
     <div className="mx-auto max-w-6xl space-y-5">
       <header className="flex items-center gap-3">
-        <button
-          onClick={() => router.push('/parent/children')}
-          aria-label="Quay lại"
-          className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+        <BackButton fallback="/parent/children" />
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Chi tiết hồ sơ</p>
           <h1 className="text-2xl font-bold tracking-tight text-slate-950">Quản lý bé {child.name}</h1>

@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { createContext, useContext, useState, useEffect } from "react";
-import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 
+// Suppress the React 19 warning about script tags in components during development.
+// This is a known issue with next-themes where the injected FOUC-prevention script
+// triggers a warning in React 19/Next.js 15+ hydration, which is safe to ignore.
 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   const originalError = console.error;
   console.error = (...args: any[]) => {
@@ -17,76 +19,9 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   };
 }
 
-export type ThemeMode = "light" | "dark" | "auto";
-
-interface ThemeContextType {
-  themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
-}
-
-const ThemeModeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export function useThemeMode() {
-  const context = useContext(ThemeModeContext);
-  if (!context) {
-    throw new Error("useThemeMode must be used within a ThemeProvider");
-  }
-  return context;
-}
-
-const VALID_MODES: ThemeMode[] = ["light", "dark", "auto"];
-
-function ThemeModeResolver({ children }: { children: React.ReactNode }) {
-  const { setTheme } = useTheme();
-  const [themeMode, setThemeModeState] = useState<ThemeMode | null>(null);
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem("theme-mode");
-    if (savedMode && VALID_MODES.includes(savedMode as ThemeMode)) {
-      setThemeModeState(savedMode as ThemeMode);
-    } else {
-      localStorage.setItem("theme-mode", "auto");
-      setThemeModeState("auto");
-    }
-  }, []);
-
-  const setThemeMode = (mode: ThemeMode) => {
-    setThemeModeState(mode);
-    localStorage.setItem("theme-mode", mode);
-  };
-
-  useEffect(() => {
-    if (themeMode === null) return;
-
-    if (themeMode === "auto") {
-      const updateAutoTheme = () => {
-        const hour = new Date().getHours();
-        const isNight = hour < 6 || hour >= 18;
-        setTheme(isNight ? "dark" : "light");
-      };
-
-      updateAutoTheme();
-      const interval = setInterval(updateAutoTheme, 60000); // Check every minute
-      return () => clearInterval(interval);
-    } else {
-      setTheme(themeMode);
-    }
-  }, [themeMode]);
-
-  return (
-    <ThemeModeContext.Provider value={{ themeMode: themeMode ?? "auto", setThemeMode }}>
-      {children}
-    </ThemeModeContext.Provider>
-  );
-}
-
 export function ThemeProvider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
-  return (
-    <NextThemesProvider {...props}>
-      <ThemeModeResolver>{children}</ThemeModeResolver>
-    </NextThemesProvider>
-  );
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }

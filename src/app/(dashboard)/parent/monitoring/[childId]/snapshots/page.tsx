@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, AlertTriangle, Monitor, RefreshCw, X, ImageIcon } from 'lucide-react';
+import { Camera, AlertTriangle, X, ImageIcon } from 'lucide-react';
+import BackButton from '@/components/ui/BackButton';
+import { formatSmartTime } from '@/lib/format';
 
 interface Snapshot {
   id: number;
@@ -16,18 +17,24 @@ interface Snapshot {
 const TYPE_LABELS: Record<string, string> = {
   left_desk: 'Rời bàn',
   bad_posture: 'Sai tư thế',
+  posture_bad: 'Sai tư thế',
+  unfocused: 'Mất tập trung',
   manual: 'Chụp tay',
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  left_desk: 'bg-orange-100 text-orange-700 border-orange-200',
-  bad_posture: 'bg-red-100 text-red-700 border-red-200',
+  left_desk: 'bg-red-100 text-red-700 border-red-200',
+  bad_posture: 'bg-amber-100 text-amber-700 border-amber-200',
+  posture_bad: 'bg-amber-100 text-amber-700 border-amber-200',
+  unfocused: 'bg-amber-100 text-amber-700 border-amber-200',
   manual: 'bg-blue-100 text-blue-700 border-blue-200',
 };
 
 const TYPE_ICONS: Record<string, typeof AlertTriangle> = {
   left_desk: AlertTriangle,
   bad_posture: AlertTriangle,
+  posture_bad: AlertTriangle,
+  unfocused: AlertTriangle,
   manual: Camera,
 };
 
@@ -37,7 +44,6 @@ export default function SnapshotsPage({
   params: Promise<{ childId: string }>;
 }) {
   const { childId } = use(params);
-  const router = useRouter();
 
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +64,7 @@ export default function SnapshotsPage({
         const data = await res.json();
         setSnapshots(Array.isArray(data) ? data : []);
       } catch {
-        setError('Khong the tai anh');
+        setError('Không thể tải ảnh. Kéo xuống hoặc tải lại trang để thử lại.');
       } finally {
         setLoading(false);
       }
@@ -73,13 +79,16 @@ export default function SnapshotsPage({
     return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
   };
 
+  // Gộp posture_bad vào bad_posture; chỉ lọc theo 3 trạng thái chính
+  const normalize = (t: string) => (t === 'posture_bad' ? 'bad_posture' : t);
+
   const filteredSnapshots = filterType
-    ? snapshots.filter((s) => s.type === filterType)
+    ? snapshots.filter((s) => normalize(s.type) === filterType)
     : snapshots;
 
   const counts = snapshots.reduce(
     (acc, s) => {
-      acc[s.type] = (acc[s.type] || 0) + 1;
+      acc[normalize(s.type)] = (acc[normalize(s.type)] || 0) + 1;
       acc.total++;
       return acc;
     },
@@ -87,19 +96,14 @@ export default function SnapshotsPage({
   );
 
   if (loading) {
-    return <div className="text-sm text-gray-500">Dang tai...</div>;
+    return <div className="text-sm text-gray-500">Đang tải…</div>;
   }
 
   return (
     <div className="max-w-5xl space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.push(`/parent/monitoring/${childId}`)}
-          className="p-2 rounded-lg hover:bg-gray-100"
-        >
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
-        </button>
+        <BackButton fallback={`/parent/monitoring/${childId}`} />
         <Camera className="w-6 h-6 text-cyan-500" />
         <h1 className="text-2xl font-bold text-slate-900">Ảnh & Cảnh báo</h1>
       </div>
@@ -122,7 +126,7 @@ export default function SnapshotsPage({
         >
           Tất cả ({counts.total})
         </button>
-        {Object.entries(TYPE_LABELS).map(([key, label]) => (
+        {(['left_desk', 'bad_posture', 'manual'] as const).map((key) => { const label = TYPE_LABELS[key]; return (
           <button
             key={key}
             onClick={() => setFilterType(key)}
@@ -134,7 +138,7 @@ export default function SnapshotsPage({
           >
             {label} ({counts[key] || 0})
           </button>
-        ))}
+        ); })}
       </div>
 
       {/* Gallery */}
@@ -142,7 +146,7 @@ export default function SnapshotsPage({
         <div className="text-center py-16">
           <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <p className="text-sm text-gray-400 italic">
-            {filterType ? 'Khong co anh loai nay.' : 'Chua co anh nao.'}
+            {filterType ? 'Không có ảnh loại này.' : 'Chưa có ảnh nào.'}
           </p>
         </div>
       ) : (
@@ -164,7 +168,7 @@ export default function SnapshotsPage({
                   >
                     <img
                       src={src}
-                      alt={`Snapshot ${snapshot.id}`}
+                      alt={`Ảnh cảnh báo ${snapshot.id}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </button>
@@ -185,9 +189,7 @@ export default function SnapshotsPage({
                     {TYPE_LABELS[snapshot.type] || snapshot.type}
                   </span>
                   <p className="text-xs text-gray-400">
-                    {new Date(snapshot.capturedAt).toLocaleString('vi-VN', {
-                      timeZone: 'Asia/Ho_Chi_Minh',
-                    })}
+                    {formatSmartTime(snapshot.capturedAt)}
                   </p>
                   {snapshot.description && (
                     <p className="text-xs text-gray-500 line-clamp-2">
@@ -215,7 +217,7 @@ export default function SnapshotsPage({
           </button>
           <img
             src={previewImage}
-            alt="Preview"
+            alt="Ảnh xem trước"
             className="max-w-full max-h-full object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
