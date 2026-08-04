@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import MuxPlayer from '@mux/mux-player-react';
@@ -8,14 +8,18 @@ interface HeroVideoProps {
   className?: string;
 }
 
-// Suppress harmless media-chrome warning about ShadowRoot styles
+// Suppress harmless internal media-chrome ShadowRoot style warning at module evaluation
+// BEFORE media-chrome Web Component constructor/connectedCallback runs.
 if (typeof window !== 'undefined') {
-  const originalWarn = console.warn;
-  console.warn = (...args) => {
-    if (typeof args[0] === 'string' && args[0].includes('No style sheet found on style tag of [object ShadowRoot]')) {
+  const origWarn = console.warn;
+  console.warn = function (...args: any[]) {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('No style sheet found on style tag')
+    ) {
       return;
     }
-    originalWarn(...args);
+    return origWarn.apply(console, args);
   };
 }
 

@@ -307,3 +307,252 @@ html:not(.theme-transitioning)::view-transition-new(root) {
   background-size: 200% auto;
   animation: brand-gradient 5s ease infinite;
 }
+
+/* =====================================================================
+   DARK MODE cho khu DASHBOARD (.dash-root — xem (dashboard)/layout.tsx)
+   Các trang dashboard dùng màu cứng (bg-white, text-slate-900...) nên
+   phủ lại bằng override có phạm vi, KHÔNG ảnh hưởng landing page
+   (landing đã có dark: riêng).
+   ===================================================================== */
+/* --- Nền khối/thẻ --- */
+.dark .dash-root .bg-white { background-color: #0f172a; }
+.dark .dash-root .bg-white\/90 { background-color: rgb(15 23 42 / 0.9); }
+.dark .dash-root .bg-white\/85 { background-color: rgb(15 23 42 / 0.85); }
+.dark .dash-root .bg-white\/75 { background-color: rgb(15 23 42 / 0.75); }
+.dark .dash-root .bg-white\/70 { background-color: rgb(15 23 42 / 0.7); }
+.dark .dash-root .bg-slate-50 { background-color: #1e293b; }
+.dark .dash-root .bg-slate-50\/80 { background-color: rgb(30 41 59 / 0.8); }
+.dark .dash-root .bg-slate-100 { background-color: #1e293b; }
+.dark .dash-root .bg-slate-200 { background-color: #334155; } /* skeleton loading */
+.dark .dash-root .bg-gray-100 { background-color: #1e293b; }
+.dark .dash-root .hover\:bg-slate-50:hover,
+.dark .dash-root .hover\:bg-gray-100:hover,
+.dark .dash-root .hover\:bg-white:hover { background-color: #1e293b; }
+.dark .dash-root .hover\:bg-cyan-50\/90:hover,
+.dark .dash-root .hover\:bg-cyan-50:hover,
+.dark .dash-root .hover\:bg-cyan-50\/40:hover { background-color: rgb(8 51 68 / 0.55); }
+
+/* --- Chữ --- */
+.dark .dash-root .text-slate-950, .dark .dash-root .text-slate-900,
+.dark .dash-root .text-slate-800 { color: #f1f5f9; }
+.dark .dash-root .text-slate-700 { color: #e2e8f0; }
+.dark .dash-root .text-slate-600, .dark .dash-root .text-gray-600 { color: #cbd5e1; }
+.dark .dash-root .text-slate-500 { color: #94a3b8; }
+.dark .dash-root .text-slate-400, .dark .dash-root .text-slate-300 { color: #64748b; }
+.dark .dash-root .text-cyan-600 { color: #22d3ee; }
+.dark .dash-root .hover\:text-\[\#0B008B\]:hover { color: #a5b4fc; }
+
+/* --- Viền --- */
+.dark .dash-root .border-white\/80, .dark .dash-root .border-white\/40,
+.dark .dash-root .border-white { border-color: rgb(51 65 85 / 0.7); }
+.dark .dash-root .border-slate-100, .dark .dash-root .border-slate-200,
+.dark .dash-root .border-slate-200\/80, .dark .dash-root .border-slate-300,
+.dark .dash-root .border-gray-200 { border-color: #334155; }
+.dark .dash-root .hover\:border-cyan-200:hover { border-color: #164e63; }
+
+/* --- Badge/thẻ màu trạng thái (điểm số, cảnh báo...) --- */
+.dark .dash-root .bg-cyan-100 { background-color: #164e63; }
+.dark .dash-root .text-cyan-700 { color: #a5f3fc; }
+.dark .dash-root .bg-cyan-50 { background-color: rgb(8 51 68 / 0.5); }
+.dark .dash-root .bg-emerald-100 { background-color: #065f46; }
+.dark .dash-root .text-emerald-700 { color: #6ee7b7; }
+.dark .dash-root .bg-emerald-50, .dark .dash-root .bg-emerald-50\/60 { background-color: rgb(6 78 59 / 0.4); }
+.dark .dash-root .border-emerald-200 { border-color: #065f46; }
+.dark .dash-root .text-emerald-800 { color: #a7f3d0; }
+.dark .dash-root .bg-amber-100 { background-color: #78350f; }
+.dark .dash-root .text-amber-700 { color: #fcd34d; }
+.dark .dash-root .bg-amber-50\/60 { background-color: rgb(120 53 15 / 0.35); }
+.dark .dash-root .border-amber-200 { border-color: #78350f; }
+.dark .dash-root .bg-red-50 { background-color: rgb(127 29 29 / 0.35); }
+.dark .dash-root .bg-red-50\/60 { background-color: rgb(127 29 29 / 0.3); }
+.dark .dash-root .border-red-200 { border-color: #7f1d1d; }
+.dark .dash-root .text-red-700, .dark .dash-root .text-red-600 { color: #fca5a5; }
+.dark .dash-root .bg-green-50 { background-color: rgb(6 78 59 / 0.4); }
+.dark .dash-root .border-green-200 { border-color: #065f46; }
+.dark .dash-root .text-green-800 { color: #a7f3d0; }
+
+/* --- Đợt rà soát 2: gradient sáng + các tông màu còn sót --- */
+/* Gradient nền sáng (thẻ hero, panel) -> tối */
+.dark .dash-root .from-white, .dark .dash-root .from-slate-50,
+.dark .dash-root .from-cyan-50, .dark .dash-root .from-amber-50\/50,
+.dark .dash-root .from-amber-200\/20 { --tw-gradient-from: #0f172a; }
+.dark .dash-root .via-white { --tw-gradient-via: #0f172a; }
+.dark .dash-root .to-white, .dark .dash-root .to-cyan-50,
+.dark .dash-root .to-cyan-50\/80, .dark .dash-root .to-indigo-50,
+.dark .dash-root .to-rose-50\/70, .dark .dash-root .to-orange-200\/20 { --tw-gradient-to: #1e293b; }
+
+/* Nền nhạt các tông còn thiếu */
+.dark .dash-root .bg-slate-50\/50 { background-color: rgb(30 41 59 / 0.5); }
+.dark .dash-root .bg-slate-200\/80 { background-color: rgb(51 65 85 / 0.8); }
+.dark .dash-root .bg-gray-50 { background-color: #1e293b; }
+.dark .dash-root .bg-indigo-50, .dark .dash-root .bg-indigo-50\/80 { background-color: rgb(49 46 129 / 0.35); }
+.dark .dash-root .bg-blue-50 { background-color: rgb(30 58 138 / 0.35); }
+.dark .dash-root .bg-violet-50 { background-color: rgb(76 29 149 / 0.35); }
+.dark .dash-root .bg-rose-50, .dark .dash-root .bg-rose-50\/90 { background-color: rgb(136 19 55 / 0.3); }
+.dark .dash-root .bg-rose-100 { background-color: #881337; }
+.dark .dash-root .bg-red-100 { background-color: #7f1d1d; }
+.dark .dash-root .bg-red-50\/90 { background-color: rgb(127 29 29 / 0.35); }
+.dark .dash-root .bg-amber-50, .dark .dash-root .bg-amber-50\/50 { background-color: rgb(120 53 15 / 0.3); }
+.dark .dash-root .bg-amber-200 { background-color: #92400e; }
+.dark .dash-root .bg-emerald-50\/70, .dark .dash-root .bg-emerald-50\/80 { background-color: rgb(6 78 59 / 0.4); }
+.dark .dash-root .bg-cyan-50\/70 { background-color: rgb(8 51 68 / 0.45); }
+.dark .dash-root .bg-cyan-200\/25 { background-color: rgb(21 94 117 / 0.25); }
+
+/* Chữ tông đậm trên nền nhạt -> đổi sang tông sáng */
+.dark .dash-root .text-cyan-800, .dark .dash-root .text-cyan-900 { color: #a5f3fc; }
+.dark .dash-root .text-emerald-600 { color: #34d399; }
+.dark .dash-root .text-emerald-900 { color: #a7f3d0; }
+.dark .dash-root .text-amber-600 { color: #fbbf24; }
+.dark .dash-root .text-amber-800, .dark .dash-root .text-amber-900 { color: #fde68a; }
+.dark .dash-root .text-red-800 { color: #fecaca; }
+.dark .dash-root .text-rose-700, .dark .dash-root .text-rose-600 { color: #fda4af; }
+.dark .dash-root .text-indigo-700 { color: #a5b4fc; }
+.dark .dash-root .text-blue-700, .dark .dash-root .text-blue-600 { color: #93c5fd; }
+.dark .dash-root .text-green-700, .dark .dash-root .text-green-600 { color: #86efac; }
+.dark .dash-root .text-gray-500 { color: #94a3b8; }
+.dark .dash-root .text-gray-400 { color: #64748b; }
+.dark .dash-root .text-\[\#0B008B\], .dark .dash-root .text-\[\#000080\],
+.dark .dash-root .text-\[\#000033\] { color: #a5b4fc; }
+
+/* Viền các tông còn thiếu */
+.dark .dash-root .border-rose-200 { border-color: #881337; }
+.dark .dash-root .border-red-200\/80 { border-color: rgb(127 29 29 / 0.8); }
+.dark .dash-root .border-emerald-100 { border-color: #064e3b; }
+.dark .dash-root .border-amber-100 { border-color: #78350f; }
+.dark .dash-root .border-cyan-100, .dark .dash-root .border-cyan-200,
+.dark .dash-root .border-cyan-300 { border-color: #155e75; }
+.dark .dash-root .border-indigo-100 { border-color: #312e81; }
+.dark .dash-root .border-blue-200 { border-color: #1e3a8a; }
+.dark .dash-root .border-gray-300 { border-color: #334155; }
+
+/* Các mức mờ của nền trắng còn sót (thẻ hero, panel kính mờ) */
+.dark .dash-root .bg-white\/95 { background-color: rgb(15 23 42 / 0.95); }
+.dark .dash-root .bg-white\/80 { background-color: rgb(15 23 42 / 0.8); }
+.dark .dash-root .bg-white\/60 { background-color: rgb(15 23 42 / 0.6); }
+.dark .dash-root .bg-white\/50 { background-color: rgb(15 23 42 / 0.5); }
+.dark .dash-root .via-white\/95 { --tw-gradient-via: rgb(15 23 42 / 0.95); }
+.dark .dash-root .hover\:bg-white\/70:hover { background-color: rgb(30 41 59 / 0.7); }
+
+/* --- Lưới quét tổng: phủ MỌI mức mờ của các nền sáng (bg-xxx-50/40..95) --- */
+.dark .dash-root [class*="bg-white/"] { background-color: rgb(15 23 42 / 0.8); }
+.dark .dash-root [class*="bg-slate-50/"], .dark .dash-root [class*="bg-slate-100/"] { background-color: rgb(30 41 59 / 0.7); }
+.dark .dash-root [class*="bg-slate-200/"] { background-color: rgb(51 65 85 / 0.8); }
+.dark .dash-root [class*="bg-cyan-50/"], .dark .dash-root [class*="bg-cyan-100/"],
+.dark .dash-root [class*="bg-cyan-200/"] { background-color: rgb(8 51 68 / 0.5); }
+.dark .dash-root [class*="bg-emerald-50/"] { background-color: rgb(6 78 59 / 0.4); }
+.dark .dash-root [class*="bg-indigo-50/"], .dark .dash-root [class*="bg-indigo-200/"] { background-color: rgb(49 46 129 / 0.35); }
+.dark .dash-root [class*="bg-rose-50/"] { background-color: rgb(136 19 55 / 0.3); }
+.dark .dash-root [class*="bg-red-50/"] { background-color: rgb(127 29 29 / 0.35); }
+.dark .dash-root [class*="bg-amber-50/"] { background-color: rgb(120 53 15 / 0.3); }
+
+/* --- Đợt rà soát 3: input/form + tag trạng thái --- */
+/* Native controls (date picker, spinner, scrollbar, checkbox) hiểu là nền tối */
+.dark .dash-root { color-scheme: dark; }
+/* Mọi ô nhập trong dashboard: chữ sáng, nền tối nhẹ, placeholder dịu */
+.dark .dash-root input:not([type="checkbox"]):not([type="radio"]),
+.dark .dash-root textarea,
+.dark .dash-root select {
+  color: #f1f5f9 !important;           /* thắng mọi text-slate-900/gray-900 gắn trên input */
+  background-color: rgb(30 41 59 / 0.6) !important;
+  border-color: #334155;
+}
+.dark .dash-root input:disabled,
+.dark .dash-root textarea:disabled { color: #94a3b8 !important; }
+.dark .dash-root input::placeholder,
+.dark .dash-root textarea::placeholder { color: #64748b !important; }
+.dark .dash-root .placeholder\:text-slate-400::placeholder { color: #64748b; }
+/* focus ring nhạt kieu cyan-200 tren nen toi */
+.dark .dash-root .focus\:ring-cyan-200:focus { --tw-ring-color: rgb(8 51 68 / 0.9); }
+.dark .dash-root .focus\:border-cyan-500:focus { border-color: #0891b2; }
+
+/* Dashboard dark-mode hardening: keep older light-only pages readable. */
+.dark .dash-root input:not([type="checkbox"]):not([type="radio"]),
+.dark .dash-root textarea,
+.dark .dash-root select {
+  color: #f1f5f9 !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  background-color: rgb(30 41 59 / 0.68) !important;
+  border-color: #334155 !important;
+  caret-color: #22d3ee;
+}
+
+.dark .dash-root input:disabled,
+.dark .dash-root textarea:disabled {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1;
+}
+
+.dark .dash-root input::placeholder,
+.dark .dash-root textarea::placeholder,
+.dark .dash-root .placeholder\:text-slate-400::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.dark .dash-root input:-webkit-autofill,
+.dark .dash-root input:-webkit-autofill:hover,
+.dark .dash-root input:-webkit-autofill:focus,
+.dark .dash-root input:-webkit-autofill:active,
+.dark .dash-root textarea:-webkit-autofill,
+.dark .dash-root textarea:-webkit-autofill:hover,
+.dark .dash-root textarea:-webkit-autofill:focus,
+.dark .dash-root textarea:-webkit-autofill:active {
+  -webkit-text-fill-color: #f1f5f9 !important;
+  caret-color: #22d3ee;
+  box-shadow: 0 0 0 1000px #1e293b inset !important;
+}
+
+.dark .dash-root select option {
+  color: #f1f5f9;
+  background: #1e293b;
+}
+
+.dark .dash-root .\!bg-white { background-color: #0f172a !important; }
+.dark .dash-root .\!text-slate-950 { color: #f1f5f9 !important; }
+.dark .dash-root .bg-gray-50,
+.dark .dash-root .bg-gray-100 { background-color: #1e293b; }
+.dark .dash-root .hover\:bg-gray-50:hover,
+.dark .dash-root .hover\:bg-gray-100:hover { background-color: #1e293b; }
+.dark .dash-root .border-gray-200,
+.dark .dash-root .border-gray-300 { border-color: #334155; }
+.dark .dash-root .text-gray-700,
+.dark .dash-root .text-gray-800,
+.dark .dash-root .text-gray-900 { color: #e2e8f0; }
+.dark .dash-root [class*="from-white/"] { --tw-gradient-from: rgb(15 23 42 / 0.85); }
+.dark .dash-root [class*="via-white/"] { --tw-gradient-via: rgb(15 23 42 / 0.85); }
+.dark .dash-root [class*="to-white/"] { --tw-gradient-to: rgb(30 41 59 / 0.85); }
+.dark .dash-root [class*="to-rose-50/"] { --tw-gradient-to: rgb(76 29 49 / 0.55); }
+.dark .dash-root .divide-slate-100 > :not(:last-child) { border-color: #334155; }
+.dark .dash-root .border-dashed.border-slate-200 { border-color: #475569; }
+
+/* Base UI dialogs render in a portal, outside .dash-root. */
+.dark [data-slot="dialog-content"] {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+.dark [data-slot="dialog-content"] .text-slate-950,
+.dark [data-slot="dialog-content"] .text-slate-900,
+.dark [data-slot="dialog-content"] .text-slate-800 { color: #f1f5f9; }
+.dark [data-slot="dialog-content"] .text-slate-700,
+.dark [data-slot="dialog-content"] .text-slate-600 { color: #cbd5e1; }
+.dark [data-slot="dialog-content"] .text-slate-500 { color: #94a3b8; }
+.dark [data-slot="dialog-content"] .bg-white { background-color: #0f172a; }
+.dark [data-slot="dialog-content"] .hover\:bg-slate-100:hover { background-color: #1e293b; }
+.dark [data-slot="dialog-content"] .border-slate-200,
+.dark [data-slot="dialog-content"] .border-slate-300 { border-color: #334155; }
+
+/* GPU-accelerated error shake animation */
+@keyframes shake-gpu {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  15%, 45%, 75% { transform: translate3d(-6px, 0, 0); }
+  30%, 60%, 90% { transform: translate3d(6px, 0, 0); }
+}
+
+.animate-shake {
+  animation: shake-gpu 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  will-change: transform;
+}
