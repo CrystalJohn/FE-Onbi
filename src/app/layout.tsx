@@ -55,7 +55,7 @@ export default function RootLayout({
       className={`${jakartaSans.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50">
         {/* Google Analytics — Suspense required for useSearchParams in App Router */}
         <Suspense fallback={null}>
           <GoogleAnalytics />

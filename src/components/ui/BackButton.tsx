@@ -21,9 +21,9 @@ export default function BackButton({ fallback, label = 'Quay lại' }: { fallbac
       type="button"
       onClick={goBack}
       aria-label={label}
-      className="grid min-h-11 min-w-11 place-items-center rounded-xl bg-[#000080] text-white shadow-md transition hover:bg-[#000066] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#0B008B] text-white shadow-md transition-colors hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2"
     >
-      <ArrowLeft className="h-5 w-5" />
+      <ArrowLeft className="h-4 w-4" />
     </button>
   );
 }

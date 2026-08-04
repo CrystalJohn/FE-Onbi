@@ -6,6 +6,7 @@ import {
   Activity,
   Baby,
   Camera,
+  ChevronLeft,
   ChevronRight,
   CircleAlert,
   History,
@@ -17,7 +18,8 @@ import {
   WifiOff,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import type { Child, MonitoringSession, User } from "@/types";
+import { formatDurationSec } from "@/lib/format";
+import type { Child, MonitoringSession, Snapshot, StudySession, User } from "@/types";
 
 type ParentDevice = {
   deviceId: string;
@@ -38,8 +40,34 @@ export default function ParentDashboardPage() {
   const [profile, setProfile] = useState<User | null>(null);
   const [children, setChildren] = useState<ChildOverview[]>([]);
   const [alerts24h, setAlerts24h] = useState<number | null>(null);
+  const [summaries, setSummaries] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [gender, setGender] = useState('male');
+  const [formLoading, setFormLoading] = useState(false);
+
+  const addChild = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setFormLoading(true);
+    setError('');
+    try {
+      await api.post('/children', { name, dateOfBirth, gender });
+      setName('');
+      setDateOfBirth('');
+      setGender('male');
+      setShowForm(false);
+      await loadDashboard();
+    } catch (reason: any) {
+      setError(reason?.response?.data?.message ?? 'Không thể thêm hồ sơ trẻ.');
+    } finally {
+      setFormLoading(false);
+    }
+  };
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -70,6 +98,34 @@ export default function ParentDashboardPage() {
           };
         }),
       );
+
+      // Lịch sử giám sát của mỗi bé → tóm tắt hiển thị trên card
+      // (tổng hợp toàn bộ lịch sử cấp child, khớp với trang /monitoring/[id]/history)
+      const summaryEntries = await Promise.all(
+        childrenResponse.data.map(async (child) => {
+          try {
+            const [{ data: history }, { data: studies }, { data: snapshots }] = await Promise.all([
+              api.get<MonitoringSession[]>(`/children/${child.id}/monitoring/history`),
+              api.get<StudySession[]>(`/children/${child.id}/monitoring/study-sessions?limit=200`),
+              api.get<Snapshot[]>(`/children/${child.id}/monitoring/snapshots?limit=200`),
+            ]);
+            if (history.length === 0) return [child.id, null] as const;
+            const cycleCount = studies.length;
+            const studySec = studies.reduce((sum, s) => sum + (s.actualStudySeconds ?? 0), 0);
+            const alertCount = snapshots.length;
+            // Lấy ngày của session gần nhất
+            const latestDate = new Date(history[0].startedAt);
+            const dayOfWeek = latestDate.toLocaleDateString("vi-VN", { weekday: "long" });
+            const dayMonth = latestDate.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" }).replace("/", "-").replace("/", "-");
+            const dateLabel = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)} · ${dayMonth}`;
+            const text = `${dateLabel}\n${history.length} phiên · ${cycleCount} chu kỳ · học ${formatDurationSec(studySec)}${alertCount > 0 ? ` · ${alertCount} cảnh báo` : ""}`;
+            return [child.id, text] as const;
+          } catch {
+            return [child.id, null] as const;
+          }
+        }),
+      );
+      setSummaries(Object.fromEntries(summaryEntries));
     } catch {
       setError("Không thể tải dữ liệu gia đình. Hãy kiểm tra kết nối và thử lại.");
     } finally {
@@ -123,12 +179,32 @@ export default function ParentDashboardPage() {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50/80 px-3 py-1 text-xs font-semibold text-emerald-800"><Activity className="h-3.5 w-3.5" aria-hidden="true" />{activeSessions} phiên hoạt động</span>
             </div>
           </div>
-          <Link href="/setup/step1" className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2 sm:w-auto">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Thêm hồ sơ bé
-          </Link>
+          <button onClick={() => setShowForm(!showForm)} className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2 sm:w-auto">
+            {!showForm && <Plus className="h-4 w-4" aria-hidden="true" />}
+            {showForm ? 'Đóng biểu mẫu' : 'Thêm hồ sơ bé'}
+          </button>
         </div>
       </section>
+
+      {showForm && (
+        <form onSubmit={addChild} className="grid gap-4 rounded-[30px] border border-white/80 bg-white/80 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:grid-cols-3 sm:p-6">
+          <label className="text-sm font-semibold text-slate-700">Tên của bé
+            <input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Bé An" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
+          </label>
+          <label className="text-sm font-semibold text-slate-700">Ngày sinh
+            <input required type="date" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
+          </label>
+          <label className="text-sm font-semibold text-slate-700">Giới tính
+            <select value={gender} onChange={(event) => setGender(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+              <option value="male">Nam</option>
+              <option value="female">Nữ</option>
+            </select>
+          </label>
+          <button disabled={formLoading} className="min-h-12 rounded-xl bg-cyan-500 px-5 font-semibold text-[#000033] hover:bg-cyan-400 disabled:opacity-50 sm:col-span-3">
+            {formLoading ? 'Đang thêm…' : 'Lưu hồ sơ học sinh'}
+          </button>
+        </form>
+      )}
 
       {error && (
         <div role="alert" className="flex items-start gap-3 rounded-3xl border border-red-200/80 bg-red-50/90 p-4 text-sm text-red-800 shadow-sm backdrop-blur">
@@ -157,15 +233,19 @@ export default function ParentDashboardPage() {
               <Link href="/parent/children" className="rounded-full px-3 py-2 text-sm font-semibold text-cyan-800 transition-colors hover:bg-white/70 hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Quản lý hồ sơ</Link>
             </div>
             <div className="grid gap-5 xl:grid-cols-2">
-              {children.map((child) => {
-                const monitoring = child.currentSession?.status === "active";
+              {(() => {
+                const itemsPerPage = 2;
+                const totalPages = Math.max(1, Math.ceil(children.length / itemsPerPage));
+                const validPage = Math.min(currentPage, totalPages);
+                const displayedChildren = children.slice((validPage - 1) * itemsPerPage, validPage * itemsPerPage);
+                
+                return displayedChildren.map((child) => {
+                  const monitoring = child.currentSession?.status === "active";
                 const hasDevice = Boolean(child.device);
                 return (
                   <article key={child.id} className="relative overflow-hidden rounded-[30px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6">
                     <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 right-4 h-44 w-64 rounded-full bg-cyan-300/20 blur-3xl" />
-                    <div className="relative z-10">
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-gradient-to-br from-[#0B008B] to-indigo-500 text-2xl font-bold text-white shadow-[0_12px_28px_rgba(11,0,139,0.24)]">{child.name.charAt(0).toUpperCase()}</div>
+                      <div className="relative z-10">
                         <div className="min-w-0 flex-1 pt-1">
                           <h3 className="truncate text-xl font-bold tracking-tight text-slate-950">{child.name}</h3>
                           <div className="mt-2 flex flex-wrap gap-2">
@@ -173,22 +253,47 @@ export default function ParentDashboardPage() {
                             <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${hasDevice ? "border-cyan-100 bg-cyan-50/90 text-cyan-800" : "border-amber-100 bg-amber-50/90 text-amber-800"}`}>
                               {hasDevice ? <Wifi className="h-3.5 w-3.5" aria-hidden="true" /> : <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />}Robot: {hasDevice ? child.device?.serialNumber : "Chưa kết nối"}
                             </span>
-                          </div>
                         </div>
                       </div>
-                      <div className="mt-4 rounded-2xl border border-white/80 bg-white/60 px-4 py-3 text-sm text-slate-600 shadow-sm">
-                        <span className="font-semibold text-slate-800">Trạng thái phiên: </span>
-                        {monitoring ? "Phiên đang hoạt động" : hasDevice ? "Sẵn sàng bắt đầu giám sát" : "Cần kết nối robot trước khi giám sát"}
+                      <div className="mt-4 min-h-[44px]">
+                        <p className="whitespace-pre-line text-sm text-slate-500 leading-relaxed">
+                          {summaries[child.id] ?? <span className="opacity-0 select-none">{"-\n-"}</span>}
+                        </p>
                       </div>
                       <div className="mt-5 flex flex-col gap-3">
                         <Link href={hasDevice ? `/parent/monitoring/${child.id}` : "/parent/devices"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-4 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2"><Camera className="h-4 w-4" aria-hidden="true" />{monitoring ? "Mở giám sát" : hasDevice ? "Bắt đầu giám sát" : "Kết nối robot"}</Link>
                         <Link href={`/parent/children/${child.id}`} className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200/80 bg-white/60 px-4 text-sm font-semibold text-slate-600 transition-colors hover:border-cyan-200 hover:bg-white hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Chỉnh sửa hồ sơ bé</Link>
                       </div>
+                      <p className="mt-4 text-center text-sm font-medium text-slate-500">
+                        {monitoring ? "Phiên đang hoạt động" : hasDevice ? "Sẵn sàng bắt đầu giám sát" : "Cần kết nối robot trước khi giám sát"}
+                      </p>
                     </div>
                   </article>
                 );
-              })}
+              });
+            })()}
             </div>
+            {children.length > 2 && (
+              <div className="mt-5 flex items-center justify-center gap-4">
+                <button
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50"
+                  aria-label="Trang trước"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <span className="text-sm font-semibold text-slate-600">Trang {Math.min(currentPage, Math.ceil(children.length / 2))} / {Math.ceil(children.length / 2)}</span>
+                <button
+                  disabled={currentPage >= Math.ceil(children.length / 2)}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50"
+                  aria-label="Trang sau"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+            )}
           </section>
 
           <aside className="rounded-[30px] border border-white/80 bg-white/70 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">

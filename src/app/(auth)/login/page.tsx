@@ -9,6 +9,7 @@ import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { CursorProvider, CursorFollow } from '@/components/animate-ui/components/animate/cursor';
 import { translateAuthError } from '@/lib/auth-errors';
 import { api } from '@/lib/api';
+import { markTokenVerified } from '@/components/auth/protected-route';
 import type { LoginResponse } from '@/types';
 
 function LoginForm() {
@@ -33,9 +34,22 @@ function LoginForm() {
 
       localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
+      markTokenVerified(data.accessToken);
+
+      // Đọc role từ JWT payload (API không trả role trong user object)
+      let userRole = '';
+      try {
+        const parts = data.accessToken.split('.');
+        if (parts[1]) {
+          const payload = JSON.parse(window.atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          userRole = (payload.role || '').toLowerCase();
+        }
+      } catch {
+        // fallback
+      }
 
       let targetUrl = '/setup';
-      if (data.user.role === 'admin') {
+      if (userRole === 'admin') {
         targetUrl = '/admin/dashboard';
       } else {
         const { data: deviceData } = await api.get('/devices');

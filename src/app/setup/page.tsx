@@ -14,11 +14,26 @@ export default function SetupPage() {
 
   useEffect(() => {
     const loadSetup = async () => {
+      // Kiểm tra role ngay lập tức — trước bất kỳ API call nào
+      try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user?.role?.toLowerCase() === 'admin') {
+            router.replace('/admin/dashboard');
+            return;
+          }
+        }
+      } catch {
+        // localStorage parse error — tiếp tục flow bình thường
+      }
+
       try {
         const [childrenRes, devicesRes] = await Promise.all([
           api.get('/children'),
           api.get('/devices'),
         ]);
+        
         setChildren(childrenRes.data);
         setDevices(devicesRes.data);
 

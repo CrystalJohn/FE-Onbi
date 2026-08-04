@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Ban, CheckCircle2, Link2, Plus, Unlink, Wifi, WifiOff, X } from 'lucide-react';
+import { AlertTriangle, Ban, CheckCircle2, Link2, Plus, Unlink, Wifi, WifiOff, X, ArrowLeft } from 'lucide-react';
+import BackButton from '@/components/ui/BackButton';
 
 interface Child {
   id: string;
@@ -245,7 +246,12 @@ export default function DevicesPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">ONBI DEVICES</p><h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Thiết bị ONBI</h1><p className="mt-2 text-sm leading-6 text-slate-600">Quản lý robot đã kích hoạt, gán cho bé hoặc đã vô hiệu hóa.</p></div>
+        <div className="flex items-start gap-4">
+          <div className="mt-1 shrink-0">
+            <BackButton fallback="/parent/dashboard" />
+          </div>
+          <div><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">ONBI DEVICES</p><h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Thiết bị ONBI</h1><p className="mt-2 text-sm leading-6 text-slate-600">Quản lý robot đã kích hoạt, gán cho bé hoặc đã vô hiệu hóa.</p></div>
+        </div>
         <button onClick={() => { setShowAssign(false); setShowActivate(!showActivate); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">
           {showActivate ? <X className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
           {showActivate ? 'Đóng biểu mẫu' : 'Kích hoạt thiết bị'}

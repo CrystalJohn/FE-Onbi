@@ -117,9 +117,7 @@ function StudentCard({ child, onDelete }: { child: ChildHub; onDelete: () => voi
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/2 h-48 w-80 -translate-x-1/2 rounded-full bg-cyan-300/25 blur-3xl" />
       <div className="relative z-10 p-5">
         <div className="flex items-start gap-4">
-          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[19px] bg-gradient-to-br from-[#0B008B] to-indigo-500 text-xl font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)]">
-            {child.name.charAt(0).toUpperCase()}
-          </div>
+
           <div className="min-w-0 flex-1 pt-1">
             <h2 className="truncate text-xl font-bold tracking-tight text-slate-950">{child.name}</h2>
             <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
@@ -131,7 +129,7 @@ function StudentCard({ child, onDelete }: { child: ChildHub; onDelete: () => voi
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className={`mt-4 grid gap-3 ${child.device ? 'sm:grid-cols-2' : 'sm:grid-cols-1'}`}>
           <section className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
             <div className="flex items-center gap-2">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-cyan-50 text-cyan-800"><Bot aria-hidden="true" className="h-[18px] w-[18px]" /></span>
@@ -139,14 +137,16 @@ function StudentCard({ child, onDelete }: { child: ChildHub; onDelete: () => voi
             </div>
             {child.device ? <><p className="mt-3 font-bold text-slate-950">{child.device.serialNumber}</p><p className="mt-1 text-sm leading-5 text-slate-600">{child.device.model || 'Robot ONBI'} · {deviceStatus(child.device.status)}</p></> : <><p className="mt-3 font-bold text-slate-950">Chưa kết nối robot</p><p className="mt-1 text-sm leading-5 text-slate-600">Kích hoạt và gán một thiết bị cho bé.</p></>}
           </section>
-          <section className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <span className={`grid h-9 w-9 place-items-center rounded-full ${monitoring ? 'bg-emerald-50 text-emerald-700' : 'bg-indigo-50 text-indigo-700'}`}><Radio aria-hidden="true" className="h-[18px] w-[18px]" /></span>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Giám sát</p>
-            </div>
-            <p className="mt-3 font-bold text-slate-950">{monitoring ? 'Đang hoạt động' : 'Chưa có phiên đang chạy'}</p>
-            <p className="mt-1 text-sm leading-5 text-slate-600">{monitoring && child.session ? `Bắt đầu ${formatTime(child.session.startedAt)}` : 'Sẵn sàng khi bạn cần theo dõi.'}</p>
-          </section>
+          {child.device && (
+            <section className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
+              <div className="flex items-center gap-2">
+                <span className={`grid h-9 w-9 place-items-center rounded-full ${monitoring ? 'bg-emerald-50 text-emerald-700' : 'bg-indigo-50 text-indigo-700'}`}><Radio aria-hidden="true" className="h-[18px] w-[18px]" /></span>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Giám sát</p>
+              </div>
+              <p className="mt-3 font-bold text-slate-950">{monitoring ? 'Đang hoạt động' : 'Chưa có phiên đang chạy'}</p>
+              <p className="mt-1 text-sm leading-5 text-slate-600">{monitoring && child.session ? `Bắt đầu ${formatTime(child.session.startedAt)}` : 'Sẵn sàng khi bạn cần theo dõi.'}</p>
+            </section>
+          )}
         </div>
 
         <div className="mt-4 space-y-2.5">

@@ -23,10 +23,22 @@ function readPayload(token: string): JwtPayload | null {
 // Cache verified tokens for the session — avoids an API call on every navigation
 const verifiedTokens = new Set<string>();
 
+// Đánh dấu token đã verify (gọi sau login/verify-otp thành công) để các lần
+// vào khu dashboard sau đó mount luôn với ready=true, không nháy màn hình trắng.
+export function markTokenVerified(token: string) {
+  verifiedTokens.add(token);
+}
+
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+  // Khởi tạo sẵn từ cache: token đã xác thực thì render luôn Dashboard,
+  // tránh nháy màn hình loading (nền bg-slate-50) mỗi khi vào lại khu dashboard.
+  const [ready, setReady] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const token = localStorage.getItem("token");
+    return token ? verifiedTokens.has(token) : false;
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");

@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { markTokenVerified } from '@/components/auth/protected-route';
 
 function VerifyOtpForm() {
   const searchParams = useSearchParams();
@@ -39,6 +40,7 @@ function VerifyOtpForm() {
       } else {
         // For registration: save token and go to dashboard
         localStorage.setItem('token', data.accessToken);
+        markTokenVerified(data.accessToken);
         router.push('/parent/children');
       }
     } catch {
