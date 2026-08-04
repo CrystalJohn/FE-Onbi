@@ -18,7 +18,7 @@ export default function ParentFeedbackPage() {
 
   const loadDevices = useCallback(async () => {
     try {
-      const { data } = await api.get<ParentDevice[]>('/devices');
+      const { data } = await api.get<{ deviceId: string; serialNumber?: string | null; model?: string; assignedChildName?: string | null; }[]>('/devices');
       setDevices(data);
     } catch {
       /* không có thiết bị thì select vẫn cho gửi feedback chung */
