@@ -83,6 +83,7 @@ export interface StudySession {
   endedAt?: string;
   actualStudySeconds: number;
   actualBreakSeconds: number;
+  score?: number;
 }
 
 // Auth responses
