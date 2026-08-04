@@ -49,7 +49,7 @@ function VerifyOtpForm() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
         <Link href="/" className="inline-block">
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">ONBI</h1>

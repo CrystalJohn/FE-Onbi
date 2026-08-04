@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { translateAuthError } from '@/lib/auth-errors';
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || 'Không thể gửi email reset');
+        setError(translateAuthError(data.message, 'Không thể gửi email reset'));
         return;
       }
 
@@ -39,7 +41,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
         <Link href="/" className="inline-block">
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">ONBI</h1>

@@ -1,49 +1,55 @@
-"use client";
+'use client';
 
-import { useState, Suspense } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import { CursorProvider, CursorFollow } from "@/components/animate-ui/components/animate/cursor";
+import { useState, useTransition, Suspense } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { motion } from 'motion/react';
+import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
+import { CursorProvider, CursorFollow } from '@/components/animate-ui/components/animate/cursor';
+import { translateAuthError } from '@/lib/auth-errors';
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const registered = searchParams.get("registered") === "true";
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const registered = searchParams.get('registered') === 'true';
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Email hoặc mật khẩu không đúng");
+        setError(translateAuthError(data.message, 'Email hoặc mật khẩu không đúng'));
+        setLoading(false);
         return;
       }
 
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem('token', data.accessToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
       // Decode JWT to get role
-      const payload = JSON.parse(atob(data.accessToken.split(".")[1]));
+      const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
 
-      if (payload.role === "admin") {
-        router.push("/admin/dashboard");
+      let targetUrl = '/setup';
+      if (payload.role === 'admin') {
+        targetUrl = '/admin/dashboard';
       } else {
         const [childrenRes, devicesRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
@@ -62,20 +68,31 @@ function LoginForm() {
         );
 
         if (hasAssignedDevice) {
-          router.push("/parent/dashboard");
-        } else {
-          router.push("/setup");
+          targetUrl = '/parent/dashboard';
         }
       }
+
+      setIsSuccess(true);
+      setLoading(false);
+
+      startTransition(() => {
+        router.push(targetUrl);
+      });
     } catch {
-      setError("Không thể kết nối server");
-    } finally {
+      setError('Không thể kết nối server');
       setLoading(false);
     }
   };
 
+  const isNavigating = isPending || isSuccess;
+
   return (
-    <div className="flex w-full flex-col md:flex-row bg-white rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden min-h-[640px]">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: isNavigating ? 0.6 : 1, y: isNavigating ? -4 : 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      className="flex w-full max-w-4xl flex-col md:flex-row bg-white rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden min-h-[640px]"
+    >
       {/* Left Panel - Image */}
       <div className="relative hidden w-1/2 p-2 md:block">
         <div className="relative h-full w-full overflow-hidden rounded-[24px]">
@@ -108,15 +125,15 @@ function LoginForm() {
             <CursorProvider>
               <CursorFollow side="bottom" align="center" className="text-xs whitespace-nowrap">Về trang chủ</CursorFollow>
             </CursorProvider>
-             <div className="relative h-12 w-32 overflow-hidden rounded-lg">
-                <Image
-                  src="/logo_onbi.jpg"
-                  alt="ONBI"
-                  fill
-                  sizes="128px"
-                  className="object-contain object-left"
-                />
-             </div>
+            <div className="relative h-12 w-32 overflow-hidden rounded-lg">
+              <Image
+                src="/logo_onbi.jpg"
+                alt="ONBI"
+                fill
+                sizes="128px"
+                className="object-contain object-left"
+              />
+            </div>
           </Link>
 
           <h2 className="text-2xl font-bold text-slate-900">Đăng nhập</h2>
@@ -131,12 +148,12 @@ function LoginForm() {
           )}
 
           {error && (
-            <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600">
+            <div key={error} className="mb-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600 border border-red-200 animate-shake">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form key={error ? 'error-form' : 'normal-form'} onSubmit={handleSubmit} className={`space-y-5 ${error ? 'animate-shake' : ''}`}>
             <div>
               <label
                 htmlFor="email"
@@ -148,10 +165,17 @@ function LoginForm() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                }}
                 placeholder="you@example.com"
                 required
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#4F46E5] focus:outline-none focus:ring-4 focus:ring-[#4F46E5]/10"
+                className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:outline-none focus:ring-4 ${
+                  error
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10'
+                    : 'border-slate-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'
+                }`}
               />
             </div>
 
@@ -167,12 +191,19 @@ function LoginForm() {
               <div className="relative">
                 <input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError('');
+                  }}
                   placeholder="••••••••"
                   required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#4F46E5] focus:outline-none focus:ring-4 focus:ring-[#4F46E5]/10"
+                  className={`w-full rounded-xl border bg-white px-4 py-3 pr-10 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:outline-none focus:ring-4 ${
+                    error
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10'
+                      : 'border-slate-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'
+                  }`}
                 />
                 <button
                   type="button"
@@ -194,15 +225,31 @@ function LoginForm() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="mt-2 w-full rounded-xl bg-[#4F46E5] py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#4338ca] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-[#4F46E5]/20"
+              disabled={loading || isSuccess}
+              className={`mt-2 w-full rounded-xl py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-[#4F46E5]/20 ${
+                isSuccess
+                  ? 'bg-emerald-600 hover:bg-emerald-600 cursor-default shadow-md'
+                  : 'bg-[#4F46E5] hover:bg-[#4338ca] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-75'
+              }`}
             >
-              {loading ? "Đang xử lý..." : "Đăng nhập"}
+              {isSuccess ? (
+                <>
+                  <Check className="h-4 w-4 animate-bounce" />
+                  <span>Đăng nhập thành công!</span>
+                </>
+              ) : loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Đang xác thực...</span>
+                </>
+              ) : (
+                'Đăng nhập'
+              )}
             </button>
           </form>
 
           <div className="mt-8 text-center text-sm text-slate-500">
-            Chưa có tài khoản?{" "}
+            Chưa có tài khoản?{' '}
             <Link
               href="/register"
               className="font-bold text-[#4F46E5] hover:text-[#4338ca] hover:underline"
@@ -212,7 +259,7 @@ function LoginForm() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
