@@ -22,8 +22,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      const path = window.location.pathname;
+      const onAuthPage = path === "/login" || path.startsWith("/auth");
+      // Đang ở trang auth (login/register/otp/...) → để component tự báo lỗi,
+      // KHÔNG redirect full-reload (tránh xoá state lỗi, gây nháy UI).
+      if (!onAuthPage) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         window.location.href = "/login";

@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { CursorProvider, CursorFollow } from '@/components/animate-ui/components/animate/cursor';
 import { translateAuthError } from '@/lib/auth-errors';
+import { api } from '@/lib/api';
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -35,28 +36,17 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName, phone }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(translateAuthError(data.message, 'Đăng ký thất bại'));
-        setLoading(false);
-        return;
-      }
-
+      await api.post('/auth/register', { email, password, fullName, phone });
       setIsSuccess(true);
       setLoading(false);
 
       startTransition(() => {
         router.push('/login?registered=true');
       });
-    } catch {
-      setError('Không thể kết nối server');
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(translateAuthError(message, 'Đăng ký thất bại'));
       setLoading(false);
     }
   };

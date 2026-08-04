@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowRight, Check, Sparkles, Baby, ScanFace, Smartphone, Bot, Link as LinkIcon } from 'lucide-react';
+import { api } from '@/lib/api';
 
 export default function SetupPage() {
   const router = useRouter();
@@ -12,24 +13,18 @@ export default function SetupPage() {
   const [devices, setDevices] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchChildren = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
+    const loadSetup = async () => {
       try {
-        const headers = { Authorization: `Bearer ${token}` };
         const [childrenRes, devicesRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/devices`, { headers }),
+          api.get('/children'),
+          api.get('/devices'),
         ]);
-        const childData = childrenRes.ok ? await childrenRes.json() : [];
-        const deviceData = devicesRes.ok ? await devicesRes.json() : [];
-        setChildren(childData);
-        setDevices(deviceData);
+        setChildren(childrenRes.data);
+        setDevices(devicesRes.data);
 
-        const hasAssignedDevice = deviceData.some((device: any) => device.assigned || device.assignedChildId);
+        const hasAssignedDevice = devicesRes.data.some(
+          (device: any) => device.assigned || device.assignedChildId
+        );
         if (hasAssignedDevice) {
           router.replace('/parent/dashboard');
           return;
@@ -40,7 +35,7 @@ export default function SetupPage() {
         setLoading(false);
       }
     };
-    fetchChildren();
+    loadSetup();
   }, [router]);
 
   if (loading) {

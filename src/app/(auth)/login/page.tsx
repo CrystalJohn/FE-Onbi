@@ -8,6 +8,8 @@ import { motion } from 'motion/react';
 import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { CursorProvider, CursorFollow } from '@/components/animate-ui/components/animate/cursor';
 import { translateAuthError } from '@/lib/auth-errors';
+import { api } from '@/lib/api';
+import type { LoginResponse } from '@/types';
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -27,41 +29,16 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(translateAuthError(data.message, 'Email hoặc mật khẩu không đúng'));
-        setLoading(false);
-        return;
-      }
+      const { data } = await api.post<LoginResponse>('/auth/login', { email, password });
 
       localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Decode JWT to get role
-      const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
-
       let targetUrl = '/setup';
-      if (payload.role === 'admin') {
+      if (data.user.role === 'admin') {
         targetUrl = '/admin/dashboard';
       } else {
-        const [childrenRes, devicesRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/children`, {
-            headers: { Authorization: `Bearer ${data.accessToken}` },
-          }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/devices`, {
-            headers: { Authorization: `Bearer ${data.accessToken}` },
-          }),
-        ]);
-
-        const childData = childrenRes.ok ? await childrenRes.json() : [];
-        const deviceData = devicesRes.ok ? await devicesRes.json() : [];
+        const { data: deviceData } = await api.get('/devices');
 
         const hasAssignedDevice = deviceData.some(
           (device: any) => device.assigned || device.assignedChildId
@@ -78,8 +55,10 @@ function LoginForm() {
       startTransition(() => {
         router.push(targetUrl);
       });
-    } catch {
-      setError('Không thể kết nối server');
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(translateAuthError(message, 'Email hoặc mật khẩu không đúng'));
       setLoading(false);
     }
   };
@@ -148,12 +127,12 @@ function LoginForm() {
           )}
 
           {error && (
-            <div key={error} className="mb-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600 border border-red-200 animate-shake">
+            <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600 border border-red-200 animate-shake">
               {error}
             </div>
           )}
 
-          <form key={error ? 'error-form' : 'normal-form'} onSubmit={handleSubmit} className={`space-y-5 ${error ? 'animate-shake' : ''}`}>
+          <form onSubmit={handleSubmit} className={`space-y-5 ${error ? 'animate-shake' : ''}`}>
             <div>
               <label
                 htmlFor="email"
