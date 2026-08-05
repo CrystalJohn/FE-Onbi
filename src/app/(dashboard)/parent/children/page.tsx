@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Bot, CalendarDays, Pencil, Plus, Radio, Settings2, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { Child, MonitoringSession } from '@/types';
+import BackButton from '@/components/ui/BackButton';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ChildDevice { deviceId: string; serialNumber: string; model?: string; status: string; }
 interface ChildHub extends Child { device: ChildDevice | null; session: MonitoringSession | null; }
@@ -72,7 +74,10 @@ export default function ChildrenListPage() {
 
   return <div className="mx-auto max-w-6xl space-y-5">
     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Gia đình của bạn</p><h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Hồ sơ trẻ</h1><p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-600">Quản lý hồ sơ và hoạt động giám sát theo từng bé.</p></div>
+      <div className="flex items-center gap-3">
+        <BackButton fallback="/parent/dashboard" />
+        <div><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Gia đình của bạn</p><h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Hồ sơ trẻ</h1><p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-600">Quản lý hồ sơ và hoạt động giám sát theo từng bé.</p></div>
+      </div>
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
         <Link href="/parent/devices" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur transition-colors hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2">
           <Settings2 aria-hidden="true" className="h-4 w-4" />Quản lý thiết bị
@@ -117,9 +122,9 @@ export default function ChildrenListPage() {
 function StudentCard({ child, onDelete }: { child: ChildHub; onDelete: () => void }) {
   const monitoring = child.session?.status === 'active';
   return (
-    <article className="group relative w-full max-w-[560px] overflow-visible rounded-[28px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 shadow-[0_20px_60px_rgba(15,23,42,0.09)]">
+    <Card className="group relative w-full max-w-[560px] overflow-visible rounded-[28px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 shadow-[0_20px_60px_rgba(15,23,42,0.09)]">
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/2 h-48 w-80 -translate-x-1/2 rounded-full bg-cyan-300/25 blur-3xl" />
-      <div className="relative z-10 p-5">
+      <CardContent className="relative z-10 p-5">
         <div className="flex items-start gap-4">
 
           <div className="min-w-0 flex-1 pt-1">
@@ -166,8 +171,8 @@ function StudentCard({ child, onDelete }: { child: ChildHub; onDelete: () => voi
             </button>
           </div>
         </div>
-      </div>
-    </article>
+      </CardContent>
+    </Card>
   );
 }
 

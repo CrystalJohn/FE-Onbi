@@ -3,8 +3,24 @@
 import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Save, Trash2, Bot, Link2, Unlink, CalendarDays, User, LoaderCircle, KeyRound } from 'lucide-react';
+import { Save, Trash2, Link2, Unlink, Calendar as CalendarIcon, User, LoaderCircle, CheckIcon, MoreVerticalIcon, KeyRound } from 'lucide-react';
 import BackButton from '@/components/ui/BackButton';
+import { Badge } from '@/components/reui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 
 interface Child {
   id: string;
@@ -31,6 +47,22 @@ interface Device {
   assignedChildId?: string | null;
   assignedChildName?: string | null;
   assignedAt?: string | null;
+}
+
+/** Chuẩn hóa Date → "YYYY-MM-DD" (khớp định dạng dateOfBirth backend). */
+function toISODate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** Parse "YYYY-MM-DD" → Date (local, không bị lệch múi giờ). */
+function fromISODate(value: string): Date | undefined {
+  if (!value) return undefined;
+  const [y, m, d] = value.split("-").map(Number);
+  if (!y || !m || !d) return undefined;
+  return new Date(y, m - 1, d);
 }
 
 export default function ChildDetailPage({
@@ -360,15 +392,17 @@ export default function ChildDetailPage({
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* ── Left Column: Personal Info + PIN ── */}
+        {/* ── Left Column: Personal Info Form (reui card) + PIN ── */}
         <div className="space-y-6">
-        <form id="child-info-form" onSubmit={handleUpdate} className="rounded-[32px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6 space-y-5 relative">
-          <div className="border-b border-slate-100/80 pb-3 flex items-center gap-3">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-cyan-50 text-cyan-800"><User className="h-4 w-4" /></span>
-            <h2 className="text-base font-bold text-slate-950 uppercase tracking-tight">Thông tin cá nhân</h2>
-          </div>
+        <form id="child-info-form" onSubmit={handleUpdate} className="relative space-y-0">
+          <Card className="p-0">
+            <CardContent className="p-0">
+              <div className="border-b border-slate-100/80 px-5 pb-3 pt-5 flex items-center gap-3 sm:px-6">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-cyan-50 text-cyan-800"><User className="h-4 w-4" /></span>
+                <h2 className="text-base font-bold text-slate-950 uppercase tracking-tight">Thông tin cá nhân</h2>
+              </div>
 
-          <div className="space-y-4">
+              <div className="space-y-4 p-5 sm:p-6">
             <label className="block text-sm font-semibold text-slate-700">
               Tên của bé
               <input
@@ -382,13 +416,30 @@ export default function ChildDetailPage({
 
             <label className="block text-sm font-semibold text-slate-700">
               Ngày sinh
-              <input
-                type="date"
-                value={dateOfBirth}
-                onChange={(e) => setDateOfBirth(e.target.value)}
-                required
-                className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
-              />
+              <Popover>
+                <PopoverTrigger
+                  className="mt-2 inline-flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus-visible:border-cyan-600 focus-visible:ring-2 focus-visible:ring-cyan-100 data-[state=open]:border-cyan-600"
+                >
+                  <span className={fromISODate(dateOfBirth) ? "text-slate-900" : "text-slate-400"}>
+                    {fromISODate(dateOfBirth)
+                      ? new Intl.DateTimeFormat("vi-VN").format(fromISODate(dateOfBirth)!)
+                      : "Chọn ngày sinh"}
+                  </span>
+                  <CalendarIcon className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    captionLayout="dropdown"
+                    classNames={{ month_caption: "mx-0" }}
+                    defaultMonth={fromISODate(dateOfBirth) ?? new Date(2018, 0)}
+                    hideNavigation
+                    mode="single"
+                    onSelect={(date) => setDateOfBirth(date ? toISODate(date) : "")}
+                    selected={fromISODate(dateOfBirth)}
+                    startMonth={new Date(1980, 0)}
+                  />
+                </PopoverContent>
+              </Popover>
             </label>
 
             <label className="block text-sm font-semibold text-slate-700">
@@ -403,9 +454,30 @@ export default function ChildDetailPage({
               </select>
             </label>
           </div>
-        </form>
 
-        {/* ── PIN Protection Card ── */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 min-h-12 flex items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex-1 min-h-11 flex items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50/60 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 hover:border-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            >
+              <Trash2 className="w-4 h-4" />
+              Xóa hồ sơ bé
+            </button>
+          </div>
+          </CardContent>
+          </Card>
+        </form>
+{/* ── PIN Protection Card ── */}
         <section className="rounded-[32px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6 space-y-5">
           <div className="border-b border-slate-100/80 pb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -475,89 +547,116 @@ export default function ChildDetailPage({
         </section>
         </div>
 
-        {/* ── Right Column: ONBI Device Setup ── */}
-        <div className="rounded-[32px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6 space-y-5">
-          <div className="border-b border-slate-100/80 pb-3 flex items-center gap-3">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-cyan-50 text-cyan-800"><Bot className="h-4 w-4" /></span>
-            <h2 className="text-base font-bold text-slate-950 uppercase tracking-tight">Thiết bị ONBI kết nối</h2>
-          </div>
+      
 
-          {assignedDevice ? (
-            <div className="space-y-5">
-              <div className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Robot đã gán</p>
-                <p className="mt-3 font-bold text-slate-950 text-lg">{assignedDevice.serialNumber}</p>
-                <p className="mt-1 text-sm leading-5 text-slate-600">
-                  {assignedDevice.model || 'Robot ONBI Companion'} ·{' '}
-                  <span className={assignedDevice.status === 'active' ? 'text-emerald-600 font-semibold' : 'text-slate-500'}>
-                    {assignedDevice.status === 'active' ? 'Đang hoạt động' : 'Ngoại tuyến'}
-                  </span>
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleUnassignDevice(assignedDevice.deviceId)}
-                disabled={deviceActionLoading}
-                className="w-full min-h-12 flex items-center justify-center gap-2 rounded-full border border-amber-200 bg-amber-50/70 text-sm font-semibold text-amber-700 transition-colors hover:bg-amber-100 hover:border-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-              >
-                <Unlink className="w-4 h-4" />
-                {deviceActionLoading ? 'Đang xử lý...' : 'Gỡ thiết bị ONBI'}
-              </button>
+        {/* ── Right Column: ONBI Device Setup (reui c-card-16) ── */}
+        <Card className="w-full max-w-sm p-0">
+          <CardContent className="p-0">
+            <div className="flex items-center justify-between border-b px-3 py-2">
+              <Badge variant={assignedDevice?.status === 'active' ? 'success-light' : 'secondary'}>
+                {assignedDevice?.status === 'active' ? (
+                  <CheckIcon aria-hidden="true" />
+                ) : null}
+                {assignedDevice ? (assignedDevice.status === 'active' ? 'Đang hoạt động' : 'Ngoại tuyến') : 'Chưa gán'}
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground"
+                      aria-label="Tùy chọn thiết bị"
+                    />
+                  }
+                >
+                  <MoreVerticalIcon aria-hidden="true" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="end">
+                  <DropdownMenuGroup>
+                    {assignedDevice ? (
+                      <DropdownMenuItem onSelect={() => handleUnassignDevice(assignedDevice.deviceId)}>
+                        Gỡ thiết bị
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem render={<Link href="/parent/devices" />}>
+                        Quản lý thiết bị
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="rounded-[22px] border border-amber-100 bg-amber-50/40 p-4 text-sm text-slate-600 leading-relaxed">
-                Hồ sơ này chưa có thiết bị ONBI đồng hành. Gán thiết bị để bắt đầu ghi nhận tư thế ngồi chuẩn và theo dõi phiên Pomodoro tự động.
+
+            <div className="space-y-3 p-4">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="text-sm leading-tight font-medium">
+                  Thiết bị ONBI kết nối
+                </h3>
+                <Badge variant={assignedDevice ? 'success-light' : 'secondary'} size="sm">
+                  {assignedDevice ? 'Đã gán' : 'Chưa gán'}
+                </Badge>
               </div>
 
-              {availableDevices.length > 0 ? (
-                <form onSubmit={handleAssignDevice} className="space-y-4">
-                  <label className="block text-sm font-semibold text-slate-700">
-                    Chọn thiết bị khả dụng
-                    <select
-                      value={selectedDeviceId}
-                      onChange={(e) => setSelectedDeviceId(e.target.value)}
-                      required
-                      className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
-                    >
-                      <option value="">-- Chọn một Robot --</option>
-                      {availableDevices.map((d) => {
-                        const isDeactivated = d.status === 'deactivated';
-                        return (
-                          <option key={d.deviceId} value={d.deviceId} disabled={isDeactivated}>
-                            {d.serialNumber} ({d.model || 'Robot ONBI'}){isDeactivated ? ' - Đã bị vô hiệu hóa' : ''}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </label>
-
-                  <button
-                    type="submit"
-                    disabled={deviceActionLoading || !selectedDeviceId}
-                    className="w-full min-h-12 flex items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] disabled:opacity-50"
-                  >
-                    <Link2 className="w-4 h-4" />
-                    {deviceActionLoading ? 'Đang kết nối...' : 'Gán thiết bị này'}
-                  </button>
-                </form>
-              ) : (
-                <div className="space-y-4 pt-2">
-                  <p className="text-sm text-slate-500 italic">
-                    Không tìm thấy thiết bị ONBI trống nào thuộc tài khoản của bạn.
+              {assignedDevice ? (
+                <div className="space-y-3">
+                  <p className="text-muted-foreground text-sm">
+                    {assignedDevice.serialNumber} · {assignedDevice.model || 'Robot ONBI Companion'}
                   </p>
-                  <Link
-                    href="/parent/devices"
-                    className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full border border-slate-200/80 bg-white/60 text-sm font-semibold text-slate-600 transition-colors hover:border-cyan-200 hover:bg-white hover:text-[#0B008B]"
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    disabled={deviceActionLoading}
+                    onClick={() => handleUnassignDevice(assignedDevice.deviceId)}
                   >
-                    Kích hoạt hoặc Quản lý thiết bị
-                  </Link>
+                    <Unlink aria-hidden="true" />
+                    {deviceActionLoading ? 'Đang xử lý...' : 'Gỡ thiết bị ONBI'}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-muted-foreground text-sm">
+                    Hồ sơ này chưa có thiết bị ONBI đồng hành. Gán thiết bị để bắt đầu ghi nhận tư thế ngồi chuẩn và theo dõi phiên Pomodoro tự động.
+                  </p>
+
+                  {availableDevices.length > 0 ? (
+                    <form onSubmit={handleAssignDevice} className="space-y-3">
+                      <select
+                        value={selectedDeviceId}
+                        onChange={(e) => setSelectedDeviceId(e.target.value)}
+                        required
+                        className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
+                      >
+                        <option value="">-- Chọn một Robot --</option>
+                        {availableDevices.map((d) => {
+                          const isDeactivated = d.status === 'deactivated';
+                          return (
+                            <option key={d.deviceId} value={d.deviceId} disabled={isDeactivated}>
+                              {d.serialNumber} ({d.model || 'Robot ONBI'}){isDeactivated ? ' - Đã bị vô hiệu hóa' : ''}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        className="w-full"
+                        disabled={deviceActionLoading || !selectedDeviceId}
+                      >
+                        <Link2 aria-hidden="true" />
+                        {deviceActionLoading ? 'Đang kết nối...' : 'Gán thiết bị này'}
+                      </Button>
+                    </form>
+                  ) : (
+                    <Button render={<Link href="/parent/devices" />} variant="outline" className="w-full">
+                      Kích hoạt hoặc Quản lý thiết bị
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* ── Custom Delete Confirm Modal ── */}

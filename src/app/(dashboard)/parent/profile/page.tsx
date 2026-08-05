@@ -120,6 +120,11 @@ export default function ParentProfilePage() {
       }
 
       setProfile(updatedProfile);
+      localStorage.setItem('user', JSON.stringify(updatedProfile));
+      
+      // Dispatch a custom event to notify other components (like Sidebar) to re-read localStorage
+      window.dispatchEvent(new Event('user-profile-updated'));
+      
       setMessage('Lưu thay đổi thành công!');
     } catch {
       setError('Không thể kết nối server');
