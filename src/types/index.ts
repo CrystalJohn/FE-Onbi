@@ -29,6 +29,7 @@ export interface Child {
   name: string;
   dateOfBirth: string;
   gender: string;
+  hasPin?: boolean;
 }
 
 // Device
