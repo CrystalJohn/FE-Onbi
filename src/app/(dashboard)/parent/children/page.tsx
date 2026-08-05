@@ -16,6 +16,8 @@ export default function ChildrenListPage() {
   const [name, setName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState('male');
+  const [pinEnabled, setPinEnabled] = useState(false);
+  const [pin, setPin] = useState('');
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
   const [confirmChild, setConfirmChild] = useState<ChildHub | null>(null);
@@ -47,10 +49,12 @@ export default function ChildrenListPage() {
   }, [confirmChild]);
 
   const addChild = async (event: React.FormEvent) => {
-    event.preventDefault(); setFormLoading(true); setError('');
+    event.preventDefault();
+    if (pinEnabled && pin.length !== 6) { setError('Mã PIN phải gồm đúng 6 chữ số.'); return; }
+    setFormLoading(true); setError('');
     try {
-      await api.post('/children', { name, dateOfBirth, gender });
-      setName(''); setDateOfBirth(''); setGender('male'); setShowForm(false);
+      await api.post('/children', { name, dateOfBirth, gender, pin: pinEnabled ? pin : undefined });
+      setName(''); setDateOfBirth(''); setGender('male'); setPinEnabled(false); setPin(''); setShowForm(false);
       await loadChildren();
     } catch (reason: any) { setError(reason?.response?.data?.message ?? 'Không thể thêm hồ sơ trẻ.'); }
     finally { setFormLoading(false); }
@@ -81,7 +85,7 @@ export default function ChildrenListPage() {
 
     {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
 
-    {showForm && <form onSubmit={addChild} className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3 sm:p-6"><label className="text-sm font-semibold text-slate-700">Tên của bé<input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Bé An" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" /></label><label className="text-sm font-semibold text-slate-700">Ngày sinh<input required type="date" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" /></label><label className="text-sm font-semibold text-slate-700">Giới tính<select value={gender} onChange={(event) => setGender(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"><option value="male">Nam</option><option value="female">Nữ</option></select></label><button disabled={formLoading} className="min-h-12 rounded-xl bg-cyan-500 px-5 font-semibold text-[#000033] hover:bg-cyan-400 disabled:opacity-50 sm:col-span-3">{formLoading ? 'Đang thêm…' : 'Lưu hồ sơ học sinh'}</button></form>}
+    {showForm && <form onSubmit={addChild} className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-3 sm:p-6"><label className="text-sm font-semibold text-slate-700">Tên của bé<input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Bé An" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" /></label><label className="text-sm font-semibold text-slate-700">Ngày sinh<input required type="date" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" /></label><label className="text-sm font-semibold text-slate-700">Giới tính<select value={gender} onChange={(event) => setGender(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"><option value="male">Nam</option><option value="female">Nữ</option></select></label><div className="sm:col-span-3"><label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700"><input type="checkbox" checked={pinEnabled} onChange={(event) => { setPinEnabled(event.target.checked); if (!event.target.checked) setPin(''); }} className="h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500" />Đặt mã PIN cho hồ sơ này</label>{pinEnabled && <input value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Mã PIN 6 số" className="mt-2 min-h-12 w-full max-w-xs rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />}<p className="mt-1.5 text-xs text-slate-500">Khi đặt mã PIN, phải nhập đúng mã mới bắt đầu giám sát hoặc chỉnh sửa hồ sơ này.</p></div><button disabled={formLoading} className="min-h-12 rounded-xl bg-cyan-500 px-5 font-semibold text-[#000033] hover:bg-cyan-400 disabled:opacity-50 sm:col-span-3">{formLoading ? 'Đang thêm…' : 'Lưu hồ sơ học sinh'}</button></form>}
 
     {children.length === 0
       ? <section className="rounded-[32px] border border-white/80 bg-white/70 px-6 py-16 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl"><h2 className="text-lg font-bold text-slate-900">Chưa có hồ sơ trẻ</h2><p className="mt-2 text-sm text-slate-500">Thêm hồ sơ đầu tiên để bắt đầu kết nối thiết bị ONBI.</p></section>
