@@ -5,15 +5,35 @@ import Link from 'next/link';
 import { Trash2, Plus, X, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Frame, FramePanel } from '@/components/reui/frame';
+import { Badge } from '@/components/reui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface User {
   id: number;
   email: string;
   fullName: string;
   phone: string;
-  role: string;
+  role: 'admin' | 'parent';
   createdAt: string;
+  avatarUrl?: string;
 }
+
+const getInitials = (name: string) =>
+  name
+    .split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -41,12 +61,16 @@ export default function AdminUsersPage() {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       if (res.ok) setUsers(await res.json());
-    } catch { /* ignore */ } finally {
+    } catch {
+      /* ignore */
+    } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +93,10 @@ export default function AdminUsersPage() {
 
       setMessage('Tạo user thành công');
       setShowForm(false);
-      setEmail(''); setPassword(''); setFullName(''); setPhone('');
+      setEmail('');
+      setPassword('');
+      setFullName('');
+      setPhone('');
       fetchUsers();
     } catch {
       setError('Không thể kết nối server');
@@ -140,48 +167,72 @@ export default function AdminUsersPage() {
       )}
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">User</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">SĐT</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Role</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Ngày tạo</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">
-                  <p className="font-medium text-slate-900">{user.fullName}</p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
-                </td>
-                <td className="px-4 py-3 text-gray-600">{user.phone}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs font-semibold ${user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-gray-500">{new Date(user.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <Link href={`/admin/users/${user.id}`} className="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50">
-                      <Eye className="w-4 h-4" />
-                    </Link>
-                    {user.role !== 'admin' && (
-                      <button onClick={() => setDeleteUser(user)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+      <Frame spacing="xs">
+        <FramePanel className="p-0!">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Thành viên</TableHead>
+                <TableHead>SĐT</TableHead>
+                <TableHead>Vai trò</TableHead>
+                <TableHead>Ngày tạo</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar size="sm">
+                        <AvatarImage src={user.avatarUrl} alt={user.fullName} />
+                        <AvatarFallback>{getInitials(user.fullName)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{user.fullName}</span>
+                        <span className="text-muted-foreground text-xs">{user.email}</span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-gray-600">{user.phone || '—'}</TableCell>
+                  <TableCell>
+                    {user.role === 'admin' ? (
+                      <Badge variant="default" size="sm">Admin</Badge>
+                    ) : (
+                      <Badge variant="info-light" size="sm">Parent</Badge>
                     )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </TableCell>
+                  <TableCell className="text-gray-500">
+                    {new Date(user.createdAt).toLocaleDateString('vi-VN', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/admin/users/${user.id}`}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                      {user.role !== 'admin' && (
+                        <button
+                          onClick={() => setDeleteUser(user)}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </FramePanel>
+      </Frame>
 
       {/* Delete Confirmation Modal */}
       <Dialog open={!!deleteUser} onOpenChange={(open) => { if (!open) setDeleteUser(null); }}>
