@@ -4,21 +4,26 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
+  AlertTriangle,
   Baby,
+  Bell,
   Calendar as CalendarIcon,
   Camera,
   ChevronLeft,
   ChevronRight,
   CircleAlert,
   CircleIcon,
+  Clock,
   History,
   ListFilter,
+  Lock,
   Play,
   Plus,
   RefreshCw,
   Search,
   Sparkles,
   Timer,
+  Unlock,
   Wifi,
   WifiOff,
 } from "lucide-react";
@@ -145,6 +150,13 @@ export default function ParentDashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("default");
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
@@ -275,6 +287,14 @@ export default function ParentDashboardPage() {
           />
           <div className="relative z-10 p-6">
             <div className="max-w-[60%]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/95 backdrop-blur-md border border-white/10 shadow-sm">
+                <Clock className="h-3.5 w-3.5 text-cyan-300 animate-pulse shrink-0" />
+                <span>
+                  {currentTime
+                    ? `${currentTime.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} · ${currentTime.toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" })}`
+                    : "Đang tải thời gian..."}
+                </span>
+              </div>
               <div className="flex gap-4 items-center">
                 <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
                   <Sparkles size={24} className="text-white" />
@@ -287,7 +307,7 @@ export default function ParentDashboardPage() {
               {/* COUNTERS */}
               <div className="flex flex-wrap w-full mt-6 gap-y-4">
                 <div className="border-e border-white/20 pe-4">
-                  <p className="text-white opacity-75 text-sm mb-1">Hồ sơ trẻ</p>
+                  <p className="text-white opacity-75 text-sm mb-1">Hồ sơ bé</p>
                   <h2 className="text-white text-3xl font-bold tracking-tight">
                     <AnimatedCounter value={children.length} />
                   </h2>
@@ -401,22 +421,57 @@ export default function ParentDashboardPage() {
           </div>
         </Card>
 
-        {children.length > 0 && !error && (
-          <Card className="h-full flex flex-col justify-center">
-            <CardHeader className="pb-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-700 dark:text-cyan-400 mb-1">Gia đình của bạn</div>
-              <CardTitle>Tổng quan gia đình</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <QuickStat icon={Baby} label="Hồ sơ trẻ" value={children.length} tone="navy" />
-                <QuickStat icon={Wifi} label="Robot đã kết nối" value={`${connectedDevices} / ${children.length}`} tone="cyan" />
-                <QuickStat icon={Activity} label="Phiên hoạt động" value={activeSessions} tone="indigo" />
-                <QuickStat icon={CircleAlert} label="Cảnh báo (24h)" value={alerts24h ?? "—"} tone="slate" />
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {children.length > 0 && !error && (() => {
+          const unconnectedChildren = children.filter(c => !c.device);
+          return (
+            <Card className="h-full flex flex-col justify-between">
+              <CardHeader className="pb-3">
+                <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-700 dark:text-cyan-400 mb-0.5">Nhắc nhở & Lối tắt</div>
+                <CardTitle className="text-lg font-bold">Cần chú ý</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 flex-1 flex flex-col justify-center">
+                {unconnectedChildren.length > 0 ? (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 dark:border-amber-900/50 dark:bg-amber-950/40">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                          {unconnectedChildren.length} bé chưa có robot
+                        </span>
+                      </div>
+                      <Link href="/parent/devices" className="text-xs font-bold text-[#0B008B] dark:text-cyan-400 hover:underline shrink-0">
+                        Kết nối →
+                      </Link>
+                    </div>
+                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 truncate">
+                      Gồm: {unconnectedChildren.map(c => c.name).join(", ")}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 dark:border-emerald-900/50 dark:bg-emerald-950/40">
+                    <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300">
+                      <Sparkles className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-xs font-bold">Tất cả các bé đã kết nối robot!</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3.5 dark:border-slate-800 dark:bg-slate-900/50">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Bell className="h-4 w-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Cảnh báo trong 24h</span>
+                    </div>
+                    <span className="rounded-full bg-cyan-100 px-2 py-0.5 text-xs font-bold text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
+                      {alerts24h ?? 0} lượt
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Ghi nhận nhắc nhở tư thế & tập trung từ robot.</p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
       </div>
 
 
@@ -444,7 +499,17 @@ export default function ParentDashboardPage() {
       ) : !error && (() => {
         let filteredChildren = children.filter(child => child.name.toLowerCase().includes(searchQuery.toLowerCase()));
         
-        if (sortOption === "name-asc") {
+        if (sortOption === "default") {
+          filteredChildren.sort((a, b) => {
+            const aScore = a.currentSession?.status === "active" ? 2 : a.device ? 1 : 0;
+            const bScore = b.currentSession?.status === "active" ? 2 : b.device ? 1 : 0;
+            return bScore - aScore;
+          });
+        } else if (sortOption === "gender-male") {
+          filteredChildren = filteredChildren.filter(child => child.gender?.toLowerCase() === "male" || child.gender?.toLowerCase() === "nam");
+        } else if (sortOption === "gender-female") {
+          filteredChildren = filteredChildren.filter(child => child.gender?.toLowerCase() === "female" || child.gender?.toLowerCase() === "nữ");
+        } else if (sortOption === "name-asc") {
           filteredChildren.sort((a, b) => a.name.localeCompare(b.name));
         } else if (sortOption === "name-desc") {
           filteredChildren.sort((a, b) => b.name.localeCompare(a.name));
@@ -471,7 +536,7 @@ export default function ParentDashboardPage() {
                   className="pl-9 h-10 w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus-visible:ring-cyan-500 rounded-full" 
                 />
               </div>
-              <Select value={sortOption} onValueChange={(val) => { setSortOption(val); setCurrentPage(1); }}>
+              <Select value={sortOption} onValueChange={(val) => { setSortOption(val || 'default'); setCurrentPage(1); }}>
                 <SelectTrigger className="w-10 h-10 p-0 flex shrink-0 items-center justify-center rounded-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:ring-cyan-500 [&>svg:last-child]:hidden" aria-label="Sắp xếp">
                   <ListFilter className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                 </SelectTrigger>
@@ -481,6 +546,8 @@ export default function ParentDashboardPage() {
                   <SelectItem value="name-desc">Tên (Z → A)</SelectItem>
                   <SelectItem value="age-asc">Tuổi (Nhỏ → Lớn)</SelectItem>
                   <SelectItem value="age-desc">Tuổi (Lớn → Nhỏ)</SelectItem>
+                  <SelectItem value="gender-male">Giới tính: Nam</SelectItem>
+                  <SelectItem value="gender-female">Giới tính: Nữ</SelectItem>
                 </SelectContent>
               </Select>
               <Link href="/parent/children" className="shrink-0 rounded-full px-4 py-2 h-10 inline-flex items-center justify-center text-sm font-semibold text-cyan-800 dark:text-cyan-400 bg-white/50 dark:bg-slate-800/50 border border-transparent transition-colors hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0B008B] dark:hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">
@@ -508,33 +575,43 @@ export default function ParentDashboardPage() {
                 const hasDevice = Boolean(child.device);
                 return (
                   <Card key={child.id} className="relative overflow-hidden flex flex-col justify-between">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-baseline gap-2 text-xl">
-                        <span className="truncate">{child.name}</span>
-                        <span className="shrink-0 text-sm font-normal text-muted-foreground">{getAge(child.dateOfBirth)} tuổi</span>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-baseline justify-between text-xl">
+                        <span className="truncate font-extrabold">{child.name}</span>
+                        <span className="shrink-0 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          {getAge(child.dateOfBirth)} tuổi · {child.gender?.toLowerCase() === 'female' || child.gender?.toLowerCase() === 'nữ' ? 'Nữ' : 'Nam'}
+                        </span>
                       </CardTitle>
                       <CardDescription>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${monitoring ? "border-emerald-200 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-400 dark:border-emerald-800" : "border-slate-200 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"}`}><Activity className="h-3 w-3" aria-hidden="true" />{monitoring ? "Đang học" : "Hôm nay chưa học"}</span>
-                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${hasDevice ? "border-cyan-200 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-400 dark:border-cyan-800" : "border-amber-200 bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-400 dark:border-amber-800"}`}>
-                            {hasDevice ? <Wifi className="h-3 w-3" aria-hidden="true" /> : <WifiOff className="h-3 w-3" aria-hidden="true" />}Robot: {hasDevice ? child.device?.serialNumber : "Chưa kết nối"}
+                        <div className="mt-2.5 flex flex-wrap gap-2">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${monitoring ? "border-emerald-200 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-400 dark:border-emerald-800" : "border-slate-200 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"}`}>
+                            <Activity className="h-3 w-3" aria-hidden="true" />
+                            {monitoring ? "Đang học" : "Hôm nay chưa học"}
+                          </span>
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${hasDevice ? "border-cyan-200 bg-cyan-100 text-cyan-800 dark:border-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-400" : "border-amber-200 bg-amber-100 text-amber-800 dark:border-amber-800 dark:bg-amber-900/50 dark:text-amber-400"}`}>
+                            {hasDevice ? <Wifi className="h-3 w-3" aria-hidden="true" /> : <WifiOff className="h-3 w-3" aria-hidden="true" />}
+                            Robot: {hasDevice ? (child.device?.model || 'Robot ONBI') : "Chưa kết nối"}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${child.hasPin ? "border-purple-200 bg-purple-100 text-purple-800 dark:border-purple-900/60 dark:bg-purple-950/50 dark:text-purple-300" : "border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"}`}>
+                            {child.hasPin ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                            {child.hasPin ? "Có PIN" : "Chưa đặt PIN"}
                           </span>
                         </div>
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="min-h-[44px]">
-                        <p className="whitespace-pre-line text-sm text-muted-foreground leading-relaxed">
-                          {summaries[child.id] ?? (
-                            summariesLoading ? (
-                              <span className="inline-block h-4 w-40 animate-pulse rounded bg-muted align-middle" />
-                            ) : (
-                              <span className="opacity-0 select-none">{"-\n-"}</span>
-                            )
+                      <div className="min-h-[44px] flex items-center">
+                        <p className="whitespace-pre-line text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                          {summaries[child.id] ? (
+                            summaries[child.id]
+                          ) : summariesLoading ? (
+                            <span className="inline-block h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-800 align-middle" />
+                          ) : (
+                            <span className="text-slate-400 dark:text-slate-500 italic">Chưa có dữ liệu phiên học. Bắt đầu ngay!</span>
                           )}
                         </p>
                       </div>
-                      <div className="mt-5 flex flex-col gap-2">
+                      <div className="flex flex-col gap-2">
                         <Link href={hasDevice ? `/parent/monitoring/${child.id}` : "/parent/devices"} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#0B008B] px-4 text-sm font-bold text-white shadow-sm transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">
                           {!hasDevice ? <Wifi className="h-4 w-4" aria-hidden="true" /> : monitoring ? <Camera className="h-4 w-4" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
                           {monitoring ? "Vào phiên học" : hasDevice ? "Bắt đầu phiên học" : "Kết nối robot"}

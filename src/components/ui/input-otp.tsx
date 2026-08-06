@@ -21,7 +21,7 @@ function InputOTP({
         containerClassName
       )}
       spellCheck={false}
-      className={cn("disabled:cursor-not-allowed !text-transparent !caret-transparent !bg-transparent !border-transparent !shadow-none !outline-none !ring-0", className)}
+      className={cn("disabled:cursor-not-allowed !text-transparent !caret-transparent !bg-transparent !border-transparent !shadow-none !outline-none !ring-0 !opacity-0", className)}
       {...props}
     />
   )

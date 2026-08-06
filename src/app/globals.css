@@ -83,8 +83,7 @@ body {
 
 [data-slot="input-otp"] input,
 .cn-input-otp input,
-input[data-slot="input-otp"],
-.cn-input-otp {
+input[data-slot="input-otp"] {
   color: transparent !important;
   -webkit-text-fill-color: transparent !important;
   caret-color: transparent !important;

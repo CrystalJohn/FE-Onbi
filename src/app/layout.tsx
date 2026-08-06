@@ -6,6 +6,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -69,6 +70,7 @@ export default function RootLayout({
         >
           <LanguageProvider>
             {children}
+            <Toaster richColors position="top-right" />
           </LanguageProvider>
         </ThemeProvider>
       </body>

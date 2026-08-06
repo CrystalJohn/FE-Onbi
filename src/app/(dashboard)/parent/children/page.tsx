@@ -2,13 +2,20 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Bot, CalendarDays, Pencil, Plus, Radio, Settings2, Trash2, Loader2, Check } from 'lucide-react';
+import { Activity, Camera, Wifi, WifiOff, CalendarDays, Pencil, Plus, Settings2, Trash2, Loader2, Check, Play } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { Child, MonitoringSession } from '@/types';
 import BackButton from '@/components/ui/BackButton';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-interface ChildDevice { deviceId: string; serialNumber: string; model?: string; status: string; }
+interface ChildDevice { deviceId: string; serialNumber: string; model?: string; status: string; assignedChildId?: string | null; }
 interface ChildHub extends Child { device: ChildDevice | null; session: MonitoringSession | null; }
 
 export default function ChildrenListPage() {
@@ -28,13 +35,18 @@ export default function ChildrenListPage() {
   const loadChildren = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const { data: childData } = await api.get<Child[]>('/children');
+      const [childRes, deviceRes] = await Promise.all([
+        api.get<Child[]>('/children'),
+        api.get<ChildDevice[]>('/devices')
+      ]);
+      
+      const childData = childRes.data;
+      const deviceData = deviceRes.data;
+
       const details = await Promise.all(childData.map(async (child) => {
-        const [deviceResponse, sessionResponse] = await Promise.all([
-          api.get<ChildDevice[]>(`/children/${child.id}/devices`),
-          api.get<MonitoringSession | { message: string }>(`/children/${child.id}/monitoring/current`),
-        ]);
-        return { ...child, device: deviceResponse.data[0] ?? null, session: 'id' in sessionResponse.data ? sessionResponse.data : null };
+        const sessionResponse = await api.get<MonitoringSession | { message: string }>(`/children/${child.id}/monitoring/current`);
+        const assignedDevice = deviceData.find(d => d.assignedChildId === child.id) ?? null;
+        return { ...child, device: assignedDevice, session: 'id' in sessionResponse.data ? sessionResponse.data : null };
       }));
       setChildren(details);
     } catch { setError('Không thể tải hồ sơ trẻ. Vui lòng thử lại.'); }
@@ -117,76 +129,64 @@ export default function ChildrenListPage() {
     }
 
     {/* ── Delete Confirm Modal ── */}
-    {confirmChild && (
-      <div role="dialog" aria-modal="true" aria-labelledby="confirm-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setConfirmChild(null)} />
-        <div className="relative w-full max-w-sm rounded-[28px] border border-white/80 bg-white p-6 shadow-[0_32px_80px_rgba(15,23,42,0.22)]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
+    <Dialog open={!!confirmChild} onOpenChange={(open) => !open && setConfirmChild(null)}>
+      <DialogContent className="max-w-sm rounded-[28px] p-6 border-white/80 shadow-[0_32px_80px_rgba(15,23,42,0.22)]">
+        <DialogHeader className="text-left">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 mb-4">
             <Trash2 className="h-6 w-6 text-red-600" />
           </div>
-          <h2 id="confirm-title" className="mt-4 text-lg font-bold text-slate-950">Xóa hồ sơ?</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Bạn sắp xóa hồ sơ của <span className="font-semibold text-slate-900">{confirmChild.name}</span>. Thao tác này không thể hoàn tác và sẽ xóa toàn bộ dữ liệu liên quan.
-          </p>
-          <div className="mt-6 flex gap-3">
-            <button onClick={() => setConfirmChild(null)} className="flex-1 min-h-11 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">Hủy</button>
-            <button onClick={() => void deleteChild()} disabled={deleting} className="flex-1 min-h-11 rounded-full bg-red-600 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">{deleting ? 'Đang xóa…' : 'Xóa hồ sơ'}</button>
-          </div>
+          <DialogTitle className="text-lg font-bold text-slate-950">Xóa hồ sơ?</DialogTitle>
+          <DialogDescription className="mt-2 text-sm leading-6 text-slate-600">
+            Bạn sắp xóa hồ sơ của <span className="font-semibold text-slate-900">{confirmChild?.name}</span>. Thao tác này không thể hoàn tác và sẽ xóa toàn bộ dữ liệu liên quan.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mt-6 flex gap-3">
+          <button onClick={() => setConfirmChild(null)} className="flex-1 min-h-11 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">Hủy</button>
+          <button onClick={() => void deleteChild()} disabled={deleting} className="flex-1 min-h-11 rounded-full bg-red-600 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">{deleting ? 'Đang xóa…' : 'Xóa hồ sơ'}</button>
         </div>
-      </div>
-    )}
+      </DialogContent>
+    </Dialog>
   </div>;
 }
 
 function StudentCard({ child, onDelete }: { child: ChildHub; onDelete: () => void }) {
   const monitoring = child.session?.status === 'active';
+  const hasDevice = Boolean(child.device);
   return (
-    <Card className="group relative w-full max-w-[560px] overflow-visible rounded-[28px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 shadow-[0_20px_60px_rgba(15,23,42,0.09)]">
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/2 h-48 w-80 -translate-x-1/2 rounded-full bg-cyan-300/25 blur-3xl" />
-      <CardContent className="relative z-10 p-5">
-        <div className="flex items-start gap-4">
-
-          <div className="min-w-0 flex-1 pt-1">
-            <h2 className="truncate text-xl font-bold tracking-tight text-slate-950">{child.name}</h2>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-              <CalendarDays aria-hidden="true" className="h-4 w-4 text-cyan-700" />
-              <span>{formatDate(child.dateOfBirth)}</span>
-              <span>{age(child.dateOfBirth)} tuổi</span>
-              <span>{child.gender === 'male' ? 'Nam' : 'Nữ'}</span>
-            </div>
+    <Card className="relative overflow-hidden flex flex-col justify-between max-w-[560px] w-full mx-auto sm:mx-0">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-baseline gap-2 text-xl">
+          <span className="truncate">{child.name}</span>
+          <span className="shrink-0 text-sm font-normal text-muted-foreground">{age(child.dateOfBirth)} tuổi · {child.gender === 'male' ? 'Nam' : 'Nữ'}</span>
+        </CardTitle>
+        <CardDescription>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${monitoring ? "border-emerald-200 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-400 dark:border-emerald-800" : "border-slate-200 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"}`}><Activity className="h-3 w-3" aria-hidden="true" />{monitoring ? "Đang học" : "Hôm nay chưa học"}</span>
+            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${hasDevice ? "border-cyan-200 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-400 dark:border-cyan-800" : "border-amber-200 bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-400 dark:border-amber-800"}`}>
+              {hasDevice ? <Wifi className="h-3 w-3" aria-hidden="true" /> : <WifiOff className="h-3 w-3" aria-hidden="true" />}Robot: {hasDevice ? (child.device?.model || 'Robot ONBI') : "Chưa kết nối"}
+            </span>
           </div>
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="min-h-[44px]">
+          <p className="whitespace-pre-line text-sm text-muted-foreground leading-relaxed">
+            {hasDevice 
+              ? `S/N: ${child.device?.serialNumber} · ${deviceStatus(child.device!.status)}`
+              : "Kích hoạt và gán một thiết bị cho bé."}
+          </p>
         </div>
-
-        <div className={`mt-4 grid gap-3 ${child.device ? 'sm:grid-cols-2' : 'sm:grid-cols-1'}`}>
-          <section className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-cyan-50 text-cyan-800"><Bot aria-hidden="true" className="h-[18px] w-[18px]" /></span>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Thiết bị</p>
-            </div>
-            {child.device ? <><p className="mt-3 font-bold text-slate-950">{child.device.serialNumber}</p><p className="mt-1 text-sm leading-5 text-slate-600">{child.device.model || 'Robot ONBI'} · {deviceStatus(child.device.status)}</p></> : <><p className="mt-3 font-bold text-slate-950">Chưa kết nối robot</p><p className="mt-1 text-sm leading-5 text-slate-600">Kích hoạt và gán một thiết bị cho bé.</p></>}
-          </section>
-          {child.device && (
-            <section className="rounded-[22px] border border-white/80 bg-white/65 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                <span className={`grid h-9 w-9 place-items-center rounded-full ${monitoring ? 'bg-emerald-50 text-emerald-700' : 'bg-indigo-50 text-indigo-700'}`}><Radio aria-hidden="true" className="h-[18px] w-[18px]" /></span>
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Giám sát</p>
-              </div>
-              <p className="mt-3 font-bold text-slate-950">{monitoring ? 'Đang hoạt động' : 'Chưa có phiên đang chạy'}</p>
-              <p className="mt-1 text-sm leading-5 text-slate-600">{monitoring && child.session ? `Bắt đầu ${formatTime(child.session.startedAt)}` : 'Sẵn sàng khi bạn cần theo dõi.'}</p>
-            </section>
-          )}
-        </div>
-
-        <div className="mt-4 space-y-2.5">
-          <Link href={child.device ? `/parent/monitoring/${child.id}` : '/parent/devices'} className="flex min-h-12 w-full items-center justify-center rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">
-            {monitoring ? 'Mở giám sát' : child.device ? 'Bắt đầu giám sát' : 'Kết nối thiết bị'}
+        <div className="mt-5 flex flex-col gap-2">
+          <Link href={hasDevice ? `/parent/monitoring/${child.id}` : '/parent/devices'} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#0B008B] px-4 text-sm font-bold text-white shadow-sm transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">
+            {!hasDevice ? <Wifi className="h-4 w-4" aria-hidden="true" /> : monitoring ? <Camera className="h-4 w-4" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
+            {monitoring ? 'Vào phiên học' : hasDevice ? 'Bắt đầu phiên học' : 'Kết nối thiết bị'}
           </Link>
-          <div className="flex gap-2.5">
-            <Link href={`/parent/children/${child.id}`} className="flex flex-1 min-h-11 items-center justify-center gap-1.5 rounded-full border border-slate-200/80 bg-white/60 text-sm font-semibold text-slate-600 transition-colors hover:border-cyan-200 hover:bg-white hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">
-              <Pencil aria-hidden="true" className="h-3.5 w-3.5" />Chỉnh sửa
+          <div className="flex gap-2">
+            <Link href={`/parent/children/${child.id}`} className="flex flex-1 min-h-10 items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <Pencil aria-hidden="true" className="h-3.5 w-3.5" /> Chỉnh sửa
             </Link>
-            <button type="button" onClick={onDelete} className="flex flex-1 min-h-11 items-center justify-center gap-1.5 rounded-full border border-red-200/80 bg-red-50/60 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 hover:border-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-              <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />Xóa hồ sơ
+            <button type="button" onClick={onDelete} className="flex flex-1 min-h-10 items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 dark:border-red-900/50 dark:bg-red-900/10 dark:text-red-500 px-4 text-sm font-medium transition-colors hover:bg-red-100 dark:hover:bg-red-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2">
+              <Trash2 aria-hidden="true" className="h-3.5 w-3.5" /> Xóa hồ sơ
             </button>
           </div>
         </div>

@@ -3,11 +3,12 @@
 import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Trash2, Link2, Unlink, Calendar as CalendarIcon, User, CheckIcon, MoreVerticalIcon, KeyRound } from 'lucide-react';
+import { Trash2, Link2, Unlink, Calendar as CalendarIcon, User, CheckIcon, MoreVerticalIcon, KeyRound, AlertCircle } from 'lucide-react';
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import BackButton from '@/components/ui/BackButton';
 import { Badge } from "@/components/reui/badge";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,13 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// Removed DropdownMenu imports since they are no longer needed
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
@@ -105,8 +107,9 @@ export default function ChildDetailPage({
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
   const [deviceActionLoading, setDeviceActionLoading] = useState(false);
 
-  // Delete modal state
+  // Delete & Unassign modal state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showUnassignConfirm, setShowUnassignConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const getToken = () => localStorage.getItem('token') || '';
@@ -122,7 +125,7 @@ export default function ChildDetailPage({
       setChild(childData);
       setName(childData.name);
       setDateOfBirth(childData.dateOfBirth?.split('T')[0] || '');
-      setGender(childData.gender);
+      setGender(childData.gender?.toLowerCase() || 'male');
 
       // 2. Fetch child's device
       const devRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/children/${id}/devices`, {
@@ -163,6 +166,14 @@ export default function ChildDetailPage({
     const timer = setTimeout(() => setSaveStatus("idle"), 2000);
     return () => clearTimeout(timer);
   }, [saveStatus]);
+
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
+
+  useEffect(() => {
+    if (message) toast.success(message);
+  }, [message]);
 
   // Escape key listener for modals
   useEffect(() => {
@@ -318,6 +329,7 @@ export default function ChildDetailPage({
         return;
       }
 
+      setShowUnassignConfirm(false);
       setMessage('Đã gỡ thiết bị khỏi hồ sơ.');
       await fetchData();
     } catch {
@@ -381,7 +393,7 @@ export default function ChildDetailPage({
           <BackButton fallback="/parent/children" />
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Chi tiết hồ sơ</p>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-950">Quản lý bé {child.name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950">Hồ sơ của {child.name}</h1>
           </div>
         </div>
         <div className="flex items-center gap-2.5">
@@ -418,29 +430,23 @@ export default function ChildDetailPage({
         </div>
       </header>
 
-      {message && (
-        <div role="alert" className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-          {message}
-        </div>
-      )}
-      {error && (
-        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-          {error}
-        </div>
-      )}
-
       <div className="grid gap-6 md:grid-cols-2 items-start">
         {/* ── Left Column: Personal Info Form (reui card) + PIN ── */}
         <div className="space-y-6">
         <form id="child-info-form" onSubmit={handleUpdate} className="relative space-y-0">
           <Card className="p-0">
             <CardContent className="p-0">
-              <div className="border-b border-slate-100/80 px-5 pb-3 pt-5 flex items-center gap-3 sm:px-6">
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-cyan-50 text-cyan-800"><User className="h-4 w-4" /></span>
-                <h2 className="text-base font-bold text-slate-950 uppercase tracking-tight">Thông tin cá nhân</h2>
+              <div className="flex items-center justify-between border-b px-3 py-2">
+                <Badge variant="secondary">Hồ sơ cơ bản</Badge>
               </div>
 
-              <div className="space-y-4 p-5 sm:p-6">
+              <div className="space-y-4 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-sm leading-tight font-medium flex items-center gap-2">
+                    <User className="h-4 w-4 text-cyan-600" />
+                    Thông tin cá nhân
+                  </h3>
+                </div>
             <label className="block text-sm font-semibold text-slate-700">
               Tên của bé
               <Input
@@ -484,10 +490,12 @@ export default function ChildDetailPage({
               Giới tính
               <Select
                 value={gender}
-                onValueChange={(val) => setGender(val ?? '')}
+                onValueChange={(val) => setGender(val ?? 'male')}
               >
                 <SelectTrigger className="mt-2 min-h-12 w-full rounded-xl border-slate-300 bg-white text-base focus-visible:border-cyan-600 focus-visible:ring-cyan-100">
-                  <SelectValue placeholder="Chọn giới tính" />
+                  <SelectValue placeholder="Chọn giới tính">
+                    {gender === 'female' ? 'Nữ' : 'Nam'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="male">Nam</SelectItem>
@@ -496,41 +504,8 @@ export default function ChildDetailPage({
               </Select>
             </label>
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 pt-3 px-5 sm:px-6 pb-6">
-            <Button
-              type="submit"
-              disabled={saveStatus === "loading" || saveStatus === "success"}
-              aria-busy={saveStatus === "loading"}
-              aria-live="polite"
-              className="flex-1 inline-flex items-center justify-center min-h-12 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]"
-            >
-              {saveStatus === "loading" ? (
-                <>
-                  <Spinner aria-hidden="true" className="h-4 w-4 mr-2" />
-                  Đang lưu…
-                </>
-              ) : saveStatus === "success" ? (
-                <>
-                  <CheckIcon aria-hidden="true" className="h-4 w-4 mr-2" />
-                  Đã lưu
-                </>
-              ) : (
-                "Lưu thay đổi"
-              )}
-            </Button>
-
-            <button
-              type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex-1 inline-flex items-center justify-center min-h-12 gap-2 rounded-full border border-red-200 bg-red-50/60 px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 hover:border-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-            >
-              <Trash2 className="w-4 h-4" />
-              Xóa hồ sơ bé
-            </button>
-          </div>
-          </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
         </form>
         </div>
 
@@ -547,33 +522,6 @@ export default function ChildDetailPage({
                 ) : null}
                 {assignedDevice ? (assignedDevice.status === 'active' ? 'Đang hoạt động' : 'Ngoại tuyến') : 'Chưa gán'}
               </Badge>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground"
-                      aria-label="Tùy chọn thiết bị"
-                    />
-                  }
-                >
-                  <MoreVerticalIcon aria-hidden="true" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-40" align="end">
-                  <DropdownMenuGroup>
-                    {assignedDevice ? (
-                      <DropdownMenuItem onSelect={() => handleUnassignDevice(assignedDevice.deviceId)}>
-                        Gỡ thiết bị
-                      </DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem render={<Link href="/parent/devices" />}>
-                        Quản lý thiết bị
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
             <div className="space-y-3 p-4">
@@ -593,11 +541,11 @@ export default function ChildDetailPage({
                   </p>
                   <Button
                     variant="outline"
-                    className="w-full"
+                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                     disabled={deviceActionLoading}
-                    onClick={() => handleUnassignDevice(assignedDevice.deviceId)}
+                    onClick={() => setShowUnassignConfirm(true)}
                   >
-                    <Unlink aria-hidden="true" />
+                    <Unlink aria-hidden="true" className="mr-2 h-4 w-4" />
                     {deviceActionLoading ? 'Đang xử lý...' : 'Gỡ thiết bị ONBI'}
                   </Button>
                 </div>
@@ -636,7 +584,7 @@ export default function ChildDetailPage({
                       </Button>
                     </form>
                   ) : (
-                    <Button render={<Link href="/parent/devices" />} variant="outline" className="w-full">
+                    <Button render={<Link href="/parent/devices" />} nativeButton={false} variant="outline" className="w-full">
                       Kích hoạt hoặc Quản lý thiết bị
                     </Button>
                   )}
@@ -662,9 +610,6 @@ export default function ChildDetailPage({
                   <KeyRound className="h-4 w-4 text-cyan-600" />
                   Mã PIN bảo vệ
                 </h3>
-                <Badge variant={child.hasPin ? 'success-light' : 'secondary'} size="sm">
-                  {child.hasPin ? 'Đã đặt' : 'Chưa đặt'}
-                </Badge>
               </div>
 
               {/* Chưa đặt PIN */}
@@ -737,7 +682,7 @@ export default function ChildDetailPage({
                     {pinSaving ? 'Đang lưu…' : 'Đổi mã PIN'}
                   </Button>
                   <Button variant="outline" className="w-full rounded-full border border-red-200 bg-red-50/60 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300" onClick={() => { setPinMode('remove'); setCurrentPin(''); setNewPin(''); setConfirmPin(''); setError(''); setMessage(''); }}>
-                    Xóa mã PIN
+                    Xóa bỏ mã PIN (Tắt bảo vệ)
                   </Button>
                 </div>
               )}
@@ -776,24 +721,42 @@ export default function ChildDetailPage({
       </div>
 
       {/* ── Custom Delete Confirm Modal ── */}
-      {showDeleteConfirm && (
-        <div role="dialog" aria-modal="true" aria-labelledby="confirm-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
-          <div className="relative w-full max-w-sm rounded-[28px] border border-white/80 bg-white p-6 shadow-[0_32px_80px_rgba(15,23,42,0.22)]">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="max-w-sm rounded-[28px] p-6 border-white/80 shadow-[0_32px_80px_rgba(15,23,42,0.22)]">
+          <DialogHeader className="text-left">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 mb-4">
               <Trash2 className="h-6 w-6 text-red-600" />
             </div>
-            <h2 id="confirm-title" className="mt-4 text-lg font-bold text-slate-950">Xóa hồ sơ bé?</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <DialogTitle className="text-lg font-bold text-slate-950">Xóa hồ sơ bé?</DialogTitle>
+            <DialogDescription className="mt-2 text-sm leading-6 text-slate-600">
               Bạn sắp xóa hồ sơ của <span className="font-semibold text-slate-900">{child.name}</span>. Thao tác này không thể hoàn tác và sẽ xóa toàn bộ dữ liệu phiên học/cảnh báo liên quan.
-            </p>
-            <div className="mt-6 flex gap-3">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 min-h-11 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">Hủy</button>
-              <button onClick={() => void handleDelete()} disabled={deleting} className="flex-1 min-h-11 rounded-full bg-red-600 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">{deleting ? 'Đang xóa…' : 'Xóa hồ sơ'}</button>
-            </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 flex gap-3">
+            <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 min-h-11 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">Hủy</button>
+            <button onClick={() => void handleDelete()} disabled={deleting} className="flex-1 min-h-11 rounded-full bg-red-600 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">{deleting ? 'Đang xóa…' : 'Xóa hồ sơ'}</button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Unassign Confirm Modal ── */}
+      <Dialog open={showUnassignConfirm} onOpenChange={setShowUnassignConfirm}>
+        <DialogContent className="max-w-sm rounded-[28px] p-6 border-white/80 shadow-[0_32px_80px_rgba(15,23,42,0.22)]">
+          <DialogHeader className="text-left">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 mb-4">
+              <Unlink className="h-6 w-6 text-orange-600" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-slate-950">Gỡ thiết bị ONBI?</DialogTitle>
+            <DialogDescription className="mt-2 text-sm leading-6 text-slate-600">
+              Bạn sắp gỡ thiết bị <span className="font-semibold text-slate-900">{assignedDevice?.serialNumber}</span> khỏi bé <span className="font-semibold text-slate-900">{child?.name}</span>. Thiết bị này sẽ được giải phóng để gán cho bé khác.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 flex gap-3">
+            <button onClick={() => setShowUnassignConfirm(false)} className="flex-1 min-h-11 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">Hủy</button>
+            <button onClick={() => assignedDevice && handleUnassignDevice(assignedDevice.deviceId)} disabled={deviceActionLoading} className="flex-1 min-h-11 rounded-full bg-red-600 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">{deviceActionLoading ? 'Đang xử lý…' : 'Gỡ thiết bị'}</button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
