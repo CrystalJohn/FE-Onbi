@@ -3,11 +3,22 @@
 import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Save, Trash2, Link2, Unlink, Calendar as CalendarIcon, User, LoaderCircle, CheckIcon, MoreVerticalIcon, KeyRound } from 'lucide-react';
+import { Trash2, Link2, Unlink, Calendar as CalendarIcon, User, CheckIcon, MoreVerticalIcon, KeyRound } from 'lucide-react';
+import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import BackButton from '@/components/ui/BackButton';
-import { Badge } from '@/components/reui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from "@/components/reui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,6 +95,7 @@ export default function ChildDetailPage({
   const [removingPin, setRemovingPin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "loading" | "success">("idle");
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -140,8 +152,17 @@ export default function ChildDetailPage({
   }, [id]);
 
   useEffect(() => {
+    // fetchData is async: all setState calls happen after await (external sync),
+    // which is the intended use of an effect per react.dev guidance.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (saveStatus !== "success") return;
+    const timer = setTimeout(() => setSaveStatus("idle"), 2000);
+    return () => clearTimeout(timer);
+  }, [saveStatus]);
 
   // Escape key listener for modals
   useEffect(() => {
@@ -154,6 +175,7 @@ export default function ChildDetailPage({
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveStatus('loading');
     setMessage('');
     setError('');
 
@@ -170,13 +192,16 @@ export default function ChildDetailPage({
       if (!res.ok) {
         const data = await res.json();
         setError(data.message || 'Cập nhật thất bại');
+        setSaveStatus('idle');
         return;
       }
 
       setMessage('Cập nhật thông tin thành công!');
+      setSaveStatus('success');
       await fetchData();
     } catch {
       setError('Không thể kết nối máy chủ');
+      setSaveStatus('idle');
     } finally {
       setSaving(false);
     }
@@ -368,15 +393,28 @@ export default function ChildDetailPage({
             <Trash2 className="w-4 h-4" />
             Xóa hồ sơ bé
           </button>
-          <button
+          <Button
             type="submit"
             form="child-info-form"
-            disabled={saving}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]"
+            disabled={saveStatus === "loading" || saveStatus === "success"}
+            aria-busy={saveStatus === "loading"}
+            aria-live="polite"
+            className="inline-flex min-h-11 min-w-[140px] items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]"
           >
-            <Save className="w-4 h-4" />
-            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
-          </button>
+            {saveStatus === "loading" ? (
+              <>
+                <Spinner aria-hidden="true" className="h-4 w-4 mr-2" />
+                Đang lưu…
+              </>
+            ) : saveStatus === "success" ? (
+              <>
+                <CheckIcon aria-hidden="true" className="h-4 w-4 mr-2" />
+                Đã lưu
+              </>
+            ) : (
+              "Lưu thay đổi"
+            )}
+          </Button>
         </div>
       </header>
 
@@ -391,7 +429,7 @@ export default function ChildDetailPage({
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 items-start">
         {/* ── Left Column: Personal Info Form (reui card) + PIN ── */}
         <div className="space-y-6">
         <form id="child-info-form" onSubmit={handleUpdate} className="relative space-y-0">
@@ -405,12 +443,12 @@ export default function ChildDetailPage({
               <div className="space-y-4 p-5 sm:p-6">
             <label className="block text-sm font-semibold text-slate-700">
               Tên của bé
-              <input
+              <Input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
+                className="mt-2 min-h-12 w-full rounded-xl border-slate-300 bg-white text-base focus-visible:border-cyan-600 focus-visible:ring-cyan-100"
               />
             </label>
 
@@ -444,31 +482,48 @@ export default function ChildDetailPage({
 
             <label className="block text-sm font-semibold text-slate-700">
               Giới tính
-              <select
+              <Select
                 value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
+                onValueChange={(val) => setGender(val ?? '')}
               >
-                <option value="male">Nam</option>
-                <option value="female">Nữ</option>
-              </select>
+                <SelectTrigger className="mt-2 min-h-12 w-full rounded-xl border-slate-300 bg-white text-base focus-visible:border-cyan-600 focus-visible:ring-cyan-100">
+                  <SelectValue placeholder="Chọn giới tính" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Nam</SelectItem>
+                  <SelectItem value="female">Nữ</SelectItem>
+                </SelectContent>
+              </Select>
             </label>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-3">
-            <button
+          <div className="flex flex-col sm:flex-row gap-3 pt-3 px-5 sm:px-6 pb-6">
+            <Button
               type="submit"
-              disabled={saving}
-              className="flex-1 min-h-12 flex items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]"
+              disabled={saveStatus === "loading" || saveStatus === "success"}
+              aria-busy={saveStatus === "loading"}
+              aria-live="polite"
+              className="flex-1 inline-flex items-center justify-center min-h-12 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]"
             >
-              <Save className="w-4 h-4" />
-              {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
-            </button>
+              {saveStatus === "loading" ? (
+                <>
+                  <Spinner aria-hidden="true" className="h-4 w-4 mr-2" />
+                  Đang lưu…
+                </>
+              ) : saveStatus === "success" ? (
+                <>
+                  <CheckIcon aria-hidden="true" className="h-4 w-4 mr-2" />
+                  Đã lưu
+                </>
+              ) : (
+                "Lưu thay đổi"
+              )}
+            </Button>
 
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="flex-1 min-h-11 flex items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50/60 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 hover:border-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+              className="flex-1 inline-flex items-center justify-center min-h-12 gap-2 rounded-full border border-red-200 bg-red-50/60 px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 hover:border-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
             >
               <Trash2 className="w-4 h-4" />
               Xóa hồ sơ bé
@@ -477,80 +532,13 @@ export default function ChildDetailPage({
           </CardContent>
           </Card>
         </form>
-{/* ── PIN Protection Card ── */}
-        <section className="rounded-[32px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6 space-y-5">
-          <div className="border-b border-slate-100/80 pb-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-cyan-50 text-cyan-800"><KeyRound className="h-4 w-4" /></span>
-              <h2 className="text-base font-bold text-slate-950 uppercase tracking-tight">Mã PIN bảo vệ</h2>
-            </div>
-            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${child.hasPin ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{child.hasPin ? 'Đã đặt mã PIN' : 'Chưa đặt'}</span>
-          </div>
-
-          {/* Chưa đặt PIN → thiết lập: nhập 2 lần cho khớp */}
-          {!child.hasPin && (
-            <>
-              <p className="text-sm leading-6 text-slate-600">Đặt mã PIN 6 số để bảo vệ hồ sơ. Sau khi đặt, phải nhập đúng mã mới bắt đầu giám sát hoặc mở chỉnh sửa.</p>
-              <label className="block text-sm font-semibold text-slate-700">
-                Mã PIN
-                <input value={newPin} onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Nhập mã PIN 6 số" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
-              </label>
-              <label className="block text-sm font-semibold text-slate-700">
-                Nhập lại mã PIN
-                <input value={confirmPin} onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Nhập lại mã PIN" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
-              </label>
-              <button type="button" onClick={handleSavePin} disabled={pinSaving || newPin.length !== 6 || confirmPin.length !== 6} className="w-full min-h-12 rounded-full bg-[#0B008B] text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]">
-                {pinSaving ? 'Đang lưu…' : 'Đặt mã PIN'}
-              </button>
-            </>
-          )}
-
-          {/* Đã có PIN → đổi mã: hiện tại + mới + nhập lại */}
-          {child.hasPin && pinMode === 'change' && (
-            <>
-              <p className="text-sm leading-6 text-slate-600">Nhập mã hiện tại rồi đặt mã mới. Hoặc xóa mã PIN nếu không muốn bảo vệ nữa.</p>
-              <label className="block text-sm font-semibold text-slate-700">
-                Mã PIN hiện tại
-                <input value={currentPin} onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Mã PIN hiện tại (6 số)" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
-              </label>
-              <label className="block text-sm font-semibold text-slate-700">
-                Mã PIN mới
-                <input value={newPin} onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Mã PIN mới (6 số)" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
-              </label>
-              <button type="button" onClick={handleSavePin} disabled={pinSaving || currentPin.length !== 6 || newPin.length !== 6} className="w-full min-h-12 rounded-full bg-[#0B008B] text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]">
-                {pinSaving ? 'Đang lưu…' : 'Đổi mã PIN'}
-              </button>
-              <button type="button" onClick={() => { setPinMode('remove'); setCurrentPin(''); setNewPin(''); setConfirmPin(''); setError(''); setMessage(''); }} className="w-full min-h-11 rounded-full border border-red-200 bg-red-50/60 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 hover:border-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-                Xóa mã PIN
-              </button>
-            </>
-          )}
-
-          {/* Đã có PIN → xóa mã: chỉ hỏi mã hiện tại */}
-          {child.hasPin && pinMode === 'remove' && (
-            <>
-              <p className="text-sm leading-6 text-red-700">Nhập mã PIN hiện tại để xác nhận xóa. Sau khi xóa, hồ sơ không còn được bảo vệ bằng PIN.</p>
-              <label className="block text-sm font-semibold text-slate-700">
-                Mã PIN hiện tại
-                <input value={currentPin} onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Mã PIN hiện tại (6 số)" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100" />
-              </label>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => { setPinMode('change'); setCurrentPin(''); setError(''); setMessage(''); }} className="flex-1 min-h-12 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
-                  Hủy
-                </button>
-                <button type="button" onClick={handleRemovePin} disabled={removingPin || currentPin.length !== 6} className="flex-1 min-h-12 rounded-full bg-red-600 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
-                  {removingPin ? 'Đang xóa…' : 'Xác nhận xóa'}
-                </button>
-              </div>
-            </>
-          )}
-        </section>
         </div>
 
       
 
-        {/* ── Right Column: ONBI Device Setup (reui c-card-16) ── */}
-        <Card className="w-full max-w-sm p-0">
+        {/* ── Right Column: ONBI Device Setup & PIN ── */}
+        <div className="space-y-6 w-full max-w-sm">
+        <Card className="p-0">
           <CardContent className="p-0">
             <div className="flex items-center justify-between border-b px-3 py-2">
               <Badge variant={assignedDevice?.status === 'active' ? 'success-light' : 'secondary'}>
@@ -657,6 +645,134 @@ export default function ChildDetailPage({
             </div>
           </CardContent>
         </Card>
+
+        {/* ── PIN Protection Card ── */}
+        <Card className="p-0">
+          <CardContent className="p-0">
+            <div className="flex items-center justify-between border-b px-3 py-2">
+              <Badge variant={child.hasPin ? 'success-light' : 'secondary'}>
+                {child.hasPin && <CheckIcon aria-hidden="true" className="mr-1 h-3 w-3" />}
+                {child.hasPin ? 'Đã thiết lập' : 'Chưa thiết lập'}
+              </Badge>
+            </div>
+
+            <div className="space-y-3 p-4">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="text-sm leading-tight font-medium flex items-center gap-2">
+                  <KeyRound className="h-4 w-4 text-cyan-600" />
+                  Mã PIN bảo vệ
+                </h3>
+                <Badge variant={child.hasPin ? 'success-light' : 'secondary'} size="sm">
+                  {child.hasPin ? 'Đã đặt' : 'Chưa đặt'}
+                </Badge>
+              </div>
+
+              {/* Chưa đặt PIN */}
+              {!child.hasPin && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-sm">Đặt mã PIN 6 số để bảo vệ. Sau khi đặt, phải nhập mã mới được mở hồ sơ hoặc bắt đầu phiên học.</p>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Mã PIN</label>
+                    <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={newPin} onChange={setNewPin}>
+                      <InputOTPGroup className="w-full">
+                        <InputOTPSlot index={0} className="w-full h-11" />
+                        <InputOTPSlot index={1} className="w-full h-11" />
+                        <InputOTPSlot index={2} className="w-full h-11" />
+                        <InputOTPSlot index={3} className="w-full h-11" />
+                        <InputOTPSlot index={4} className="w-full h-11" />
+                        <InputOTPSlot index={5} className="w-full h-11" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Nhập lại mã PIN</label>
+                    <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={confirmPin} onChange={setConfirmPin}>
+                      <InputOTPGroup className="w-full">
+                        <InputOTPSlot index={0} className="w-full h-11" />
+                        <InputOTPSlot index={1} className="w-full h-11" />
+                        <InputOTPSlot index={2} className="w-full h-11" />
+                        <InputOTPSlot index={3} className="w-full h-11" />
+                        <InputOTPSlot index={4} className="w-full h-11" />
+                        <InputOTPSlot index={5} className="w-full h-11" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <Button variant="default" className="w-full bg-[#0B008B] hover:bg-[#07006D] rounded-full text-white" onClick={handleSavePin} disabled={pinSaving || newPin.length !== 6 || confirmPin.length !== 6}>
+                    {pinSaving ? 'Đang lưu…' : 'Đặt mã PIN'}
+                  </Button>
+                </div>
+              )}
+
+              {/* Đã có PIN → đổi mã */}
+              {child.hasPin && pinMode === 'change' && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-sm">Nhập mã hiện tại rồi đặt mã mới. Hoặc xóa mã PIN nếu không muốn bảo vệ nữa.</p>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Mã PIN hiện tại</label>
+                    <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={currentPin} onChange={setCurrentPin}>
+                      <InputOTPGroup className="w-full">
+                        <InputOTPSlot index={0} className="w-full h-11" />
+                        <InputOTPSlot index={1} className="w-full h-11" />
+                        <InputOTPSlot index={2} className="w-full h-11" />
+                        <InputOTPSlot index={3} className="w-full h-11" />
+                        <InputOTPSlot index={4} className="w-full h-11" />
+                        <InputOTPSlot index={5} className="w-full h-11" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Mã PIN mới</label>
+                    <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={newPin} onChange={setNewPin}>
+                      <InputOTPGroup className="w-full">
+                        <InputOTPSlot index={0} className="w-full h-11" />
+                        <InputOTPSlot index={1} className="w-full h-11" />
+                        <InputOTPSlot index={2} className="w-full h-11" />
+                        <InputOTPSlot index={3} className="w-full h-11" />
+                        <InputOTPSlot index={4} className="w-full h-11" />
+                        <InputOTPSlot index={5} className="w-full h-11" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <Button variant="default" className="w-full bg-[#0B008B] hover:bg-[#07006D] rounded-full text-white" onClick={handleSavePin} disabled={pinSaving || currentPin.length !== 6 || newPin.length !== 6}>
+                    {pinSaving ? 'Đang lưu…' : 'Đổi mã PIN'}
+                  </Button>
+                  <Button variant="outline" className="w-full rounded-full border border-red-200 bg-red-50/60 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300" onClick={() => { setPinMode('remove'); setCurrentPin(''); setNewPin(''); setConfirmPin(''); setError(''); setMessage(''); }}>
+                    Xóa mã PIN
+                  </Button>
+                </div>
+              )}
+
+              {/* Đã có PIN → xóa mã */}
+              {child.hasPin && pinMode === 'remove' && (
+                <div className="space-y-4">
+                  <p className="text-red-600 text-sm">Nhập mã PIN hiện tại để xác nhận xóa. Sau khi xóa, hồ sơ không còn được bảo vệ bằng PIN.</p>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Mã PIN hiện tại</label>
+                    <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS} value={currentPin} onChange={setCurrentPin}>
+                      <InputOTPGroup className="w-full">
+                        <InputOTPSlot index={0} className="w-full h-11" />
+                        <InputOTPSlot index={1} className="w-full h-11" />
+                        <InputOTPSlot index={2} className="w-full h-11" />
+                        <InputOTPSlot index={3} className="w-full h-11" />
+                        <InputOTPSlot index={4} className="w-full h-11" />
+                        <InputOTPSlot index={5} className="w-full h-11" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1 rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900" onClick={() => { setPinMode('change'); setCurrentPin(''); setError(''); setMessage(''); }}>
+                      Hủy
+                    </Button>
+                    <Button variant="destructive" className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white" onClick={handleRemovePin} disabled={removingPin || currentPin.length !== 6}>
+                      {removingPin ? 'Đang xóa…' : 'Xác nhận xóa'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        </div>
       </div>
 
       {/* ── Custom Delete Confirm Modal ── */}

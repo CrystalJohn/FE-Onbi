@@ -8,7 +8,7 @@ import {
   ShoppingCart,
   Crown
 } from "lucide-react";
-import { type SidebarData } from "./types";
+import { type SidebarData } from "../types";
 
 export const parentSidebarData: SidebarData = {
   user: {
@@ -18,7 +18,7 @@ export const parentSidebarData: SidebarData = {
   },
   navGroups: [
     {
-      title: "General",
+      title: "Chung",
       items: [
         { title: "Tổng quan", url: "/parent/dashboard", icon: LayoutDashboard },
         { title: "Hồ sơ trẻ", url: "/parent/children", icon: Baby },
@@ -26,7 +26,7 @@ export const parentSidebarData: SidebarData = {
       ],
     },
     {
-      title: "Service & Support",
+      title: "Dịch vụ & Hỗ trợ",
       items: [
         { title: "Gói dịch vụ", url: "/parent/subscription", icon: Crown },
         { title: "Phản hồi", url: "/parent/feedback", icon: MessageSquareText },
@@ -43,7 +43,7 @@ export const adminSidebarData: SidebarData = {
   },
   navGroups: [
     {
-      title: "General",
+      title: "Chung",
       items: [
         { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
         { title: "Users", url: "/admin/users", icon: Users },

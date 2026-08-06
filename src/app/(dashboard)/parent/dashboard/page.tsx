@@ -12,9 +12,11 @@ import {
   CircleAlert,
   CircleIcon,
   History,
+  ListFilter,
   Play,
   Plus,
   RefreshCw,
+  Search,
   Sparkles,
   Timer,
   Wifi,
@@ -37,6 +39,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -140,6 +143,8 @@ export default function ParentDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("default");
 
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
@@ -436,19 +441,68 @@ export default function ParentDashboardPage() {
             </Link>
           </CardContent>
         </Card>
-      ) : !error && (
+      ) : !error && (() => {
+        let filteredChildren = children.filter(child => child.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        if (sortOption === "name-asc") {
+          filteredChildren.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortOption === "name-desc") {
+          filteredChildren.sort((a, b) => b.name.localeCompare(a.name));
+        } else if (sortOption === "age-asc") {
+          filteredChildren.sort((a, b) => getAge(a.dateOfBirth) - getAge(b.dateOfBirth));
+        } else if (sortOption === "age-desc") {
+          filteredChildren.sort((a, b) => getAge(b.dateOfBirth) - getAge(a.dateOfBirth));
+        }
+
+        return (
         <section aria-labelledby="children-heading" className="min-w-0">
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <div><h2 id="children-heading" className="text-xl font-bold text-slate-950">Các bé của bạn</h2><p className="mt-1 text-sm text-slate-600">Trạng thái mới nhất từ ONBI</p></div>
-            <Link href="/parent/children" className="rounded-full px-3 py-2 text-sm font-semibold text-cyan-800 transition-colors hover:bg-white/70 hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Quản lý hồ sơ</Link>
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 id="children-heading" className="text-xl font-bold text-slate-950 dark:text-slate-50 shrink-0">Các bé của bạn</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+              <div className="relative w-full sm:w-56">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input 
+                  placeholder="Lọc hồ sơ bé..." 
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-9 h-10 w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus-visible:ring-cyan-500 rounded-full" 
+                />
+              </div>
+              <Select value={sortOption} onValueChange={(val) => { setSortOption(val); setCurrentPage(1); }}>
+                <SelectTrigger className="w-10 h-10 p-0 flex shrink-0 items-center justify-center rounded-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:ring-cyan-500 [&>svg:last-child]:hidden" aria-label="Sắp xếp">
+                  <ListFilter className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  <SelectItem value="default">Mặc định</SelectItem>
+                  <SelectItem value="name-asc">Tên (A → Z)</SelectItem>
+                  <SelectItem value="name-desc">Tên (Z → A)</SelectItem>
+                  <SelectItem value="age-asc">Tuổi (Nhỏ → Lớn)</SelectItem>
+                  <SelectItem value="age-desc">Tuổi (Lớn → Nhỏ)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Link href="/parent/children" className="shrink-0 rounded-full px-4 py-2 h-10 inline-flex items-center justify-center text-sm font-semibold text-cyan-800 dark:text-cyan-400 bg-white/50 dark:bg-slate-800/50 border border-transparent transition-colors hover:bg-white/80 dark:hover:bg-slate-800 hover:text-[#0B008B] dark:hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">
+                Quản lý hồ sơ
+              </Link>
+            </div>
           </div>
           <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
             {(() => {
               const itemsPerPage = 3;
-              const totalPages = Math.max(1, Math.ceil(children.length / itemsPerPage));
+              const totalPages = Math.max(1, Math.ceil(filteredChildren.length / itemsPerPage));
               const validPage = Math.min(currentPage, totalPages);
-              const displayedChildren = children.slice((validPage - 1) * itemsPerPage, validPage * itemsPerPage);
+              const displayedChildren = filteredChildren.slice((validPage - 1) * itemsPerPage, validPage * itemsPerPage);
                 
+                if (filteredChildren.length === 0) {
+                  return (
+                    <div className="col-span-full py-12 text-center">
+                      <p className="text-slate-500 dark:text-slate-400">Không tìm thấy hồ sơ nào phù hợp.</p>
+                    </div>
+                  );
+                }
+
                 return displayedChildren.map((child) => {
                   const monitoring = child.currentSession?.status === "active";
                 const hasDevice = Boolean(child.device);
@@ -493,21 +547,21 @@ export default function ParentDashboardPage() {
               });
             })()}
             </div>
-            {children.length > 3 && (
+            {filteredChildren.length > 3 && (
               <div className="mt-5 flex items-center justify-center gap-4">
                 <button
                   disabled={currentPage <= 1}
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50"
                   aria-label="Trang trước"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <span className="text-sm font-semibold text-slate-600">Trang {Math.min(currentPage, Math.ceil(children.length / 3))} / {Math.ceil(children.length / 3)}</span>
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">Trang {Math.min(currentPage, Math.ceil(filteredChildren.length / 3))} / {Math.ceil(filteredChildren.length / 3)}</span>
                 <button
-                  disabled={currentPage >= Math.ceil(children.length / 3)}
+                  disabled={currentPage >= Math.ceil(filteredChildren.length / 3)}
                   onClick={() => setCurrentPage(p => p + 1)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50"
                   aria-label="Trang sau"
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -515,7 +569,8 @@ export default function ParentDashboardPage() {
               </div>
             )}
         </section>
-      )}
+        );
+      })()}
     </div>
   );
 }

@@ -81,6 +81,16 @@ body {
   caret-color: #0891b2;
 }
 
+[data-slot="input-otp"] input,
+.cn-input-otp input,
+input[data-slot="input-otp"],
+.cn-input-otp {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  caret-color: transparent !important;
+  background: transparent !important;
+}
+
 :where(input, textarea)::placeholder {
   color: #94a3b8 !important;
   -webkit-text-fill-color: #94a3b8 !important;

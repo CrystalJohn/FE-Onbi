@@ -26,7 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <span className="font-semibold text-lg tracking-tight">Onbi</span>
       </SidebarHeader>
       <SidebarContent>
-        {sidebarData.navGroups.map((group) => (
+        {sidebarData.navGroups.map((group: import("./types").NavGroup) => (
           <NavGroup key={group.title} {...group} />
         ))}
       </SidebarContent>
