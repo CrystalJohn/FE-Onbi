@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Ban,
@@ -25,6 +25,22 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import {
+  DataGrid,
+  DataGridContainer,
+  dataGridFeatures,
+  type DataGridFeatures,
+} from '@/components/reui/data-grid/data-grid';
+import { DataGridColumnHeader } from '@/components/reui/data-grid/data-grid-column-header';
+import { DataGridPagination } from '@/components/reui/data-grid/data-grid-pagination';
+import { DataGridScrollArea } from '@/components/reui/data-grid/data-grid-scroll-area';
+import { DataGridTable } from '@/components/reui/data-grid/data-grid-table';
+import {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+  useTable,
+} from '@tanstack/react-table';
 
 interface Device {
   id: string;
@@ -73,6 +89,14 @@ export default function AdminDevicesPage() {
   const [statusLoading, setStatusLoading] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<Device | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'createdAt', desc: true },
+  ]);
 
   const getToken = () => localStorage.getItem('token') || '';
 
@@ -190,6 +214,152 @@ export default function AdminDevicesPage() {
       setDeleteLoading(false);
     }
   };
+
+  const columns = useMemo<ColumnDef<DataGridFeatures, Device>[]>(
+    () => [
+      {
+        accessorKey: 'serialNumber',
+        id: 'serialNumber',
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Thiết bị" column={column} />
+        ),
+        cell: ({ row }) => {
+          const device = row.original;
+          return (
+            <div className="flex items-start gap-3 py-1">
+              <span className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl ${device.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                {device.status === 'active' ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+              </span>
+              <div>
+                <Link href={`/admin/devices/${device.id}`} className="font-mono font-semibold text-slate-950 transition-colors hover:text-[#0B008B] hover:underline">
+                  {device.serialNumber || <span className="font-sans font-normal italic text-slate-400">Chờ thiết bị kết nối</span>}
+                </Link>
+                <p className="mt-1 text-xs text-slate-500">Mã kích hoạt: <span className="font-mono">{device.activationCode}</span></p>
+                <p className="mt-0.5 text-xs text-slate-400">{device.model || '—'}{device.firmwareVersion ? ` · FW ${device.firmwareVersion}` : ''}</p>
+              </div>
+            </div>
+          );
+        },
+        size: 260,
+        enableSorting: true,
+      },
+      {
+        accessorKey: 'status',
+        id: 'status',
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Trạng thái" column={column} />
+        ),
+        cell: ({ row }) => {
+          const device = row.original;
+          const meta = statusMeta[device.status] ?? { label: device.status, className: 'bg-slate-100 text-slate-600 ring-slate-200' };
+          return (
+            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${meta.className}`}>
+              {meta.label}
+            </span>
+          );
+        },
+        size: 150,
+        enableSorting: true,
+      },
+      {
+        accessorKey: 'activatedByUser',
+        id: 'activatedByUser',
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Tài khoản kích hoạt" column={column} />
+        ),
+        cell: ({ row }) => {
+          const assignedAccount = row.original.activatedByUser;
+          return assignedAccount ? (
+            <div>
+              <p className="font-medium text-slate-800">{assignedAccount.email}</p>
+              <p className="mt-0.5 text-xs text-slate-500">
+                {assignedAccount.fullName || `User ID: ${assignedAccount.id}`}
+              </p>
+            </div>
+          ) : (
+            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
+              Chưa kích hoạt
+            </span>
+          );
+        },
+        size: 200,
+      },
+      {
+        accessorKey: 'createdAt',
+        id: 'createdAt',
+        header: ({ column }) => (
+          <DataGridColumnHeader title="Ngày tạo" column={column} />
+        ),
+        cell: ({ row }) => (
+          <span className="text-slate-600">
+            {new Date(row.original.createdAt).toLocaleDateString('vi-VN')}
+          </span>
+        ),
+        size: 130,
+        enableSorting: true,
+      },
+      {
+        id: 'actions',
+        header: () => <div className="w-full text-right font-semibold text-slate-600">Hành động</div>,
+        cell: ({ row }) => {
+          const device = row.original;
+          return (
+            <div className="flex items-center justify-end gap-2">
+              {device.status === 'active' ? (
+                <button
+                  type="button"
+                  onClick={() => setDeviceToDeactivate(device)}
+                  className="min-h-10 rounded-full border border-rose-200 bg-rose-50/60 px-4 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                >
+                  Vô hiệu hóa
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleToggleStatus(device.id, device.status)}
+                  disabled={statusLoading}
+                  className="min-h-10 rounded-full border border-emerald-200 bg-emerald-50/60 px-4 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50"
+                >
+                  Kích hoạt lại
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setDeviceToDelete(device)}
+                aria-label="Xóa thiết bị"
+                title="Xóa thiết bị"
+                className="grid min-h-10 min-w-10 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          );
+        },
+        size: 180,
+      },
+    ],
+    [statusLoading]
+  );
+
+  const [columnOrder, setColumnOrder] = useState<string[]>(
+    columns.map((column) => column.id as string)
+  );
+
+  const table = useTable({
+    features: dataGridFeatures,
+    columns,
+    data: devices,
+    pageCount: Math.ceil((devices?.length || 0) / pagination.pageSize),
+    getRowId: (row: Device) => row.id,
+    state: {
+      pagination,
+      sorting,
+      columnOrder,
+    },
+    onColumnOrderChange: setColumnOrder,
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+  });
 
   if (loading) {
     return <div className="rounded-3xl border border-white/80 bg-white/75 p-8 text-sm text-slate-500 shadow-sm">Đang tải thiết bị...</div>;
@@ -343,7 +513,7 @@ export default function AdminDevicesPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[28px] border border-white/80 bg-white/75 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl" aria-label="Danh sách thiết bị">
+      <section className="overflow-hidden rounded-[28px] border border-white/80 bg-white/75 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl" aria-label="Danh sách thiết bị">
         {devices.length === 0 ? (
           <div className="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center">
             <span className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-50 text-cyan-700"><Boxes className="h-6 w-6" /></span>
@@ -354,76 +524,22 @@ export default function AdminDevicesPage() {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[850px] text-sm">
-              <thead className="border-b border-slate-200/70 bg-slate-50/80 text-left">
-                <tr>
-                  <th className="px-5 py-4 font-semibold text-slate-600">Thiết bị</th>
-                  <th className="px-5 py-4 font-semibold text-slate-600">Trạng thái</th>
-                  <th className="px-5 py-4 font-semibold text-slate-600">Tài khoản kích hoạt</th>
-                  <th className="px-5 py-4 font-semibold text-slate-600">Ngày tạo</th>
-                  <th className="px-5 py-4 text-right font-semibold text-slate-600">Hành động</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {devices.map((device) => {
-                  const meta = statusMeta[device.status] ?? { label: device.status, className: 'bg-slate-100 text-slate-600 ring-slate-200' };
-                  const assignedAccount = device.activatedByUser;
-
-                  return (
-                    <tr key={device.id} className="transition-colors hover:bg-cyan-50/45">
-                      <td className="px-5 py-4">
-                        <div className="flex items-start gap-3">
-                          <span className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl ${device.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
-                            {device.status === 'active' ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
-                          </span>
-                          <div>
-                            <Link href={`/admin/devices/${device.id}`} className="font-mono font-semibold text-slate-950 transition-colors hover:text-[#0B008B] hover:underline">
-                              {device.serialNumber || <span className="font-sans font-normal italic text-slate-400">Chờ thiết bị kết nối</span>}
-                            </Link>
-                            <p className="mt-1 text-xs text-slate-500">Mã kích hoạt: <span className="font-mono">{device.activationCode}</span></p>
-                            <p className="mt-0.5 text-xs text-slate-400">{device.model || '—'}{device.firmwareVersion ? ` · FW ${device.firmwareVersion}` : ''}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${meta.className}`}>{meta.label}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        {assignedAccount ? (
-                          <div>
-                            <p className="font-medium text-slate-800">{assignedAccount.email}</p>
-                            <p className="mt-0.5 text-xs text-slate-500">
-                              {assignedAccount.fullName || `User ID: ${assignedAccount.id}`}
-                            </p>
-                          </div>
-                        ) : (
-                          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Chưa kích hoạt</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 text-slate-600">{new Date(device.createdAt).toLocaleDateString('vi-VN')}</td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          {device.status === 'active' ? (
-                            <button type="button" onClick={() => setDeviceToDeactivate(device)} className="min-h-10 rounded-full border border-rose-200 bg-rose-50/60 px-4 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100">
-                              Vô hiệu hóa
-                            </button>
-                          ) : (
-                            <button type="button" onClick={() => handleToggleStatus(device.id, device.status)} disabled={statusLoading} className="min-h-10 rounded-full border border-emerald-200 bg-emerald-50/60 px-4 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50">
-                              Kích hoạt lại
-                            </button>
-                          )}
-                          <button type="button" onClick={() => setDeviceToDelete(device)} aria-label="Xóa thiết bị" title="Xóa thiết bị" className="grid min-h-10 min-w-10 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <DataGrid
+            table={table}
+            recordCount={devices.length}
+            tableLayout={{
+              columnsMovable: true,
+            }}
+          >
+            <div className="w-full space-y-3">
+              <DataGridContainer>
+                <DataGridScrollArea>
+                  <DataGridTable />
+                </DataGridScrollArea>
+              </DataGridContainer>
+              <DataGridPagination />
+            </div>
+          </DataGrid>
         )}
       </section>
 

@@ -45,23 +45,23 @@ export const adminSidebarData: SidebarData = {
     {
       title: "Chung",
       items: [
-        { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-        { title: "Users", url: "/admin/users", icon: Users },
-        { title: "Devices", url: "/admin/devices", icon: Wifi },
+        { title: "Tổng quan", url: "/admin/dashboard", icon: LayoutDashboard },
+        { title: "Người dùng", url: "/admin/users", icon: Users },
+        { title: "Thiết bị", url: "/admin/devices", icon: Wifi },
       ],
     },
     {
-      title: "Orders & Subscription",
+      title: "Đơn hàng & Gói dịch vụ",
       items: [
-        { title: "Pre-orders", url: "/admin/pre-orders", icon: ShoppingCart },
+        { title: "Đơn đặt trước", url: "/admin/pre-orders", icon: ShoppingCart },
         { title: "Gói dịch vụ", url: "/admin/subscription-orders", icon: Crown },
       ]
     },
     {
-      title: "Others",
+      title: "Khác",
       items: [
-        { title: "Feedback", url: "/admin/feedback", icon: MessageSquareText },
-        { title: "Activity", url: "/admin/activity", icon: Activity },
+        { title: "Phản hồi", url: "/admin/feedback", icon: MessageSquareText },
+        { title: "Hoạt động", url: "/admin/activity", icon: Activity },
       ]
     }
   ],
