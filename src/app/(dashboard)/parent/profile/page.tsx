@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, Camera, Save, Lock } from 'lucide-react';
+import { PROFILE_UPDATED_EVENT } from '@/components/layouts/sidebar';
 
 interface UserProfile {
   id: number;
@@ -120,6 +121,8 @@ export default function ParentProfilePage() {
       }
 
       setProfile(updatedProfile);
+      // Báo sidebar đọc lại tên/ảnh, không phải reload trang mới thấy đổi
+      window.dispatchEvent(new Event(PROFILE_UPDATED_EVENT));
       setMessage('Lưu thay đổi thành công!');
     } catch {
       setError('Không thể kết nối server');
@@ -162,19 +165,30 @@ export default function ParentProfilePage() {
   };
 
   if (loading) {
-    return <div className="mx-auto max-w-6xl animate-pulse space-y-5"><div className="h-16 w-72 rounded-2xl bg-slate-200/80" /><div className="h-40 rounded-[32px] bg-slate-200/80" /><div className="grid gap-5 lg:grid-cols-2"><div className="h-96 rounded-[28px] bg-slate-200/80" /><div className="h-96 rounded-[28px] bg-slate-200/80" /></div></div>;
+    return <div className="mx-auto max-w-7xl animate-pulse space-y-5"><div className="h-16 w-72 rounded-2xl bg-slate-200/80" /><div className="h-40 rounded-[32px] bg-slate-200/80" /><div className="grid gap-5 lg:grid-cols-2"><div className="h-96 rounded-[28px] bg-slate-200/80" /><div className="h-96 rounded-[28px] bg-slate-200/80" /></div></div>;
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <header>
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Tài khoản ONBI</p>
-        <h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Thông tin cá nhân</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">Quản lý thông tin tài khoản và bảo mật của bạn.</p>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">Tài khoản ONBI</p>
+          <h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Thông tin cá nhân</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Quản lý thông tin tài khoản và bảo mật của bạn.</p>
+        </div>
+        {/* Nút nằm ngoài <form> nên phải nối lại bằng thuộc tính form="..." */}
+        <button
+          type="submit"
+          form="profile-form"
+          disabled={saving}
+          className="min-h-12 shrink-0 rounded-full bg-[#0B008B] px-8 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors hover:bg-[#08006D] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2"
+        >
+          {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+        </button>
       </header>
 
       {/* Avatar Section */}
-      <section className="relative overflow-hidden rounded-[32px] border border-white/80 bg-white/75 p-5 shadow-[0_22px_65px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-7">
+      <section className="relative overflow-hidden rounded-[32px] border border-white/80 bg-white/75 p-5 shadow-[0_22px_65px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6">
         <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-60 w-60 rounded-full bg-cyan-200/25 blur-3xl" />
         <div className="relative z-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
         <div className="relative shrink-0">
@@ -218,7 +232,7 @@ export default function ParentProfilePage() {
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
         {/* Profile Form */}
-        <form onSubmit={handleUpdateProfile} className="space-y-4 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-7">
+        <form id="profile-form" onSubmit={handleUpdateProfile} className="space-y-4 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
           <div className="flex items-start gap-3">
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-[#0B008B]"><Save className="h-5 w-5" aria-hidden="true" /></span>
             <div><h2 className="text-lg font-bold text-slate-950">Chỉnh sửa thông tin</h2><p className="mt-0.5 text-sm text-slate-500">Cập nhật thông tin liên hệ của bạn.</p></div>
@@ -242,11 +256,10 @@ export default function ParentProfilePage() {
             <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 text-sm text-slate-950 outline-none transition-colors focus:border-[#0B008B] focus:ring-2 focus:ring-indigo-100" />
           </div>
 
-          <button type="submit" disabled={saving} className="min-h-12 w-full rounded-full bg-[#0B008B] px-6 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors hover:bg-[#08006D] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</button>
         </form>
 
         {/* Change Password */}
-        <form onSubmit={handleChangePassword} className="space-y-4 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-7">
+        <form onSubmit={handleChangePassword} className="space-y-4 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
           <div className="flex items-start gap-3">
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-cyan-50 text-cyan-700"><Lock className="h-5 w-5" aria-hidden="true" /></span>
             <div><h2 className="text-lg font-bold text-slate-950">Đổi mật khẩu</h2><p className="mt-0.5 text-sm text-slate-500">Thay đổi mật khẩu để bảo vệ tài khoản.</p></div>

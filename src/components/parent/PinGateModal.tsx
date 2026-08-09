@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { KeyRound } from 'lucide-react';
+import PinBoxes from '@/components/ui/PinBoxes';
 import { api } from '@/lib/api';
 
 interface PinGateModalProps {
@@ -16,10 +17,8 @@ export default function PinGateModal({ childId, childName, title, onSuccess, onC
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [checking, setChecking] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
     const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
@@ -32,7 +31,7 @@ export default function PinGateModal({ childId, childName, title, onSuccess, onC
     try {
       const { data } = await api.post<{ valid: boolean }>(`/children/${childId}/verify-pin`, { pin });
       if (data.valid) onSuccess();
-      else { setError('Mã PIN không đúng.'); setPin(''); inputRef.current?.focus(); }
+      else { setError('Mã PIN không đúng.'); setPin(''); }
     } catch {
       setError('Không thể xác thực. Vui lòng thử lại.');
     } finally { setChecking(false); }
@@ -49,15 +48,11 @@ export default function PinGateModal({ childId, childName, title, onSuccess, onC
         <p className="mt-2 text-sm leading-6 text-slate-600">
           Nhập mã PIN 6 số của hồ sơ <span className="font-semibold text-slate-900">{childName}</span> để tiếp tục.
         </p>
-        <input
-          ref={inputRef}
+        <PinBoxes
           value={pin}
-          onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          inputMode="numeric"
-          autoComplete="off"
-          maxLength={6}
-          placeholder="••••••"
-          className="mt-4 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-center text-2xl tracking-[0.5em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
+          onChange={(value) => { setPin(value); setError(''); }}
+          autoFocus
+          className="mt-4"
         />
         {error && <p role="alert" className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
         <div className="mt-6 flex gap-3">

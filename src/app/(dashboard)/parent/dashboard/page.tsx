@@ -5,12 +5,17 @@ import Link from "next/link";
 import {
   Activity,
   Baby,
+  Bell,
   Camera,
   ChevronLeft,
   ChevronRight,
   CircleAlert,
+  Clock,
   History,
+  Lock,
   Plus,
+  Search,
+  TriangleAlert,
   RefreshCw,
   Sparkles,
   Timer,
@@ -18,8 +23,9 @@ import {
   WifiOff,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { formatDurationSec } from "@/lib/format";
+import { ageFromBirthDate, formatDurationSec } from "@/lib/format";
 import type { Child, MonitoringSession, Snapshot, StudySession, User } from "@/types";
+import AddChildModal from "@/components/parent/AddChildModal";
 
 type ParentDevice = {
   deviceId: string;
@@ -31,6 +37,9 @@ type ParentDevice = {
   assignedChildName?: string | null;
 };
 
+// Ảnh mascot cho hero. Chưa có file thì hero tự ẩn ảnh (onError), không vỡ layout.
+const HERO_ART = "/onbi-mascot.webp";
+
 type ChildOverview = Child & {
   currentSession: MonitoringSession | null;
   device: ParentDevice | null;
@@ -40,34 +49,24 @@ export default function ParentDashboardPage() {
   const [profile, setProfile] = useState<User | null>(null);
   const [children, setChildren] = useState<ChildOverview[]>([]);
   const [alerts24h, setAlerts24h] = useState<number | null>(null);
-  const [summaries, setSummaries] = useState<Record<string, string | null>>({});
+  // Tách sẵn 2 dòng để render dạng "nhãn | giá trị" thay vì nhét \n vào một chuỗi.
+  const [summaries, setSummaries] = useState<Record<string, { date: string; stats: string } | null>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [showForm, setShowForm] = useState(false);
-  const [name, setName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [gender, setGender] = useState('male');
-  const [formLoading, setFormLoading] = useState(false);
+  // Đồng hồ chạy theo giây; khởi tạo null để server và client render giống nhau lần đầu.
+  const [now, setNow] = useState<Date | null>(null);
+  const [heroArtOk, setHeroArtOk] = useState(true);
 
-  const addChild = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setFormLoading(true);
-    setError('');
-    try {
-      await api.post('/children', { name, dateOfBirth, gender });
-      setName('');
-      setDateOfBirth('');
-      setGender('male');
-      setShowForm(false);
-      await loadDashboard();
-    } catch (reason: any) {
-      setError(reason?.response?.data?.message ?? 'Không thể thêm hồ sơ trẻ.');
-    } finally {
-      setFormLoading(false);
-    }
-  };
+  useEffect(() => {
+    setNow(new Date());
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const [showForm, setShowForm] = useState(false);
+  const [query, setQuery] = useState("");
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -110,16 +109,29 @@ export default function ParentDashboardPage() {
               api.get<Snapshot[]>(`/children/${child.id}/monitoring/snapshots?limit=200`),
             ]);
             if (history.length === 0) return [child.id, null] as const;
-            const cycleCount = studies.length;
-            const studySec = studies.reduce((sum, s) => sum + (s.actualStudySeconds ?? 0), 0);
-            const alertCount = snapshots.length;
-            // Lấy ngày của session gần nhất
+            // history đã được BE sắp startedAt DESC nên phần tử đầu là phiên gần nhất.
             const latestDate = new Date(history[0].startedAt);
-            const dayOfWeek = latestDate.toLocaleDateString("vi-VN", { weekday: "long" });
-            const dayMonth = latestDate.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" }).replace("/", "-").replace("/", "-");
-            const dateLabel = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)} · ${dayMonth}`;
-            const text = `${dateLabel}\n${history.length} phiên · ${cycleCount} chu kỳ · học ${formatDurationSec(studySec)}${alertCount > 0 ? ` · ${alertCount} cảnh báo` : ""}`;
-            return [child.id, text] as const;
+            // Số liệu tính trong ĐÚNG ngày học cuối đó, không phải tổng mọi thời điểm —
+            // nếu không thì nhãn "Lần học cuối" sẽ chỏi với con số bên dưới.
+            const sameDay = (value: string) => {
+              const d = new Date(value);
+              return d.getFullYear() === latestDate.getFullYear()
+                && d.getMonth() === latestDate.getMonth()
+                && d.getDate() === latestDate.getDate();
+            };
+            const sessionsOfDay = history.filter((s) => sameDay(s.startedAt));
+            const studiesOfDay = studies.filter((s) => sameDay(s.startedAt));
+            const cycleCount = studiesOfDay.length;
+            const studySec = studiesOfDay.reduce((sum, s) => sum + (s.actualStudySeconds ?? 0), 0);
+            const alertCount = snapshots.filter((s) => sameDay(s.capturedAt)).length;
+            // getDay(): 0 = Chủ Nhật, 1 = Thứ 2, … 6 = Thứ 7.
+            const weekday = latestDate.getDay() === 0 ? "Chủ Nhật" : `Thứ ${latestDate.getDay() + 1}`;
+            const dayMonth = `${String(latestDate.getDate()).padStart(2, "0")}/${String(latestDate.getMonth() + 1).padStart(2, "0")}`;
+            const summary = {
+              date: `${weekday} - ${dayMonth}`,
+              stats: `${sessionsOfDay.length} phiên · ${cycleCount} chu kỳ · học ${formatDurationSec(studySec)}${alertCount > 0 ? ` · ${alertCount} cảnh báo` : ""}`,
+            };
+            return [child.id, summary] as const;
           } catch {
             return [child.id, null] as const;
           }
@@ -149,6 +161,15 @@ export default function ParentDashboardPage() {
     );
   }
 
+  const clockLabel = now
+    ? `${now.toLocaleTimeString("vi-VN", { hour12: false })} · ${now.toLocaleDateString("vi-VN", { weekday: "long" })}, ${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`
+    : "";
+
+  // Lọc chỉ ảnh hưởng danh sách hiển thị; các số liệu ở hero vẫn tính trên toàn bộ hồ sơ.
+  const filteredChildren = query.trim()
+    ? children.filter((child) => child.name.toLowerCase().includes(query.trim().toLowerCase()))
+    : children;
+
   const connectedDevices = children.filter((child) => Boolean(child.device)).length;
   const activeSessions = children.filter((child) => child.currentSession?.status === "active").length;
   const childrenWithoutDevice = children.length - connectedDevices;
@@ -162,49 +183,96 @@ export default function ParentDashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <section className="relative overflow-hidden rounded-[30px] border border-white/80 bg-white/80 px-5 py-4 shadow-[0_18px_55px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:px-6 sm:py-5">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-[#0B008B] to-cyan-400" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-cyan-200/25 blur-3xl" />
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0 max-w-4xl">
-            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.17em] text-cyan-700">
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-              Tổng quan hôm nay
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <section className="relative overflow-hidden rounded-[30px] bg-[#0B008B] px-6 py-6 shadow-[0_24px_70px_rgba(11,0,139,0.25)] sm:px-8 sm:py-7">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-indigo-400/25 blur-3xl" />
+          <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 right-24 h-64 w-64 rounded-full bg-cyan-400/15 blur-3xl" />
+
+          {heroArtOk && (
+            <img
+              src={HERO_ART}
+              alt=""
+              onError={() => setHeroArtOk(false)}
+              className="pointer-events-none absolute -right-2 bottom-0 hidden h-[112%] w-auto max-w-[46%] object-contain object-bottom xl:block"
+            />
+          )}
+
+          <div className="relative z-10 max-w-xl">
+            {/* Màu đặt inline: globals.css remap mọi class bg-white/* thành slate tối
+                trong .dash-root dark mode, mà hero thì luôn nền xanh đậm. */}
+            <span
+              style={{ backgroundColor: "rgba(255,255,255,0.12)", borderColor: "rgba(255,255,255,0.25)" }}
+              className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur"
+            >
+              <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="tabular-nums">{clockLabel || "—"}</span>
+            </span>
+
+            <div className="mt-4 flex items-center gap-3">
+              <span style={{ backgroundColor: "rgba(255,255,255,0.15)" }} className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white backdrop-blur">
+                <Sparkles className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <h1 className="truncate text-3xl font-extrabold tracking-tight text-white">Chào {profile?.fullName || "phụ huynh"}</h1>
             </div>
-            <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-950">Chào {profile?.fullName || "phụ huynh"}</h1>
-            <p className="mt-1 text-sm leading-5 text-slate-600">{children.length > 0 ? familyStatus : "Chọn hồ sơ của bé để bắt đầu giám sát hoặc xem lại hoạt động học tập."}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/80 px-3 py-1 text-xs font-semibold text-[#0B008B]"><Baby className="h-3.5 w-3.5" aria-hidden="true" />{children.length} hồ sơ trẻ</span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-100 bg-cyan-50/80 px-3 py-1 text-xs font-semibold text-cyan-800"><Wifi className="h-3.5 w-3.5" aria-hidden="true" />{connectedDevices}/{children.length} robot kết nối</span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50/80 px-3 py-1 text-xs font-semibold text-emerald-800"><Activity className="h-3.5 w-3.5" aria-hidden="true" />{activeSessions} phiên hoạt động</span>
+
+            <p className="mt-3 text-sm leading-6 text-white/70">
+              {children.length > 0 ? familyStatus : "Chọn hồ sơ của bé để bắt đầu giám sát hoặc xem lại hoạt động học tập."}
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-end gap-x-10 gap-y-4">
+              <HeroStat label="Hồ sơ bé" value={children.length} />
+              <HeroStat label="Robot kết nối" value={connectedDevices} suffix={`/${children.length}`} />
+              <HeroStat label="Đang hoạt động" value={activeSessions} />
+            </div>
+
+            <button
+              onClick={() => setShowForm(true)}
+              style={{ backgroundColor: "#ffffff", color: "#0B008B" }}
+              className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold shadow-[0_10px_24px_rgba(2,6,23,0.22)] transition-all duration-200 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B008B]"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Thêm hồ sơ bé
+            </button>
+          </div>
+        </section>
+
+        <aside className="rounded-[30px] border border-white/80 bg-white/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-700">Nhắc nhở &amp; lối tắt</p>
+          <h2 className="mt-1.5 text-xl font-extrabold tracking-tight text-slate-950">Cần chú ý</h2>
+
+          <div className="mt-5 space-y-3">
+            {childrenWithoutDevice > 0 && (
+              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/80 p-3.5">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="flex items-center gap-2 text-sm font-bold text-amber-900">
+                    <TriangleAlert className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {childrenWithoutDevice} bé chưa có robot
+                  </p>
+                  <Link href="/parent/devices" className="shrink-0 text-sm font-bold text-amber-900 transition-colors hover:text-amber-950 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+                    Kết nối →
+                  </Link>
+                </div>
+                <p className="mt-1 text-xs leading-5 text-amber-800/80">
+                  Gồm: {children.filter((child) => !child.device).map((child) => child.name).join(", ")}
+                </p>
+              </div>
+            )}
+
+            <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-3.5">
+              <div className="flex items-start justify-between gap-3">
+                <p className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <Bell className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                  Cảnh báo trong 24h
+                </p>
+                <span className="shrink-0 rounded-full bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-800">{alerts24h ?? "—"} lượt</span>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Ghi nhận nhắc nhở tư thế &amp; tập trung từ robot.</p>
             </div>
           </div>
-          <button onClick={() => setShowForm(!showForm)} className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2 sm:w-auto">
-            {!showForm && <Plus className="h-4 w-4" aria-hidden="true" />}
-            {showForm ? 'Đóng biểu mẫu' : 'Thêm hồ sơ bé'}
-          </button>
-        </div>
-      </section>
+        </aside>
+      </div>
 
-      {showForm && (
-        <form onSubmit={addChild} className="grid gap-4 rounded-[30px] border border-white/80 bg-white/80 p-5 shadow-[0_18px_55px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:grid-cols-3 sm:p-6">
-          <label className="text-sm font-semibold text-slate-700">Tên của bé
-            <input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Bé An" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">Ngày sinh
-            <input required type="date" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">Giới tính
-            <select value={gender} onChange={(event) => setGender(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-            </select>
-          </label>
-          <button disabled={formLoading} className="min-h-12 rounded-xl bg-cyan-500 px-5 font-semibold text-[#000033] hover:bg-cyan-400 disabled:opacity-50 sm:col-span-3">
-            {formLoading ? 'Đang thêm…' : 'Lưu hồ sơ học sinh'}
-          </button>
-        </form>
-      )}
+      <AddChildModal open={showForm} onClose={() => setShowForm(false)} onCreated={loadDashboard} />
 
       {error && (
         <div role="alert" className="flex items-start gap-3 rounded-3xl border border-red-200/80 bg-red-50/90 p-4 text-sm text-red-800 shadow-sm backdrop-blur">
@@ -217,7 +285,7 @@ export default function ParentDashboardPage() {
       )}
 
       {children.length === 0 && !error ? (
-        <section className="rounded-[30px] border border-white/80 bg-gradient-to-b from-white to-cyan-50/80 px-6 py-12 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+        <section className="rounded-[30px] border border-white/80 bg-gradient-to-b from-white to-cyan-50/80 px-6 py-10 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur-xl">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-gradient-to-br from-cyan-50 to-indigo-50 text-[#0B008B]"><Baby className="h-8 w-8" aria-hidden="true" /></div>
           <h2 className="mt-5 text-xl font-bold text-slate-900">Bắt đầu với hồ sơ đầu tiên</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">Tạo hồ sơ cho bé, kích hoạt robot ONBI và làm theo hướng dẫn kết nối ba bước.</p>
@@ -226,28 +294,64 @@ export default function ParentDashboardPage() {
           </Link>
         </section>
       ) : !error && (
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)]">
+        <div className="grid items-start gap-6">
           <section aria-labelledby="children-heading" className="min-w-0">
-            <div className="mb-4 flex items-end justify-between gap-4">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div><h2 id="children-heading" className="text-xl font-bold text-slate-950">Các bé của bạn</h2><p className="mt-1 text-sm text-slate-600">Trạng thái mới nhất từ ONBI</p></div>
-              <Link href="/parent/children" className="rounded-full px-3 py-2 text-sm font-semibold text-cyan-800 transition-colors hover:bg-white/70 hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Quản lý hồ sơ</Link>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    value={query}
+                    onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
+                    type="search"
+                    placeholder="Tìm tên bé…"
+                    aria-label="Tìm hồ sơ bé theo tên"
+                    className="min-h-11 w-full rounded-full border border-slate-200/80 bg-white/75 pl-10 pr-4 text-sm text-slate-950 outline-none transition-colors focus:border-[#0B008B] focus:ring-2 focus:ring-indigo-100 sm:w-56"
+                  />
+                </div>
+                <Link href="/parent/children" className="shrink-0 rounded-full px-3 py-2 text-sm font-semibold text-cyan-800 transition-colors hover:bg-white/70 hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Quản lý hồ sơ</Link>
+              </div>
             </div>
-            <div className="grid gap-5 xl:grid-cols-2">
+            <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
               {(() => {
-                const itemsPerPage = 2;
-                const totalPages = Math.max(1, Math.ceil(children.length / itemsPerPage));
+                const itemsPerPage = 3;
+                const totalPages = Math.max(1, Math.ceil(filteredChildren.length / itemsPerPage));
                 const validPage = Math.min(currentPage, totalPages);
-                const displayedChildren = children.slice((validPage - 1) * itemsPerPage, validPage * itemsPerPage);
-                
+                const displayedChildren = filteredChildren.slice((validPage - 1) * itemsPerPage, validPage * itemsPerPage);
+
+                if (displayedChildren.length === 0) {
+                  return <p className="text-sm text-slate-500">Không tìm thấy hồ sơ nào khớp “{query}”.</p>;
+                }
+
                 return displayedChildren.map((child) => {
                   const monitoring = child.currentSession?.status === "active";
                 const hasDevice = Boolean(child.device);
                 return (
-                  <article key={child.id} className="relative overflow-hidden rounded-[30px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6">
+                  <article key={child.id} className="relative flex h-full flex-col overflow-hidden rounded-[30px] border border-white/80 bg-gradient-to-b from-white via-white/95 to-cyan-50/80 p-5 shadow-[0_24px_70px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-6">
                     <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 right-4 h-44 w-64 rounded-full bg-cyan-300/20 blur-3xl" />
-                      <div className="relative z-10">
-                        <div className="min-w-0 flex-1 pt-1">
-                          <h3 className="truncate text-xl font-bold tracking-tight text-slate-950">{child.name}</h3>
+                      <div className="relative z-10 flex flex-1 flex-col">
+                        {/* không flex-1 ở đây, để mt-auto của cụm nút ăn hết chỗ trống → nút thẳng hàng */}
+                        <div className="min-w-0 pt-1">
+                          <div className="flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-2">
+                            {child.hasPin && (
+                              <span
+                                title="Hồ sơ được bảo vệ bằng mã PIN"
+                                className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-cyan-50 text-cyan-700"
+                              >
+                                <Lock aria-hidden="true" className="h-3.5 w-3.5" />
+                                <span className="sr-only">Hồ sơ được bảo vệ bằng mã PIN</span>
+                              </span>
+                            )}
+                            <h3 className="truncate text-xl font-bold tracking-tight text-slate-950">{child.name}</h3>
+                          </div>
+                          {child.dateOfBirth && (
+                            <p className="shrink-0 whitespace-nowrap pt-1 text-xs font-semibold text-slate-500">
+                              {ageFromBirthDate(child.dateOfBirth)} tuổi · {child.gender === "female" ? "Nữ" : "Nam"}
+                            </p>
+                          )}
+                          </div>
                           <div className="mt-2 flex flex-wrap gap-2">
                             <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${monitoring ? "border-emerald-100 bg-emerald-50/90 text-emerald-800" : "border-slate-200/80 bg-white/80 text-slate-600"}`}><Activity className="h-3.5 w-3.5" aria-hidden="true" />{monitoring ? "Đang giám sát" : "Chưa bắt đầu"}</span>
                             <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${hasDevice ? "border-cyan-100 bg-cyan-50/90 text-cyan-800" : "border-amber-100 bg-amber-50/90 text-amber-800"}`}>
@@ -255,12 +359,21 @@ export default function ParentDashboardPage() {
                             </span>
                         </div>
                       </div>
-                      <div className="mt-4 min-h-[44px]">
-                        <p className="whitespace-pre-line text-sm text-slate-500 leading-relaxed">
-                          {summaries[child.id] ?? <span className="opacity-0 select-none">{"-\n-"}</span>}
-                        </p>
+                      <div className="mt-4 min-h-[44px] text-sm leading-relaxed">
+                        {summaries[child.id] ? (
+                          <div className="flex items-baseline gap-3">
+                            <span className="shrink-0 font-semibold text-slate-600">Lần học cuối:</span>
+                            <span className="min-w-0 text-slate-500">
+                              {summaries[child.id]!.date}
+                              <br />
+                              {summaries[child.id]!.stats}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="select-none opacity-0" aria-hidden="true">-<br />-</span>
+                        )}
                       </div>
-                      <div className="mt-5 flex flex-col gap-3">
+                      <div className="mt-auto flex flex-col gap-3 pt-5">
                         <Link href={hasDevice ? `/parent/monitoring/${child.id}` : "/parent/devices"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-4 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2"><Camera className="h-4 w-4" aria-hidden="true" />{monitoring ? "Mở giám sát" : hasDevice ? "Bắt đầu giám sát" : "Kết nối robot"}</Link>
                         <Link href={`/parent/children/${child.id}`} className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200/80 bg-white/60 px-4 text-sm font-semibold text-slate-600 transition-colors hover:border-cyan-200 hover:bg-white hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">Chỉnh sửa hồ sơ bé</Link>
                       </div>
@@ -273,7 +386,7 @@ export default function ParentDashboardPage() {
               });
             })()}
             </div>
-            {children.length > 2 && (
+            {filteredChildren.length > 3 && (
               <div className="mt-5 flex items-center justify-center gap-4">
                 <button
                   disabled={currentPage <= 1}
@@ -283,9 +396,9 @@ export default function ParentDashboardPage() {
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <span className="text-sm font-semibold text-slate-600">Trang {Math.min(currentPage, Math.ceil(children.length / 2))} / {Math.ceil(children.length / 2)}</span>
+                <span className="text-sm font-semibold text-slate-600">Trang {Math.min(currentPage, Math.ceil(filteredChildren.length / 3))} / {Math.ceil(filteredChildren.length / 3)}</span>
                 <button
-                  disabled={currentPage >= Math.ceil(children.length / 2)}
+                  disabled={currentPage >= Math.ceil(filteredChildren.length / 3)}
                   onClick={() => setCurrentPage(p => p + 1)}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50"
                   aria-label="Trang sau"
@@ -296,39 +409,20 @@ export default function ParentDashboardPage() {
             )}
           </section>
 
-          <aside className="rounded-[30px] border border-white/80 bg-white/70 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-700">Gia đình của bạn</p>
-            <h2 className="mt-2 text-lg font-bold text-slate-950">Tổng quan gia đình</h2>
-            <div className="mt-5 space-y-3">
-              <QuickStat icon={Baby} label="Hồ sơ trẻ" value={children.length} tone="navy" />
-              <QuickStat icon={Wifi} label="Robot đã kết nối" value={`${connectedDevices} / ${children.length}`} tone="cyan" />
-              <QuickStat icon={Activity} label="Phiên đang hoạt động" value={activeSessions} tone="indigo" />
-              <QuickStat icon={CircleAlert} label="Cảnh báo (24h)" value={alerts24h ?? "—"} tone="slate" />
-            </div>
-            <div className="mt-5 rounded-2xl border border-cyan-100/80 bg-cyan-50/70 p-4">
-              <p className="text-sm font-semibold text-slate-800">Trạng thái hôm nay</p>
-              <p className="mt-1 text-sm leading-5 text-slate-600">{familyStatus}</p>
-              <p className="mt-2 text-xs leading-5 text-slate-500">{alerts24h === null ? "Đang tổng hợp cảnh báo…" : alerts24h > 0 ? `${alerts24h} cảnh báo trong 24 giờ qua trên các hồ sơ trẻ.` : "Không có cảnh báo nào trong 24 giờ qua."}</p>
-            </div>
-          </aside>
         </div>
       )}
     </div>
   );
 }
 
-function QuickStat({ icon: Icon, label, value, tone }: { icon: typeof Baby; label: string; value: number | string; tone: "navy" | "cyan" | "indigo" | "slate" }) {
-  const colors = {
-    navy: "bg-indigo-50 text-[#0B008B]",
-    cyan: "bg-cyan-50 text-cyan-700",
-    indigo: "bg-violet-50 text-indigo-700",
-    slate: "bg-slate-100 text-slate-500",
-  };
+function HeroStat({ label, value, suffix }: { label: string; value: number; suffix?: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 shadow-sm">
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${colors[tone]}`}><Icon className="h-[18px] w-[18px]" aria-hidden="true" /></span>
-      <span className="min-w-0 flex-1 text-sm font-medium text-slate-600">{label}</span>
-      <strong className="text-lg font-bold tabular-nums text-slate-950">{value}</strong>
+    <div>
+      <p className="text-xs font-medium text-white/60">{label}</p>
+      <p className="mt-1 text-3xl font-extrabold tabular-nums text-white">
+        {value}
+        {suffix && <span className="text-lg font-bold text-white/50">{suffix}</span>}
+      </p>
     </div>
   );
 }

@@ -92,20 +92,17 @@ export default function ParentSubscriptionPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-6">
       {/* Header */}
-      <section className="relative overflow-hidden rounded-[30px] border border-white/80 bg-white/80 px-6 py-8 shadow-[0_18px_55px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:px-10 sm:py-10 text-center">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 rounded-full bg-cyan-200/25 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-16 -bottom-20 h-56 w-56 rounded-full bg-indigo-200/25 blur-3xl" />
-        <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.17em] text-[#0B008B] bg-indigo-50/80 px-3 py-1 rounded-full border border-indigo-100 mb-4">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            Gói dịch vụ cao cấp
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Duy trì quyền lợi thành viên</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Mở khóa toàn bộ các tính năng giúp ba mẹ đồng hành cùng bé mọi lúc mọi nơi.</p>
+      {/* Bỏ card bọc: tiêu đề đứng thẳng trên nền trang, đỡ một lớp khung + padding */}
+      <header className="mx-auto flex max-w-2xl flex-col items-center text-center">
+        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.17em] text-[#0B008B]">
+          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+          Gói dịch vụ cao cấp
         </div>
-      </section>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Duy trì quyền lợi thành viên</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">Mở khóa toàn bộ các tính năng giúp ba mẹ đồng hành cùng bé mọi lúc mọi nơi.</p>
+      </header>
 
       {error && (
         <div role="alert" className="flex items-start gap-3 rounded-3xl border border-red-200/80 bg-red-50/90 p-4 text-sm text-red-800 shadow-sm backdrop-blur max-w-2xl mx-auto">
