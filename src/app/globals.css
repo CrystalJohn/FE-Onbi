@@ -78,6 +78,18 @@ body {
   opacity: 1 !important;
 }
 
+/*
+ * Input thật của PinBoxes nằm phủ lên 6 ô và phải hoàn toàn vô hình — phần hiển thị
+ * là các ô bên dưới. Dùng `opacity` vì đó là thuộc tính duy nhất không rule input nào
+ * trong file này ép: các rule màu (`.dark .dash-root input:not(...):not(...)`,
+ * specificity 0,4,1) thắng mọi selector `input[data-pin-input]` hợp lý, kể cả
+ * `-webkit-text-fill-color` vốn ăn trên `color`. opacity:0 vẫn focus/gõ được và
+ * screen reader vẫn thấy input (khác `visibility:hidden` hay `display:none`).
+ */
+input[data-pin-input] {
+  opacity: 0 !important;
+}
+
 select option {
   color: #0f172a;
   background: #ffffff;

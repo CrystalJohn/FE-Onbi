@@ -66,7 +66,8 @@ export default function ParentFeedbackPage() {
         </Link>
       </header>
 
-      <form onSubmit={submit} className="space-y-4 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-6">
+      {/* Không bọc card: các field đã có viền riêng, thêm card chỉ tốn khoảng trắng */}
+      <form onSubmit={submit} className="space-y-4">
         {sent && (
           <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm font-medium text-emerald-800">
             <CheckCircle2 className="h-5 w-5" /> Đã gửi phản hồi. Cảm ơn bạn!

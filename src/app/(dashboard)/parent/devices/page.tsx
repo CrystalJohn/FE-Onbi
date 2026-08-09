@@ -169,7 +169,7 @@ export default function DevicesPage() {
     }
   };
 
-  if (loading) return <div className="mx-auto max-w-6xl animate-pulse space-y-5"><div className="h-16 w-80 rounded-2xl bg-slate-200/80" /><div className="grid gap-5 lg:grid-cols-2"><div className="h-72 rounded-[28px] bg-slate-200/80" /><div className="h-72 rounded-[28px] bg-slate-200/80" /></div></div>;
+  if (loading) return <div className="mx-auto max-w-7xl animate-pulse space-y-5"><div className="h-16 w-80 rounded-2xl bg-slate-200/80" /><div className="grid gap-5 lg:grid-cols-2"><div className="h-72 rounded-[28px] bg-slate-200/80" /><div className="h-72 rounded-[28px] bg-slate-200/80" /></div></div>;
 
   const selectedAssignDevice = devices.find((device) => device.deviceId === assignDeviceId) ?? null;
   const openAssign = (deviceId: string) => {
@@ -244,7 +244,7 @@ export default function DevicesPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-start gap-4">
           <div className="mt-1 shrink-0">
@@ -252,9 +252,9 @@ export default function DevicesPage() {
           </div>
           <div><p className="text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-700">ONBI DEVICES</p><h1 className="mt-1.5 text-3xl font-extrabold tracking-tight text-slate-950">Thiết bị ONBI</h1><p className="mt-2 text-sm leading-6 text-slate-600">Quản lý robot đã kích hoạt, gán cho bé hoặc đã vô hiệu hóa.</p></div>
         </div>
-        <button onClick={() => { setShowAssign(false); setShowActivate(!showActivate); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">
-          {showActivate ? <X className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
-          {showActivate ? 'Đóng biểu mẫu' : 'Kích hoạt thiết bị'}
+        <button onClick={() => { setShowAssign(false); setShowActivate(true); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors hover:bg-[#08006D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B] focus-visible:ring-offset-2">
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          Kích hoạt thiết bị
         </button>
       </header>
 
@@ -276,36 +276,50 @@ export default function DevicesPage() {
         <div role="status" className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">{message}</div>
       )}
 
-      {/* Activate Form */}
+      {/* Activate Modal */}
       {showActivate && (
-        <form onSubmit={handleActivate} className="space-y-4 rounded-[28px] border border-white/80 bg-white/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-7">
-          <div className="flex items-start gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-cyan-50 text-cyan-700"><Plus className="h-5 w-5" /></span><div><h2 className="text-lg font-bold text-slate-950">Nhập mã kích hoạt</h2><p className="mt-0.5 text-sm text-slate-500">Mã được in trên robot ONBI của bạn.</p></div></div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="activate-device-title">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in-0 duration-200" onClick={() => setShowActivate(false)} />
 
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold text-slate-700">Mã kích hoạt</label>
-            <input
-              type="text"
-              value={activationCode}
-              onChange={(e) => setActivationCode(e.target.value.toUpperCase())}
-              placeholder="ONBI-XXXX-XXXX"
-              required
-              className="min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 font-mono text-sm tracking-wider text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-indigo-100"
-            />
-          </div>
+          <form onSubmit={handleActivate} className="relative w-full max-w-md space-y-4 rounded-[28px] border border-white/80 bg-white p-5 shadow-[0_32px_80px_rgba(15,23,42,0.22)] animate-in fade-in-0 zoom-in-95 duration-200 sm:p-7">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-cyan-50 text-cyan-700"><Plus className="h-5 w-5" /></span><div><h2 id="activate-device-title" className="text-lg font-bold text-slate-950">Nhập mã kích hoạt</h2><p className="mt-0.5 text-sm text-slate-500">Mã được in trên robot ONBI của bạn.</p></div></div>
+              <button type="button" onClick={() => setShowActivate(false)} aria-label="Đóng" className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+            </div>
 
-          <button
-            type="submit"
-            disabled={activating}
-            className="min-h-12 w-full rounded-full bg-[#0B008B] px-6 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] transition-colors hover:bg-[#08006D] disabled:opacity-50 sm:w-auto"
-          >
-            {activating ? 'Đang kích hoạt...' : 'Kích hoạt'}
-          </button>
-        </form>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-700">Mã kích hoạt</label>
+              <input
+                autoFocus
+                type="text"
+                value={activationCode}
+                onChange={(e) => setActivationCode(e.target.value.toUpperCase())}
+                placeholder="ONBI-XXXX-XXXX"
+                required
+                className="min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 font-mono text-sm tracking-wider text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-[#0B008B] focus:ring-2 focus:ring-indigo-100"
+              />
+            </div>
+
+            {/* Lỗi phải nằm trong modal: banner của trang bị lớp nền mờ che mất */}
+            {error && <p role="alert" className="text-sm font-semibold text-red-600">{error}</p>}
+
+            <div className="flex gap-3 pt-1">
+              <button type="button" onClick={() => setShowActivate(false)} className="min-h-11 flex-1 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50">Hủy</button>
+              <button
+                type="submit"
+                disabled={activating}
+                className="min-h-11 flex-1 rounded-full bg-[#0B008B] px-6 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] transition-colors hover:bg-[#08006D] disabled:opacity-50"
+              >
+                {activating ? 'Đang kích hoạt...' : 'Kích hoạt'}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
       {/* Devices List */}
       {devices.length === 0 ? (
-        <section className="rounded-[30px] border border-white/80 bg-white/75 px-6 py-14 text-center shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl"><span className="mx-auto grid h-16 w-16 place-items-center rounded-[22px] bg-cyan-50 text-cyan-700"><WifiOff className="h-8 w-8" /></span><h2 className="mt-5 text-lg font-bold text-slate-950">Chưa có thiết bị ONBI</h2><p className="mt-2 text-sm text-slate-600">Kích hoạt thiết bị đầu tiên để bắt đầu sử dụng.</p><button onClick={() => setShowActivate(true)} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] hover:bg-[#08006D]"><Plus className="h-4 w-4" />Kích hoạt thiết bị mới</button></section>
+        <section className="rounded-[30px] border border-white/80 bg-white/75 px-6 py-10 text-center shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl"><span className="mx-auto grid h-16 w-16 place-items-center rounded-[22px] bg-cyan-50 text-cyan-700"><WifiOff className="h-8 w-8" /></span><h2 className="mt-5 text-lg font-bold text-slate-950">Chưa có thiết bị ONBI</h2><p className="mt-2 text-sm text-slate-600">Kích hoạt thiết bị đầu tiên để bắt đầu sử dụng.</p><button onClick={() => setShowActivate(true)} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#0B008B] px-5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] hover:bg-[#08006D]"><Plus className="h-4 w-4" />Kích hoạt thiết bị mới</button></section>
       ) : (
         <div>
           {activeTab === 'available' ? (
@@ -315,9 +329,9 @@ export default function DevicesPage() {
                 <p className="mt-1 text-sm text-slate-500">Thiết bị đang hoạt động hoặc có thể gán cho bé.</p>
               </div>
               {availableDevices.length > 0 ? (
-                <div className="grid items-start gap-5 lg:grid-cols-2">{availableDevices.map(renderAvailableDevice)}</div>
+                <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">{availableDevices.map(renderAvailableDevice)}</div>
               ) : (
-                <div className="rounded-[24px] border border-dashed border-slate-200 bg-white/55 px-5 py-10 text-center text-sm text-slate-500">Hiện chưa có thiết bị khả dụng.</div>
+                <div className="rounded-[24px] border border-dashed border-slate-200 bg-white/55 px-5 py-8 text-center text-sm text-slate-500">Hiện chưa có thiết bị khả dụng.</div>
               )}
             </section>
           ) : (
@@ -327,7 +341,7 @@ export default function DevicesPage() {
                 <p className="mt-1 text-sm text-slate-500">Thiết bị không còn khả dụng trong tài khoản.</p>
               </div>
               {deactivatedDevices.length > 0 ? (
-                <div className="grid items-start gap-5 lg:grid-cols-2">
+                <div className="grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {deactivatedDevices.map((device) => (
                   <article key={device.deviceId} className="rounded-[28px] border border-rose-100/80 bg-gradient-to-b from-white/75 to-rose-50/70 p-5 opacity-90 shadow-[0_16px_45px_rgba(15,23,42,0.06)] backdrop-blur-xl sm:p-6">
                     <div className="flex items-start gap-4">
@@ -345,7 +359,7 @@ export default function DevicesPage() {
                 ))}
                 </div>
               ) : (
-                <div className="rounded-[24px] border border-dashed border-slate-200 bg-white/55 px-5 py-10 text-center text-sm text-slate-500">Không có thiết bị đã vô hiệu hóa.</div>
+                <div className="rounded-[24px] border border-dashed border-slate-200 bg-white/55 px-5 py-8 text-center text-sm text-slate-500">Không có thiết bị đã vô hiệu hóa.</div>
               )}
             </section>
           )}
@@ -353,8 +367,8 @@ export default function DevicesPage() {
       )}
 
       {showAssign && selectedAssignDevice && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="assign-device-title">
-          <form onSubmit={handleAssign} className="w-full max-w-md rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_28px_80px_rgba(15,23,42,0.22)] backdrop-blur-xl sm:p-7">
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/35 p-4 backdrop-blur-sm animate-in fade-in-0 duration-200" role="dialog" aria-modal="true" aria-labelledby="assign-device-title">
+          <form onSubmit={handleAssign} className="w-full max-w-md rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-[0_28px_80px_rgba(15,23,42,0.22)] backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-200 sm:p-7">
             <div className="flex items-start justify-between gap-4"><div><h2 id="assign-device-title" className="text-xl font-bold text-slate-950">Gán thiết bị cho trẻ</h2><p className="mt-1 text-sm text-slate-500">Thiết bị: <span className="font-mono font-semibold text-slate-700">{selectedAssignDevice.serialNumber}</span></p></div><button type="button" onClick={() => setShowAssign(false)} aria-label="Đóng" className="grid h-10 w-10 place-items-center rounded-full text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button></div>
             <div className="mt-6"><label className="mb-1.5 block text-sm font-semibold text-slate-700">Hồ sơ trẻ</label><select value={assignChildId} onChange={(e) => setAssignChildId(e.target.value)} required className="min-h-12 w-full rounded-2xl border border-slate-200/80 bg-white px-4 text-sm text-slate-900 outline-none focus:border-[#0B008B] focus:ring-2 focus:ring-indigo-100"><option value="">Chọn trẻ</option>{children.map((child) => <option key={child.id} value={child.id}>{child.name}</option>)}</select></div>
             <div className="mt-6 flex gap-3"><button type="button" onClick={() => setShowAssign(false)} className="min-h-11 flex-1 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50">Hủy</button><button type="submit" disabled={assigning} className="min-h-11 flex-1 rounded-full bg-[#0B008B] px-4 text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)] hover:bg-[#08006D] disabled:opacity-50">{assigning ? 'Đang gán...' : 'Xác nhận gán'}</button></div>

@@ -28,3 +28,12 @@ export function formatDurationSec(totalSeconds: number): string {
   if (m < 60) return s % 60 === 0 ? `${m} phút` : `${m} phút ${String(s % 60).padStart(2, '0')} giây`;
   return `${Math.floor(m / 60)} giờ ${m % 60} phút`;
 }
+
+/** Tuổi tròn năm tính từ ngày sinh. */
+export function ageFromBirthDate(value: string): number {
+  const birth = new Date(value);
+  const now = new Date();
+  let result = now.getFullYear() - birth.getFullYear();
+  if (now < new Date(now.getFullYear(), birth.getMonth(), birth.getDate())) result -= 1;
+  return result;
+}

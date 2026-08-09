@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -8,34 +8,62 @@ import {
   Baby,
   ChevronLeft,
   ChevronRight,
+  ChevronsUpDown,
   LayoutDashboard,
   Menu,
   MessageSquareText,
-  Settings,
-  User,
   Users,
   Wifi,
   X,
   ShoppingCart,
   Crown
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { api } from "@/lib/api";
+import type { User } from "@/types";
+
+/** Trang hồ sơ bắn event này sau khi lưu để sidebar cập nhật tên/ảnh ngay, khỏi phải F5. */
+export const PROFILE_UPDATED_EVENT = "onbi:profile-updated";
 
 const parentNav = [
-  { href: "/parent/dashboard", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/parent/children", label: "Hồ sơ trẻ", icon: Baby },
-  { href: "/parent/subscription", label: "Gói dịch vụ", icon: Crown },
-  { href: "/parent/feedback", label: "Phản hồi", icon: MessageSquareText },
-  { href: "/parent/profile", label: "Thông tin cá nhân", icon: User },
+  {
+    title: "Chung",
+    items: [
+      { href: "/parent/dashboard", label: "Tổng quan", icon: LayoutDashboard },
+      { href: "/parent/children", label: "Hồ sơ trẻ", icon: Baby },
+      { href: "/parent/devices", label: "Thiết bị", icon: Wifi },
+    ],
+  },
+  {
+    title: "Dịch vụ & Hỗ trợ",
+    items: [
+      { href: "/parent/subscription", label: "Gói dịch vụ", icon: Crown },
+      { href: "/parent/feedback", label: "Phản hồi", icon: MessageSquareText },
+    ],
+  },
 ];
 
 const adminNav = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/devices", label: "Devices", icon: Wifi },
-  { href: "/admin/pre-orders", label: "Pre-orders", icon: ShoppingCart },
-  { href: "/admin/subscription-orders", label: "Gói dịch vụ", icon: Crown },
-  { href: "/admin/feedback", label: "Feedback", icon: MessageSquareText },
-  { href: "/admin/activity", label: "Activity", icon: Activity },
+  {
+    title: "Chung",
+    items: [
+      { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/users", label: "Users", icon: Users },
+      { href: "/admin/devices", label: "Devices", icon: Wifi },
+    ],
+  },
+  {
+    title: "Dịch vụ & Hỗ trợ",
+    items: [
+      { href: "/admin/pre-orders", label: "Pre-orders", icon: ShoppingCart },
+      { href: "/admin/subscription-orders", label: "Gói dịch vụ", icon: Crown },
+      { href: "/admin/feedback", label: "Feedback", icon: MessageSquareText },
+    ],
+  },
+  {
+    title: "Hệ thống",
+    items: [{ href: "/admin/activity", label: "Activity", icon: Activity }],
+  },
 ];
 
 export function Sidebar() {
@@ -43,16 +71,71 @@ export function Sidebar() {
   // Đóng/mở THỦ CÔNG bằng nút "<" — không tự động theo hover nữa
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  // Lấy thẳng từ API thay vì localStorage để tên/ảnh luôn khớp trang Thông tin cá nhân.
+  const [account, setAccount] = useState<{ fullName: string; avatarUrl?: string } | null>(null);
   const isAdmin = pathname.startsWith("/admin");
   const nav = isAdmin ? adminNav : parentNav;
+
+  useEffect(() => {
+    if (isAdmin) return;
+    const load = () => {
+      api
+        .get<User>("/parents/profile")
+        .then(({ data }) => setAccount({ fullName: data.fullName, avatarUrl: data.avatarUrl }))
+        .catch(() => setAccount(null));
+    };
+    load();
+    window.addEventListener(PROFILE_UPDATED_EVENT, load);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, load);
+  }, [isAdmin]);
+
+  // BE trả avatarUrl dạng path tương đối (/uploads/...) nên phải ghép với host API.
+  const avatarSrc = account?.avatarUrl
+    ? account.avatarUrl.startsWith("http")
+      ? account.avatarUrl
+      : `${process.env.NEXT_PUBLIC_API_URL}${account.avatarUrl}`
+    : null;
+
+  // Admin không có trang hồ sơ nên chỉ hiện thẻ này cho phụ huynh.
+  const renderAccountCard = (expanded: boolean) =>
+    account ? (
+      <Link
+        href="/parent/profile"
+        onClick={() => setIsMobileOpen(false)}
+        title={!expanded ? account.fullName : undefined}
+        // Không viền/nền, chỉ có một đường kẻ ngang phía trên ngăn với menu
+        className={`mt-3 flex min-h-12 items-center border-t border-slate-200/80 pt-3 transition-colors hover:text-[#0B008B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${expanded ? "gap-3 px-2.5" : "justify-center px-0"
+          }`}
+      >
+        {avatarSrc ? (
+          // object-cover: ảnh vuông/chữ nhật gì cũng lấp đầy vòng tròn, không bị méo
+          <img
+            src={avatarSrc}
+            alt=""
+            className="h-9 w-9 shrink-0 rounded-full border border-white object-cover"
+          />
+        ) : (
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-indigo-50 text-sm font-bold text-[#0B008B]">
+            {account.fullName.trim().charAt(0).toUpperCase()}
+          </span>
+        )}
+        {expanded && (
+          <>
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800">{account.fullName}</span>
+            <ChevronsUpDown aria-hidden="true" className="h-4 w-4 shrink-0 text-slate-400" />
+          </>
+        )}
+      </Link>
+    ) : null;
 
   return (
     <>
       <aside
-        className={`sticky top-0 z-30 hidden h-dvh shrink-0 p-3 transition-all duration-300 ease-out lg:block ${isExpanded ? "w-[280px]" : "w-[88px]"
+        className={`sticky top-0 z-30 hidden h-dvh shrink-0 transition-all duration-300 ease-out lg:block ${isExpanded ? "w-[280px]" : "w-[88px]"
           }`}
       >
-        <div className="relative flex h-[calc(100dvh-24px)] flex-col overflow-visible rounded-[32px] border border-white/80 bg-white/75 p-2.5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur-xl">
+        {/* Liền một dải từ trên xuống: không bo góc, chỉ có viền phải ngăn với nội dung */}
+        <div className="relative flex h-dvh flex-col overflow-visible border-r border-slate-200/80 bg-white/75 px-2.5 py-3 shadow-[8px_0_28px_rgba(15,23,42,0.05)] backdrop-blur-xl">
           <button
             type="button"
             onClick={() => setIsExpanded((value) => !value)}
@@ -63,38 +146,55 @@ export function Sidebar() {
             {isExpanded ? <ChevronLeft aria-hidden="true" className="h-4 w-4" /> : <ChevronRight aria-hidden="true" className="h-4 w-4" />}
           </button>
 
-          <div className={`flex min-h-14 items-center rounded-[22px] transition-all duration-300 ease-out ${isExpanded ? "gap-3 px-2" : "justify-center"}`}>
+          {/* pr-5: chừa chỗ cho nút thu gọn nhô ra ở mép phải, tránh đè lên nút sáng/tối */}
+          <div className={`flex min-h-14 items-center rounded-[22px] transition-all duration-300 ease-out ${isExpanded ? "gap-3 pl-2 pr-5" : "justify-center"}`}>
             <div className={`min-w-0 overflow-hidden whitespace-nowrap transition-all duration-300 ease-out ${isExpanded ? "w-40 translate-x-0 opacity-100" : "w-0 -translate-x-2 opacity-0"}`}>
               <div className="text-lg font-extrabold tracking-tight text-[#0B008B]">ONBI</div>
               <div className="text-[11px] font-medium tracking-wide text-slate-500">{isAdmin ? "Admin Panel" : "Parent Dashboard"}</div>
             </div>
+            {/* Thu gọn thì nút sáng/tối tự về giữa rail (logo co về w-0) */}
+            <div className={isExpanded ? "ml-auto" : undefined}>
+              <ThemeToggle />
+            </div>
           </div>
 
-          <nav aria-label="Điều hướng chính" className="mt-5 flex-1 space-y-2">
-            {nav.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-label={item.label}
-                  aria-current={isActive ? "page" : undefined}
-                  title={!isExpanded ? item.label : undefined}
-                  className={`flex min-h-12 items-center overflow-hidden rounded-2xl text-sm font-semibold transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${isExpanded ? "gap-3 px-3.5" : "justify-center px-0"
-                    } ${isActive
-                      ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]"
-                      : "text-slate-600 hover:bg-cyan-50/90 hover:text-[#0B008B]"
-                    }`}
-                >
-                  <Icon aria-hidden="true" className={`h-[19px] w-[19px] shrink-0 ${isActive ? "text-white" : "text-slate-400"}`} />
-                  <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-out ${isExpanded ? "w-44 translate-x-0 opacity-100" : "w-0 -translate-x-2 opacity-0"}`}>{item.label}</span>
-                </Link>
-              );
-            })}
+          <nav aria-label="Điều hướng chính" className="mt-5 flex-1">
+            {nav.map((group, groupIndex) => (
+              <div key={group.title} className={groupIndex > 0 ? "mt-5" : undefined}>
+                {/* Thu gọn thì thay tiêu đề nhóm bằng một gạch ngăn cho đỡ trống */}
+                {isExpanded ? (
+                  <p className="px-3.5 pb-2 text-[11px] font-semibold text-slate-400">{group.title}</p>
+                ) : (
+                  groupIndex > 0 && <div className="mx-auto mb-3 h-px w-8 bg-slate-200" />
+                )}
+                <div className="space-y-2">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname.startsWith(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        aria-label={item.label}
+                        aria-current={isActive ? "page" : undefined}
+                        title={!isExpanded ? item.label : undefined}
+                        className={`flex min-h-12 items-center overflow-hidden rounded-2xl text-sm font-semibold transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${isExpanded ? "gap-3 px-3.5" : "justify-center px-0"
+                          } ${isActive
+                            ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]"
+                            : "text-slate-600 hover:bg-cyan-50/90 hover:text-[#0B008B]"
+                          }`}
+                      >
+                        <Icon aria-hidden="true" className={`h-[19px] w-[19px] shrink-0 ${isActive ? "text-white" : "text-slate-400"}`} />
+                        <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-out ${isExpanded ? "w-44 translate-x-0 opacity-100" : "w-0 -translate-x-2 opacity-0"}`}>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
 
-
+          {renderAccountCard(isExpanded)}
         </div>
       </aside>
 
@@ -116,32 +216,40 @@ export function Sidebar() {
                 <div className="text-lg font-extrabold text-[#0B008B]">ONBI</div>
                 <div className="text-[11px] font-medium text-slate-500">{isAdmin ? "Admin Panel" : "Parent Dashboard"}</div>
               </div>
+              <ThemeToggle />
               <button type="button" onClick={() => setIsMobileOpen(false)} aria-label="Đóng thanh điều hướng" className="grid h-11 w-11 place-items-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500">
                 <X aria-hidden="true" className="h-5 w-5" />
               </button>
             </div>
 
-            <nav aria-label="Điều hướng chính" className="mt-6 flex-1 space-y-2">
-              {nav.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    aria-current={isActive ? "page" : undefined}
-                    className={`flex min-h-12 items-center gap-3 rounded-2xl px-4 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${isActive ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]" : "text-slate-600 hover:bg-cyan-50 hover:text-[#0B008B]"
-                      }`}
-                  >
-                    <Icon aria-hidden="true" className="h-[19px] w-[19px] shrink-0" />
-                    {item.label}
-                  </Link>
-                );
-              })}
+            <nav aria-label="Điều hướng chính" className="mt-6 flex-1 overflow-y-auto">
+              {nav.map((group, groupIndex) => (
+                <div key={group.title} className={groupIndex > 0 ? "mt-5" : undefined}>
+                  <p className="px-4 pb-2 text-[11px] font-semibold text-slate-400">{group.title}</p>
+                  <div className="space-y-2">
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = pathname.startsWith(item.href);
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setIsMobileOpen(false)}
+                          aria-current={isActive ? "page" : undefined}
+                          className={`flex min-h-12 items-center gap-3 rounded-2xl px-4 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${isActive ? "bg-[#0B008B] text-white shadow-[0_10px_24px_rgba(11,0,139,0.20)]" : "text-slate-600 hover:bg-cyan-50 hover:text-[#0B008B]"
+                            }`}
+                        >
+                          <Icon aria-hidden="true" className="h-[19px] w-[19px] shrink-0" />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </nav>
 
-
+            {renderAccountCard(true)}
           </aside>
         </div>
       )}

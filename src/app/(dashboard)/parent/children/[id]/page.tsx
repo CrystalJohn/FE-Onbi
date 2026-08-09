@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Save, Trash2, Bot, Link2, Unlink, CalendarDays, User, LoaderCircle, KeyRound } from 'lucide-react';
 import BackButton from '@/components/ui/BackButton';
+import PinBoxes from '@/components/ui/PinBoxes';
 
 interface Child {
   id: string;
@@ -421,11 +422,11 @@ export default function ChildDetailPage({
               <p className="text-sm leading-6 text-slate-600">Đặt mã PIN 6 số để bảo vệ hồ sơ. Sau khi đặt, phải nhập đúng mã mới bắt đầu giám sát hoặc mở chỉnh sửa.</p>
               <label className="block text-sm font-semibold text-slate-700">
                 Mã PIN
-                <input value={newPin} onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Nhập mã PIN 6 số" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
+                <PinBoxes value={newPin} onChange={setNewPin} className="mt-2" aria-label="Mã PIN 6 số" />
               </label>
               <label className="block text-sm font-semibold text-slate-700">
                 Nhập lại mã PIN
-                <input value={confirmPin} onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Nhập lại mã PIN" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
+                <PinBoxes value={confirmPin} onChange={setConfirmPin} className="mt-2" aria-label="Nhập lại mã PIN 6 số" />
               </label>
               <button type="button" onClick={handleSavePin} disabled={pinSaving || newPin.length !== 6 || confirmPin.length !== 6} className="w-full min-h-12 rounded-full bg-[#0B008B] text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]">
                 {pinSaving ? 'Đang lưu…' : 'Đặt mã PIN'}
@@ -439,11 +440,11 @@ export default function ChildDetailPage({
               <p className="text-sm leading-6 text-slate-600">Nhập mã hiện tại rồi đặt mã mới. Hoặc xóa mã PIN nếu không muốn bảo vệ nữa.</p>
               <label className="block text-sm font-semibold text-slate-700">
                 Mã PIN hiện tại
-                <input value={currentPin} onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Mã PIN hiện tại (6 số)" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
+                <PinBoxes value={currentPin} onChange={setCurrentPin} className="mt-2" aria-label="Mã PIN hiện tại (6 số)" />
               </label>
               <label className="block text-sm font-semibold text-slate-700">
                 Mã PIN mới
-                <input value={newPin} onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Mã PIN mới (6 số)" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100" />
+                <PinBoxes value={newPin} onChange={setNewPin} className="mt-2" aria-label="Mã PIN mới (6 số)" />
               </label>
               <button type="button" onClick={handleSavePin} disabled={pinSaving || currentPin.length !== 6 || newPin.length !== 6} className="w-full min-h-12 rounded-full bg-[#0B008B] text-sm font-bold text-white shadow-[0_10px_24px_rgba(11,0,139,0.22)] transition-colors duration-200 hover:bg-[#07006D] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B008B]">
                 {pinSaving ? 'Đang lưu…' : 'Đổi mã PIN'}
@@ -460,7 +461,7 @@ export default function ChildDetailPage({
               <p className="text-sm leading-6 text-red-700">Nhập mã PIN hiện tại để xác nhận xóa. Sau khi xóa, hồ sơ không còn được bảo vệ bằng PIN.</p>
               <label className="block text-sm font-semibold text-slate-700">
                 Mã PIN hiện tại
-                <input value={currentPin} onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="off" maxLength={6} placeholder="Mã PIN hiện tại (6 số)" className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base tracking-[0.3em] outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100" />
+                <PinBoxes value={currentPin} onChange={setCurrentPin} danger className="mt-2" aria-label="Mã PIN hiện tại (6 số)" />
               </label>
               <div className="flex gap-3">
                 <button type="button" onClick={() => { setPinMode('change'); setCurrentPin(''); setError(''); setMessage(''); }} className="flex-1 min-h-12 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
