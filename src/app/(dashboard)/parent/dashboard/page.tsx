@@ -49,8 +49,8 @@ export default function ParentDashboardPage() {
   const [profile, setProfile] = useState<User | null>(null);
   const [children, setChildren] = useState<ChildOverview[]>([]);
   const [alerts24h, setAlerts24h] = useState<number | null>(null);
-  // Tách sẵn 2 dòng để render dạng "nhãn | giá trị" thay vì nhét \n vào một chuỗi.
-  const [summaries, setSummaries] = useState<Record<string, { date: string; stats: string } | null>>({});
+  // Tách sẵn 3 dòng (ngày | số liệu | cảnh báo) thay vì nhét \n vào một chuỗi.
+  const [summaries, setSummaries] = useState<Record<string, { date: string; stats: string; alerts: string } | null>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -129,7 +129,10 @@ export default function ParentDashboardPage() {
             const dayMonth = `${String(latestDate.getDate()).padStart(2, "0")}/${String(latestDate.getMonth() + 1).padStart(2, "0")}`;
             const summary = {
               date: `${weekday} - ${dayMonth}`,
-              stats: `${sessionsOfDay.length} phiên · ${cycleCount} chu kỳ · học ${formatDurationSec(studySec)}${alertCount > 0 ? ` · ${alertCount} cảnh báo` : ""}`,
+              stats: `${sessionsOfDay.length} phiên · ${cycleCount} chu kỳ · học ${formatDurationSec(studySec)}`,
+              // Tách hẳn ra dòng riêng: nhét chung vào stats thì câu quá dài, xuống dòng giữa
+              // chừng thành "24 / cảnh báo". Luôn hiện kể cả khi bằng 0 để mọi card cùng 3 dòng.
+              alerts: alertCount > 0 ? `${alertCount} cảnh báo` : "Không có cảnh báo",
             };
             return [child.id, summary] as const;
           } catch {
@@ -352,14 +355,23 @@ export default function ParentDashboardPage() {
                             </p>
                           )}
                           </div>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${monitoring ? "border-emerald-100 bg-emerald-50/90 text-emerald-800" : "border-slate-200/80 bg-white/80 text-slate-600"}`}><Activity className="h-3.5 w-3.5" aria-hidden="true" />{monitoring ? "Đang giám sát" : "Chưa bắt đầu"}</span>
-                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${hasDevice ? "border-cyan-100 bg-cyan-50/90 text-cyan-800" : "border-amber-100 bg-amber-50/90 text-amber-800"}`}>
-                              {hasDevice ? <Wifi className="h-3.5 w-3.5" aria-hidden="true" /> : <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />}Robot: {hasDevice ? child.device?.serialNumber : "Chưa kết nối"}
+                          {/* Không flex-wrap: serial robot dài (JETSON-1424722009748) sẽ đẩy thẻ
+                              thứ hai xuống dòng, làm phần dưới của các card lệch nhau. Giữ 1 hàng,
+                              thẻ robot tự co lại và cắt bớt serial. */}
+                          <div className="mt-2 flex gap-2">
+                            <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${monitoring ? "border-emerald-100 bg-emerald-50/90 text-emerald-800" : "border-slate-200/80 bg-white/80 text-slate-600"}`}><Activity className="h-3.5 w-3.5" aria-hidden="true" />{monitoring ? "Đang giám sát" : "Chưa bắt đầu"}</span>
+                            <span
+                              title={hasDevice ? child.device?.serialNumber ?? undefined : undefined}
+                              className={`inline-flex min-w-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${hasDevice ? "border-cyan-100 bg-cyan-50/90 text-cyan-800" : "border-amber-100 bg-amber-50/90 text-amber-800"}`}
+                            >
+                              {hasDevice ? <Wifi className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> : <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+                              <span className="truncate">Robot: {hasDevice ? child.device?.serialNumber : "Chưa kết nối"}</span>
                             </span>
                         </div>
                       </div>
-                      <div className="mt-4 min-h-[44px] text-sm leading-relaxed">
+                      {/* Cố định 3 dòng cho mọi card để phần dưới thẳng hàng nhau. Ngày / số liệu /
+                          cảnh báo tách dòng sẵn, không dồn vào một chuỗi rồi để trình duyệt ngắt bừa. */}
+                      <div className="mt-4 min-h-[68px] text-sm leading-relaxed">
                         {summaries[child.id] ? (
                           <div className="flex items-baseline gap-3">
                             <span className="shrink-0 font-semibold text-slate-600">Lần học cuối:</span>
@@ -367,10 +379,12 @@ export default function ParentDashboardPage() {
                               {summaries[child.id]!.date}
                               <br />
                               {summaries[child.id]!.stats}
+                              <br />
+                              {summaries[child.id]!.alerts}
                             </span>
                           </div>
                         ) : (
-                          <span className="select-none opacity-0" aria-hidden="true">-<br />-</span>
+                          <span className="select-none opacity-0" aria-hidden="true">-<br />-<br />-</span>
                         )}
                       </div>
                       <div className="mt-auto flex flex-col gap-3 pt-5">
